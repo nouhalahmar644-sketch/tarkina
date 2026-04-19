@@ -1,0 +1,5 @@
+/* Petits ajustements visuels en complément de Bootstrap */
+.card {
+    border: none;
+    box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.05);
+}
