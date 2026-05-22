@@ -2,8 +2,6 @@
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/includes/session_bootstrap.php';
 
-$redirect = isset($_GET['redirect']) ? $_GET['redirect'] : '';
-
 $page_title = 'Inscription';
 $success = false;
 
@@ -443,7 +441,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="divider">ou</div>
  
     <?php if ($success): ?>
-      <a href="login.php<?php echo !empty($redirect) ? '?redirect=' . urlencode($redirect) : ''; ?>" class="btn-submit" style="display:block; text-align:center; text-decoration:none;">Aller à la connexion</a>
+      <a href="login.php" class="btn-submit" style="display:block; text-align:center; text-decoration:none;">Aller à la connexion</a>
     <?php else: ?>
     <form method="post" action="register.php" novalidate>
       <div class="form-group">
@@ -494,7 +492,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php endif; ?>
  
     <div class="form-footer">
-      Vous avez déjà un compte ? <a href="login.php<?php echo !empty($redirect) ? '?redirect=' . urlencode($redirect) : ''; ?>">Se connecter</a>
+      Vous avez déjà un compte ? <a href="login.php">Se connecter</a>
     </div>
  
     <div class="social-links">

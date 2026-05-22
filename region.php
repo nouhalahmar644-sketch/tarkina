@@ -1,434 +1,340 @@
 <?php
-require_once __DIR__ . '/db.php';
+session_start();
+mb_internal_encoding('UTF-8');
+header('Content-Type: text/html; charset=utf-8');
+require 'db.php';
+mysqli_set_charset($conn, 'utf8mb4');
 
 $region_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+if ($region_id <= 0) die('Région invalide.');
 
-if ($region_id <= 0) {
-    die('Région invalide.');
-}
-
-// Fetch region
 $st = mysqli_prepare($conn, "SELECT * FROM region WHERE id = ? LIMIT 1");
 mysqli_stmt_bind_param($st, 'i', $region_id);
 mysqli_stmt_execute($st);
 $res = mysqli_stmt_get_result($st);
 $region = mysqli_fetch_assoc($res);
 mysqli_stmt_close($st);
-
-if (!$region) {
-    die('Région introuvable.');
-}
+if (!$region) die('Région introuvable.');
 
 $nom = $region['nom'];
-$searchTerm = '%' . $nom . '%';
-
-$dateFilter = "";
 $reqDebut = isset($_GET['date_debut']) ? trim($_GET['date_debut']) : '';
 $reqFin   = isset($_GET['date_fin'])   ? trim($_GET['date_fin'])   : '';
+$reqPers  = isset($_GET['personnes'])  ? max(1,(int)$_GET['personnes']) : 1;
 
-if ($reqDebut !== '' && $reqFin !== '') {
-    if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $reqDebut) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $reqFin)) {
-        $dateFilter = " AND (date_debut IS NULL OR date_debut <= ?) AND (date_fin IS NULL OR date_fin >= ?)";
+$cats = ['hebergement','repas','guide','artisanat','evenement'];
+$prix_max = 1000;
+
+$all_items = [];
+
+function fetch_category($conn, $table, $type_label, $region_id, $prix_max) {
+    $items = [];
+    $r = mysqli_query($conn, "SELECT * FROM `$table` WHERE region_id = $region_id AND prix <= $prix_max AND statut = 'actif'");
+    while ($r && $row = mysqli_fetch_assoc($r)) {
+        $row['_type'] = $type_label;
+        $items[] = $row;
     }
+    return $items;
 }
 
-// Fetch services
-$services = [];
+$all_items = array_merge(
+    fetch_category($conn, 'hebergement', 'hebergement', $region_id, $prix_max),
+    fetch_category($conn, 'repas',       'repas',       $region_id, $prix_max),
+    fetch_category($conn, 'guide',       'guide',       $region_id, $prix_max),
+    fetch_category($conn, 'artisanat',   'artisanat',   $region_id, $prix_max),
+    fetch_category($conn, 'evenement',   'evenement',   $region_id, $prix_max)
+);
 
-// Helper function to bind params based on whether dateFilter is active
-function executeServiceQuery($conn, $sql, $searchTerm, $reqDebut, $reqFin, $dateFilter, $type, $typeLabel, &$services) {
-    $st = mysqli_prepare($conn, $sql);
-    if ($st) {
-        if ($dateFilter !== '') {
-            mysqli_stmt_bind_param($st, 'sss', $searchTerm, $reqDebut, $reqFin);
-        } else {
-            mysqli_stmt_bind_param($st, 's', $searchTerm);
-        }
-        mysqli_stmt_execute($st);
-        $res = mysqli_stmt_get_result($st);
-        while ($row = mysqli_fetch_assoc($res)) {
-            $row['type'] = $type;
-            $row['type_label'] = $typeLabel;
-            $services[] = $row;
-        }
-        mysqli_stmt_close($st);
-    }
-}
-
-// 1. Hebergements
-$sql_heb = "SELECT id, titre, prix, capacite, COALESCE(photo_principale, image) AS photo_principale, statut FROM hebergement WHERE localisation LIKE ? AND statut IN ('publié', 'actif')" . $dateFilter;
-executeServiceQuery($conn, $sql_heb, $searchTerm, $reqDebut, $reqFin, $dateFilter, 'hebergement', 'Hébergement', $services);
-
-// 2. Repas
-$sql_rep = "SELECT id, titre, prix, capacite, photo_principale, statut FROM repas WHERE localisation LIKE ? AND statut = 'publié'" . $dateFilter;
-executeServiceQuery($conn, $sql_rep, $searchTerm, $reqDebut, $reqFin, $dateFilter, 'repas', 'Repas maison', $services);
-
-// 3. Guide
-$sql_gui = "SELECT id, titre, prix, capacite, photo_principale, statut FROM guide WHERE localisation LIKE ? AND statut = 'publié'" . $dateFilter;
-executeServiceQuery($conn, $sql_gui, $searchTerm, $reqDebut, $reqFin, $dateFilter, 'guide', 'Guide local', $services);
-
-// 4. Evenement
-$sql_eve = "SELECT id, titre, prix, capacite, photo_principale, statut FROM evenement WHERE localisation LIKE ? AND statut = 'publié'" . $dateFilter;
-executeServiceQuery($conn, $sql_eve, $searchTerm, $reqDebut, $reqFin, $dateFilter, 'evenement', 'Événement', $services);
-
-// Randomize services so they aren't completely grouped by type if desired, or keep grouped.
-// Let's keep them ordered randomly for a more natural discover page look.
-shuffle($services);
-
-// Photos
-$photos_sec = [];
-if (!empty($region['photos_sec'])) {
-    $dec = json_decode($region['photos_sec'], true);
-    if (is_array($dec)) {
-        $photos_sec = $dec;
-    }
-}
-// Ensure we have exactly 4 for the grid if possible, or fill with placeholders
-while (count($photos_sec) < 4) {
-    $photos_sec[] = 'https://placehold.co/400x300?text=Photo';
-}
-
-function formatImagePath($path) {
-    if (empty($path)) return 'https://placehold.co/800x600?text=Pas+de+photo';
-    if (strpos($path, 'http') === 0) return $path;
-    if (strpos($path, 'uploads/') === 0) return $path;
-    return $path;
-}
-
-$main_photo = formatImagePath($region['photo_principale'] ?? '');
-$photos_sec = array_map('formatImagePath', $photos_sec);
-
-$page_title = 'Région – Tarkina';
-
-$total_services = count($services);
-$count_heb = 0; $count_rep = 0; $count_gui = 0; $count_eve = 0;
-foreach ($services as $s) {
-    if ($s['type'] === 'hebergement') $count_heb++;
-    elseif ($s['type'] === 'repas') $count_rep++;
-    elseif ($s['type'] === 'guide') $count_gui++;
-    elseif ($s['type'] === 'evenement') $count_eve++;
-}
-
+$total = count($all_items);
 ?>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title><?= htmlspecialchars($page_title) ?></title>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Lato:wght@400;600;700&display=swap" rel="stylesheet" />
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root {
-      --cream: #f5f2ee;
-      --dark: #1c1c2e;
-      --navy: #1a2340;
-      --orange: #e8642c;
-      --orange-light: #fde8dc;
-      --muted: #6b6b6b;
-      --border: #e0dbd4;
-      --white: #ffffff;
-      --radius: 14px;
-    }
-    body { font-family: 'Lato', sans-serif; background: var(--cream); color: var(--dark); font-size: 15px; line-height: 1.7; }
- 
-    /* ── NAV ── */
-    nav { background: var(--white); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 56px; height: 60px; position: sticky; top: 0; z-index: 100; }
-    .nav-logo { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 800; color: var(--dark); text-decoration: none; display: flex; align-items: center; gap: 4px; }
-    .nav-logo span { color: var(--orange); }
-    .nav-links { display: flex; gap: 32px; list-style: none; }
-    .nav-links a { text-decoration: none; color: var(--dark); font-size: 14px; font-weight: 600; opacity: .7; transition: opacity .2s; }
-    .nav-links a:hover { opacity: 1; }
-    .nav-actions { display: flex; align-items: center; gap: 16px; }
-    .btn-ghost { background: none; border: none; cursor: pointer; font-family: 'Lato', sans-serif; font-size: 14px; font-weight: 600; color: var(--dark); opacity: .7; }
-    .btn-nav { background: var(--orange); color: var(--white); border: none; border-radius: 8px; padding: 9px 22px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: 'Lato', sans-serif; }
- 
-    /* ── BREADCRUMB ── */
-    .breadcrumb { padding: 16px 56px; font-size: 13px; color: var(--muted); }
-    .breadcrumb a { color: var(--dark); text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
-    .breadcrumb a:hover { text-decoration: underline; }
- 
-    /* ── PHOTO GRID ── */
-    .photo-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; grid-template-rows: 240px 240px; gap: 6px; padding: 0 56px; border-radius: var(--radius); overflow: hidden; }
-    .photo-grid img { width: 100%; height: 100%; object-fit: cover; display: block; }
-    .photo-main { grid-row: 1 / 3; grid-column: 1 / 2; }
-    /* fallback if no image */
-    .photo-grid .no-photo { background: #d4be9a; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: #888; font-size: 13px; }
- 
-    /* ── MAIN LAYOUT ── */
-    .main-content { display: grid; grid-template-columns: 1fr 340px; gap: 48px; padding: 36px 56px 64px; align-items: start; }
- 
-    /* LEFT */
-    .region-tag { font-size: 11px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--orange); margin-bottom: 10px; }
-    .region-subtitle { font-size: 12px; color: var(--muted); font-weight: 600; margin-bottom: 6px; letter-spacing: .05em; }
-    .region-title { font-family: 'Playfair Display', serif; font-size: 48px; font-weight: 800; color: var(--dark); line-height: 1.1; margin-bottom: 20px; }
-    .region-description { font-size: 15px; color: #555; line-height: 1.8; margin-bottom: 40px; }
-    .region-description p + p { margin-top: 14px; }
- 
-    /* ── SERVICES SECTION ── */
-    .services-title { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 800; color: var(--dark); margin-bottom: 20px; }
-    .filter-tabs { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 24px; }
-    .filter-tab { background: none; border: 1.5px solid var(--border); border-radius: 50px; padding: 7px 18px; font-size: 13.5px; font-weight: 600; color: var(--dark); cursor: pointer; font-family: 'Lato', sans-serif; transition: all .2s; display: flex; align-items: center; gap: 6px; }
-    .filter-tab:hover { border-color: var(--orange); color: var(--orange); }
-    .filter-tab.active { background: var(--dark); border-color: var(--dark); color: var(--white); }
-    .filter-tab .count { font-size: 11px; opacity: .7; }
- 
-    /* Services grid */
-    .services-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
-    .service-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; cursor: pointer; transition: transform .2s, box-shadow .2s; text-decoration: none; color: inherit; }
-    .service-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,.1); }
-    .service-card img { width: 100%; height: 160px; object-fit: cover; display: block; }
-    .service-card .no-photo { width: 100%; height: 160px; background: #e8e2db; display: flex; align-items: center; justify-content: center; color: #aaa; font-size: 13px; }
-    .card-body { padding: 16px; }
-    .card-type { font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--orange); margin-bottom: 6px; display: flex; align-items: center; gap: 5px; }
-    .card-title { font-family: 'Playfair Display', serif; font-size: 16px; font-weight: 700; color: var(--dark); margin-bottom: 8px; line-height: 1.3; }
-    .card-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
-    .card-price { font-size: 15px; font-weight: 700; color: var(--dark); }
-    .card-price span { font-size: 12px; font-weight: 400; color: var(--muted); }
-    .card-rating { display: flex; align-items: center; gap: 5px; font-size: 13px; font-weight: 700; color: var(--dark); }
-    .card-rating svg { width: 14px; height: 14px; fill: var(--orange); }
-    .card-capacity { font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 4px; margin-top: 6px; }
-    .card-capacity svg { width: 13px; height: 13px; stroke: var(--muted); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
- 
-    .no-services { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 40px; text-align: center; color: var(--muted); font-size: 15px; grid-column: 1 / -1; }
- 
-    /* RIGHT: Info card */
-    .info-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px; position: sticky; top: 76px; }
-    .info-card-title { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 700; color: var(--dark); margin-bottom: 20px; padding-bottom: 14px; border-bottom: 1px solid var(--border); }
-    .info-row { display: flex; justify-content: space-between; align-items: flex-start; padding: 12px 0; border-bottom: 1px solid var(--border); gap: 16px; }
-    .info-row:last-child { border-bottom: none; }
-    .info-label { font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); flex-shrink: 0; }
-    .info-value { font-size: 14px; font-weight: 600; color: var(--dark); text-align: right; }
-    .services-count-badge { display: inline-block; background: var(--orange-light); color: var(--orange); font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 50px; }
- 
-    /* ── FOOTER ── */
-    footer { background: var(--navy); padding: 56px 56px 32px; margin-top: 40px; }
-    .footer-grid { display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr; gap: 48px; margin-bottom: 48px; }
-    .footer-logo { font-family: 'Playfair Display', serif; font-size: 26px; font-weight: 800; color: var(--white); margin-bottom: 14px; }
-    .footer-brand p { font-size: 14px; color: rgba(255,255,255,.55); line-height: 1.7; max-width: 260px; }
-    .footer-col h4 { font-size: 11px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: rgba(255,255,255,.5); margin-bottom: 20px; }
-    .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 12px; }
-    .footer-col ul li a { text-decoration: none; font-size: 14px; color: rgba(255,255,255,.75); transition: color .2s; }
-    .footer-col ul li a:hover { color: var(--white); }
-    .footer-contact { display: flex; flex-direction: column; gap: 12px; }
-    .footer-contact-item { display: flex; align-items: center; gap: 10px; font-size: 14px; color: rgba(255,255,255,.75); }
-    .footer-contact-item svg { width: 15px; height: 15px; stroke: rgba(255,255,255,.5); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
-    .footer-bottom { border-top: 1px solid rgba(255,255,255,.1); padding-top: 24px; text-align: center; font-size: 13px; color: rgba(255,255,255,.35); }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title><?= htmlspecialchars($nom, ENT_QUOTES, 'UTF-8') ?> — Tarkina</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Lato:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;}
+:root{--navy:#1B3A4B;--coral:#E05A2B;--cream:#FAF8F5;--border:#E5E7EB;--muted:#6B7280;}
+body{font-family:'Lato',sans-serif;background:var(--cream);}
+
+nav.top-nav{background:#fff;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 40px;height:62px;position:sticky;top:0;z-index:200;}
+.nav-logo{font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:800;color:var(--navy);text-decoration:none;}
+.nav-links{display:flex;gap:28px;list-style:none;margin:0;padding:0;}
+.nav-links a{text-decoration:none;color:#333;font-size:14px;font-weight:600;opacity:.7;}
+.nav-links a:hover{opacity:1;}
+.nav-auth{display:flex;gap:10px;align-items:center;}
+.btn-primary-nav{background:var(--coral);color:#fff;border-radius:50px;padding:8px 20px;text-decoration:none;font-size:13px;font-weight:700;}
+.btn-outline-nav{color:var(--navy);border:1.5px solid var(--navy);border-radius:50px;padding:8px 20px;text-decoration:none;font-size:13px;font-weight:700;}
+.btn-outline-nav:hover{background:var(--navy);color:#fff;}
+
+.search-strip{background:var(--navy);padding:16px 40px;}
+.search-form{display:flex;background:#fff;border-radius:12px;overflow:hidden;max-width:900px;height:52px;}
+.sf-field{flex:1;display:flex;flex-direction:column;justify-content:center;padding:6px 16px;border-right:1px solid var(--border);}
+.sf-label{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);}
+.sf-field input{border:none;outline:none;font-size:13px;background:transparent;width:100%;font-family:'Lato',sans-serif;}
+.sf-btn{background:var(--coral);color:#fff;border:none;padding:0 24px;font-size:14px;font-weight:700;cursor:pointer;white-space:nowrap;border-radius:0 12px 12px 0;font-family:'Lato',sans-serif;}
+.sf-btn:hover{background:#c44d22;}
+
+.breadcrumb-bar{padding:12px 40px;font-size:13px;color:var(--muted);}
+.breadcrumb-bar a{color:var(--navy);text-decoration:none;font-weight:600;}
+
+.sidebar-box{background:#fff;border-radius:16px;border:1px solid var(--border);padding:24px;position:sticky;top:80px;}
+.filter-label-main{font-size:11px;font-weight:700;letter-spacing:.1em;color:var(--navy);text-transform:uppercase;margin-bottom:16px;display:block;}
+.filter-label-sub{font-size:10px;font-weight:700;letter-spacing:.08em;color:#aaa;text-transform:uppercase;margin-bottom:10px;display:block;}
+.filter-check-item{display:flex;align-items:center;gap:8px;font-size:14px;margin-bottom:8px;cursor:pointer;}
+.filter-check-item input{accent-color:var(--coral);}
+.price-display{display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px;}
+.price-display span{color:#aaa;}
+.price-display strong{color:var(--coral);}
+.btn-reset{width:100%;margin-top:16px;padding:10px;border:1.5px solid var(--border);border-radius:10px;background:#fff;font-size:14px;cursor:pointer;color:var(--navy);font-weight:600;font-family:'Lato',sans-serif;}
+.btn-reset:hover{border-color:var(--navy);}
+
+.results-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px;}
+.results-header h1{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:800;color:var(--navy);margin:0;}
+.results-header p{font-size:13px;color:#aaa;margin:4px 0 0;}
+.sort-sel{border:1.5px solid var(--border);border-radius:10px;padding:8px 14px;font-size:13px;color:var(--navy);background:#fff;font-family:'Lato',sans-serif;cursor:pointer;}
+
+.service-card{background:#fff;border-radius:16px;overflow:hidden;border:1px solid var(--border);height:100%;transition:transform .2s,box-shadow .2s;}
+.service-card:hover{transform:translateY(-4px);box-shadow:0 12px 32px rgba(27,58,75,.12);}
+.service-card img{width:100%;height:200px;object-fit:cover;display:block;}
+.card-badge{position:absolute;top:10px;left:10px;border-radius:999px;padding:4px 12px;font-size:12px;font-weight:600;}
+.card-body-inner{padding:16px;}
+.card-title{font-size:15px;font-weight:700;color:var(--navy);margin:0 0 6px;}
+.card-location{font-size:13px;color:#aaa;margin:0 0 8px;}
+.card-desc{font-size:13px;color:#555;margin:0 0 14px;line-height:1.5;}
+.card-footer-inner{display:flex;align-items:center;justify-content:space-between;}
+.card-price{font-size:18px;font-weight:700;color:var(--coral);}
+.card-price small{font-size:12px;font-weight:400;color:#aaa;}
+.btn-reserver{background:var(--navy);color:#fff;border-radius:999px;padding:8px 20px;font-size:13px;font-weight:600;text-decoration:none;}
+.btn-reserver:hover{background:#0f2533;color:#fff;}
+
+footer{background:var(--navy);color:#fff;padding:48px 40px 28px;margin-top:60px;}
+.footer-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:48px;max-width:1200px;margin:0 auto 36px;}
+.footer-brand{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:800;margin-bottom:10px;}
+.footer-desc{color:rgba(255,255,255,.55);font-size:13px;line-height:1.7;}
+.footer-col h4{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:16px;}
+.footer-col ul{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px;}
+.footer-col ul li a{color:rgba(255,255,255,.7);text-decoration:none;font-size:13px;}
+.footer-col ul li a:hover{color:#fff;}
+.footer-bottom{border-top:1px solid rgba(255,255,255,.1);padding-top:20px;text-align:center;font-size:13px;color:rgba(255,255,255,.35);max-width:1200px;margin:0 auto}
+</style>
 </head>
 <body>
- 
-<!-- NAV -->
-<nav>
-  <a class="nav-logo" href="index.php">Tarkina <span>·</span></a>
+
+<nav class="top-nav">
+  <a href="index.php" class="nav-logo">Tarkina</a>
   <ul class="nav-links">
     <li><a href="index.php">Accueil</a></li>
     <li><a href="explorer.php">Explorer</a></li>
+    <li><a href="stories.php">Stories</a></li>
     <li><a href="about.php">À propos</a></li>
     <li><a href="contact.php">Contact</a></li>
   </ul>
-  <div class="nav-actions">
-    <button class="btn-ghost">Connexion</button>
-    <button class="btn-nav">S'inscrire</button>
+  <div class="nav-auth">
+    <?php if(isset($_SESSION['user_id'])): ?>
+      <a href="profile.php" class="btn-primary-nav">Mon Profil</a>
+      <a href="logout.php" class="btn-outline-nav">Déconnexion</a>
+    <?php else: ?>
+      <a href="login.php" class="btn-outline-nav">Connexion</a>
+      <a href="register.php" class="btn-primary-nav">S'inscrire</a>
+    <?php endif; ?>
   </div>
 </nav>
- 
-<!-- BREADCRUMB -->
-<div class="breadcrumb">
-  <a href="explorer.php">
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-    Retour aux régions
-  </a>
+
+<button onclick="history.back()" 
+  style="background:none;border:none;cursor:pointer;font-size:1.3rem;
+  color:#1B3A4B;padding:14px 0 0 24px;display:flex;align-items:center;gap:6px;"
+  onmouseover="this.style.color='#E05A2B'" 
+  onmouseout="this.style.color='#1B3A4B'">
+  &#8592;
+</button>
+
+<div class="search-strip">
+  <form class="search-form" method="GET" action="region.php">
+    <input type="hidden" name="id" value="<?= $region_id ?>">
+    <div class="sf-field">
+      <span class="sf-label">Destination</span>
+      <input type="text" name="destination" value="<?= htmlspecialchars($nom, ENT_QUOTES, 'UTF-8') ?>" readonly>
+    </div>
+    <div class="sf-field">
+      <span class="sf-label">Arrivée</span>
+      <input type="date" name="date_debut" value="<?= $reqDebut ?>">
+    </div>
+    <div class="sf-field">
+      <span class="sf-label">Départ</span>
+      <input type="date" name="date_fin" value="<?= $reqFin ?>">
+    </div>
+    <div class="sf-field" style="flex:0.6;">
+      <span class="sf-label">Voyageurs</span>
+      <input type="number" name="personnes" value="<?= $reqPers ?>" min="1" max="20">
+    </div>
+    <button type="submit" class="sf-btn">Rechercher</button>
+  </form>
 </div>
- 
-<!-- PHOTO GRID -->
-<div class="photo-grid">
-  <?php if (!empty($main_photo) && strpos($main_photo, 'placehold.co') === false): ?>
-    <img class="photo-main" src="<?= htmlspecialchars($main_photo) ?>" alt="Photo principale" />
-  <?php else: ?>
-    <div class="photo-main no-photo">Pas de photo principale</div>
-  <?php endif; ?>
 
-  <?php for ($i=0; $i<4; $i++): ?>
-    <?php if (!empty($photos_sec[$i]) && strpos($photos_sec[$i], 'placehold.co') === false): ?>
-      <img src="<?= htmlspecialchars($photos_sec[$i]) ?>" alt="Photo <?= $i+2 ?>" />
-    <?php else: ?>
-      <div class="no-photo">Pas de photo</div>
-    <?php endif; ?>
-  <?php endfor; ?>
+<div class="breadcrumb-bar">
+  <?= htmlspecialchars($nom, ENT_QUOTES, 'UTF-8') ?>
 </div>
- 
-<!-- MAIN CONTENT -->
-<div class="main-content">
- 
-  <!-- LEFT -->
-  <div>
-    <div class="region-subtitle">Tunisie · Région</div>
-    <h1 class="region-title"><?= htmlspecialchars($region['nom']) ?></h1>
-    <div class="region-description">
-      <p><?= nl2br(htmlspecialchars($region['description'])) ?></p>
-    </div>
- 
-    <!-- SERVICES DISPONIBLES PAR CATÉGORIE -->
-    
-    <!-- 1. Hébergements -->
-    <?php if ($count_heb > 0): ?>
-    <h2 class="services-title" style="margin-top:40px;">Hébergements à <?= htmlspecialchars($region['nom']) ?></h2>
-    <div class="services-grid">
-      <?php foreach ($services as $srv): if ($srv['type'] !== 'hebergement') continue; 
-          $rating = number_format(rand(45, 50) / 10, 1);
-          $img = formatImagePath($srv['photo_principale'] ?? '');
-      ?>
-      <a class="service-card" href="hebergement.php?id=<?= (int)$srv['id'] ?>">
-        <img src="<?= htmlspecialchars($img) ?>" alt="<?= htmlspecialchars($srv['titre']) ?>" />
-        <div class="card-body">
-          <div class="card-type">Hébergement</div>
-          <div class="card-title"><?= htmlspecialchars($srv['titre']) ?></div>
-          <div class="card-footer">
-            <div class="card-price"><?= number_format($srv['prix'], 2, '.', '') ?> TND <span>/ nuit</span></div>
-          </div>
-        </div>
-      </a>
-      <?php endforeach; ?>
-    </div>
-    <?php endif; ?>
 
-    <!-- 2. Repas -->
-    <?php if ($count_rep > 0): ?>
-    <h2 class="services-title" style="margin-top:40px;">Gastronomie locale</h2>
-    <div class="services-grid">
-      <?php foreach ($services as $srv): if ($srv['type'] !== 'repas') continue; 
-          $img = formatImagePath($srv['photo_principale'] ?? '');
-      ?>
-      <a class="service-card" href="repas.php?id=<?= (int)$srv['id'] ?>">
-        <img src="<?= htmlspecialchars($img) ?>" alt="<?= htmlspecialchars($srv['titre']) ?>" />
-        <div class="card-body">
-          <div class="card-type">Repas maison</div>
-          <div class="card-title"><?= htmlspecialchars($srv['titre']) ?></div>
-          <div class="card-footer">
-            <div class="card-price"><?= number_format($srv['prix'], 2, '.', '') ?> TND <span>/ pers.</span></div>
-          </div>
-        </div>
-      </a>
-      <?php endforeach; ?>
-    </div>
-    <?php endif; ?>
+<div class="container-fluid px-4 my-4">
+  <div class="row g-4">
 
-    <!-- 3. Guides & Événements -->
-    <?php if ($count_gui > 0 || $count_eve > 0): ?>
-    <h2 class="services-title" style="margin-top:40px;">Activités & Découvertes</h2>
-    <div class="services-grid">
-      <?php foreach ($services as $srv): if ($srv['type'] !== 'guide' && $srv['type'] !== 'evenement') continue; 
-          $img = formatImagePath($srv['photo_principale'] ?? '');
-      ?>
-      <a class="service-card" href="<?= $srv['type'] ?>.php?id=<?= (int)$srv['id'] ?>">
-        <img src="<?= htmlspecialchars($img) ?>" alt="<?= htmlspecialchars($srv['titre']) ?>" />
-        <div class="card-body">
-          <div class="card-type"><?= $srv['type_label'] ?></div>
-          <div class="card-title"><?= htmlspecialchars($srv['titre']) ?></div>
-          <div class="card-footer">
-            <div class="card-price"><?= number_format($srv['prix'], 2, '.', '') ?> TND <span>/ pers.</span></div>
-          </div>
-        </div>
-      </a>
-      <?php endforeach; ?>
-    </div>
-    <?php endif; ?>
+    <div class="col-lg-3">
+      <div class="sidebar-box">
+        <span class="filter-label-main">Filtres</span>
 
-    <?php if (empty($services)): ?>
-      <div class="no-services">Aucun service disponible dans cette région pour le moment.</div>
-    <?php endif; ?>
+        <span class="filter-label-sub">Catégorie</span>
+        <?php
+        $catLabels = [
+            'hebergement' => '🏠 Hébergement',
+            'repas'       => '🍽️ Repas maison',
+            'guide'       => '🧭 Guide local',
+            'artisanat'   => '💎 Produits artisanaux',
+            'evenement'   => '🎉 Événements',
+        ];
+        foreach ($catLabels as $val => $label): ?>
+        <label class="filter-check-item">
+          <input type="checkbox" class="cat-filter" value="<?= $val ?>" checked>
+          <?= $label ?>
+        </label>
+        <?php endforeach; ?>
+
+        <span class="filter-label-sub" style="margin-top:16px;">Prix max</span>
+        <div class="price-display">
+          <span>Jusqu'à</span>
+          <strong id="priceLabel">1000 TND</strong>
+        </div>
+        <input type="range" id="priceSlider" min="0" max="1000" value="1000" step="10" style="width:100%;accent-color:#E05A2B;">
+        <button class="btn-reset" id="resetBtn">Réinitialiser</button>
+      </div>
+    </div>
+
+    <div class="col-lg-9">
+      <div class="results-header">
+        <div>
+          <h1 id="resultCount"><?= $total ?> expérience<?= $total > 1 ? 's' : '' ?> disponible<?= $total > 1 ? 's' : '' ?></h1>
+          <p>Pour <?= $reqPers ?> voyageur<?= $reqPers > 1 ? 's' : '' ?> · <?= htmlspecialchars($nom, ENT_QUOTES, 'UTF-8') ?></p>
+        </div>
+        <select id="sortSelect" class="sort-sel">
+          <option value="default">Recommandés ▾</option>
+          <option value="price_asc">Prix croissant</option>
+          <option value="price_desc">Prix décroissant</option>
+        </select>
+      </div>
+
+      <div class="row g-3" id="cardsGrid">
+        <?php if ($total === 0): ?>
+          <div class="col-12" style="text-align:center;padding:60px 0;color:#aaa;">
+            <p>Aucun service disponible dans cette région pour le moment.</p>
+          </div>
+        <?php else: ?>
+          <?php
+          $badges = [
+            'hebergement' => ['🏠', 'Hébergement', '#e8f4fd', '#1a6fa8'],
+            'repas'       => ['🍽️', 'Repas maison', '#fff3e0', '#e65100'],
+            'guide'       => ['🧭', 'Guide local',  '#e8f5e9', '#2e7d32'],
+            'artisanat'   => ['💎', 'Artisanat',    '#f3e5f5', '#6a1b9a'],
+            'evenement'   => ['🎉', 'Événement',    '#fce4ec', '#c62828'],
+          ];
+          foreach ($all_items as $item):
+            $type = $item['_type'];
+            $b = $badges[$type] ?? ['📌', $type, '#f5f5f5', '#333'];
+            $photo = !empty($item['photo_principale']) ? $item['photo_principale'] : 'assets/img/placeholder.jpg';
+            $titre = $item['titre'];
+            $loc  = !empty($item['localisation']) ? $item['localisation'] : (!empty($item['ville']) ? $item['ville'] : '');
+            $desc = !empty($item['description']) ? mb_substr($item['description'], 0, 90, 'UTF-8') . '...' : '';
+          ?>
+          <div class="col-sm-6 col-xl-4 svc-card-wrap" data-type="<?= $type ?>" data-price="<?= $item['prix'] ?>">
+            <div class="service-card">
+              <div style="position:relative;">
+                <img src="<?= $photo ?>" alt="<?= htmlspecialchars($titre, ENT_QUOTES, 'UTF-8') ?>"
+                     onerror="this.src='assets/img/placeholder.jpg'">
+                <span class="card-badge" style="background:<?= $b[2] ?>;color:<?= $b[3] ?>;">
+                  <?= $b[0] ?> <?= $b[1] ?>
+                </span>
+              </div>
+              <div class="card-body-inner">
+                <p class="card-title"><?= $titre ?></p>
+                <p class="card-location">📍 <?= $loc ?></p>
+                <p class="card-desc"><?= $desc ?></p>
+                <div class="card-footer-inner">
+                  <span class="card-price"><?= number_format($item['prix'], 0) ?> <small>TND</small></span>
+                  <a href="<?= $type ?>.php?id=<?= $item['id'] ?>" class="btn-reserver">Réserver</a>
+                </div>
+              </div>
+            </div>
+          </div>
+          <?php endforeach; ?>
+        <?php endif; ?>
+      </div>
+    </div>
+
   </div>
- 
-  <!-- RIGHT: Info card -->
-  <div class="info-card">
-    <div class="info-card-title">À savoir</div>
-    <div class="info-row">
-      <span class="info-label">Meilleure saison</span>
-      <span class="info-value"><?= htmlspecialchars($region['meilleure_saison'] ?: 'Toute l\'année') ?></span>
-    </div>
-    <div class="info-row">
-      <span class="info-label">Langues</span>
-      <span class="info-value"><?= htmlspecialchars($region['langues'] ?: 'Arabe, Français') ?></span>
-    </div>
-    <div class="info-row">
-      <span class="info-label">Monnaie</span>
-      <span class="info-value"><?= htmlspecialchars($region['monnaie'] ?: 'TND (Dinar Tunisien)') ?></span>
-    </div>
-    <div class="info-row">
-      <span class="info-label">Services dispo.</span>
-      <span class="info-value"><span class="services-count-badge"><?= $total_services ?></span></span>
-    </div>
-  </div>
- 
 </div>
- 
-<!-- FOOTER -->
+
 <footer>
   <div class="footer-grid">
-    <div class="footer-brand">
-      <div class="footer-logo">Tarkina</div>
-      <p>Découvrez la Tunisie cachée à travers ses habitants, ses saveurs et son artisanat.</p>
+    <div>
+      <div class="footer-brand">Tarkina</div>
+      <p class="footer-desc">Découvrez la Tunisie cachée à travers ses habitants, ses saveurs et son artisanat.</p>
     </div>
     <div class="footer-col">
       <h4>Explorer</h4>
       <ul>
-        <li><a href="#">Toutes les régions</a></li>
-        <li><a href="#">Hébergements</a></li>
-        <li><a href="#">Repas maison</a></li>
-        <li><a href="#">Guides locaux</a></li>
-      </ul>
-    </div>
-    <div class="footer-col">
-      <h4>À propos</h4>
-      <ul>
-        <li><a href="#">Qui sommes-nous</a></li>
-        <li><a href="#">Contact</a></li>
-        <li><a href="#">Devenir hôte</a></li>
-        <li><a href="#">CGU</a></li>
+        <li><a href="explorer.php">Toutes les régions</a></li>
+        <li><a href="explorer.php?type=hebergement">Hébergements</a></li>
+        <li><a href="explorer.php?type=repas">Repas maison</a></li>
+        <li><a href="explorer.php?type=guide">Guides locaux</a></li>
       </ul>
     </div>
     <div class="footer-col">
       <h4>Contact</h4>
-      <div class="footer-contact">
-        <div class="footer-contact-item">
-          <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
-          Tunis, Tunisie
-        </div>
-        <div class="footer-contact-item">
-          <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-          hello@tarkina.tn
-        </div>
-        <div class="footer-contact-item">
-          <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1.27h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.91a16 16 0 0 0 6 6l.92-.92a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-          +216 71 000 000
-        </div>
-      </div>
+      <ul>
+        <li><a href="about.php">À propos</a></li>
+        <li><a href="contact.php">Nous contacter</a></li>
+        <li><a href="#">Devenir hôte</a></li>
+      </ul>
     </div>
   </div>
   <div class="footer-bottom">© 2026 Tarkina — Voyagez autrement en Tunisie.</div>
 </footer>
- 
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-// Filter tabs
-const tabs = document.querySelectorAll('.filter-tab');
-const cards = document.querySelectorAll('.service-card');
- 
-tabs.forEach(tab => {
-  tab.addEventListener('click', () => {
-    tabs.forEach(t => t.classList.remove('active'));
-    tab.classList.add('active');
-    const filter = tab.dataset.filter;
-    cards.forEach(card => {
-      if (filter === 'all' || card.dataset.type === filter) {
-        card.style.display = 'block';
-      } else {
-        card.style.display = 'none';
-      }
-    });
+const slider = document.getElementById('priceSlider');
+const label  = document.getElementById('priceLabel');
+const cards  = document.querySelectorAll('.svc-card-wrap');
+const countEl= document.getElementById('resultCount');
+
+function updateCards() {
+  const maxPrice  = parseInt(slider.value);
+  const activeCats= [...document.querySelectorAll('.cat-filter:checked')].map(c=>c.value);
+  let visible = 0;
+  cards.forEach(card => {
+    const show = parseFloat(card.dataset.price) <= maxPrice && activeCats.includes(card.dataset.type);
+    card.style.display = show ? '' : 'none';
+    if (show) visible++;
   });
+  countEl.textContent = visible + ' expérience' + (visible>1?'s':'') + ' disponible' + (visible>1?'s':'');
+  label.textContent   = maxPrice + ' TND';
+}
+
+slider.addEventListener('input', updateCards);
+document.querySelectorAll('.cat-filter').forEach(cb => cb.addEventListener('change', updateCards));
+document.getElementById('resetBtn').addEventListener('click', () => {
+  slider.value = 1000;
+  document.querySelectorAll('.cat-filter').forEach(cb => cb.checked = true);
+  updateCards();
+});
+document.getElementById('sortSelect').addEventListener('change', function() {
+  const grid  = document.getElementById('cardsGrid');
+  const items = [...grid.querySelectorAll('.svc-card-wrap')];
+  if (this.value === 'price_asc')  items.sort((a,b) => parseFloat(a.dataset.price) - parseFloat(b.dataset.price));
+  if (this.value === 'price_desc') items.sort((a,b) => parseFloat(b.dataset.price) - parseFloat(a.dataset.price));
+  items.forEach(el => grid.appendChild(el));
 });
 </script>
- 
 </body>
 </html>

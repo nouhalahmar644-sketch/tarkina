@@ -2,13 +2,9 @@
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/includes/session_bootstrap.php';
 
-$redirect = isset($_GET['redirect']) ? $_GET['redirect'] : (isset($_POST['redirect']) ? $_POST['redirect'] : '');
-
-// Si déjà connecté, rediriger selon le rôle ou le paramètre redirect
+// Si déjà connecté, rediriger selon le rôle
 if (!empty($_SESSION['user_id'])) {
-    if (!empty($redirect) && strpos($redirect, 'http') !== 0) {
-        header('Location: ' . $redirect);
-    } elseif (!empty($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin') {
+    if (!empty($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin') {
         header('Location: admin/dashboard.php');
     } else {
         header('Location: index.php');
@@ -60,9 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['user_name'] = trim($prenom_db . ' ' . $nom_db);
                 $_SESSION['user_role'] = $role_db;
 
-                if (!empty($redirect) && strpos($redirect, 'http') !== 0) {
-                    header('Location: ' . $redirect);
-                } elseif ($role_db === 'admin') {
+                if ($role_db === 'admin') {
                     header('Location: admin/dashboard.php');
                 } else {
                     header('Location: index.php');
@@ -401,9 +395,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
  
     <form method="post" action="login.php" novalidate>
-      <?php if (!empty($redirect)): ?>
-        <input type="hidden" name="redirect" value="<?php echo htmlspecialchars($redirect); ?>">
-      <?php endif; ?>
       <div class="form-group">
         <label>Email</label>
         <input type="email" name="email" placeholder="Entrez votre adresse e-mail" value="<?php echo htmlspecialchars($email); ?>" required>

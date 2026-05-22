@@ -1,13 +1,12 @@
 <?php
-require_once __DIR__ . '/db.php';
 session_start();
+require_once __DIR__ . '/db.php';
 
 $destination = isset($_GET['destination']) ? trim($_GET['destination']) : '';
 $date_debut  = isset($_GET['date_debut'])  ? trim($_GET['date_debut'])  : '';
 $date_fin    = isset($_GET['date_fin'])    ? trim($_GET['date_fin'])    : '';
 $personnes   = isset($_GET['personnes'])   ? (int)$_GET['personnes']    : 1;
 
-$typeFilter  = isset($_GET['type'])        ? trim($_GET['type'])       : '';
 $services = [];
 $searchTerm = '%' . $destination . '%';
 
@@ -40,13 +39,12 @@ function fetchServices($conn, $sql, $searchTerm, $date_debut, $date_fin, $dateFi
 }
 
 // 1. Hebergements
-if ($typeFilter === '' || $typeFilter === 'hebergement') {
-    $sql_heb = "SELECT id, titre, prix, localisation, capacite, photo_principale FROM hebergement WHERE (localisation LIKE ? OR titre LIKE ?) AND statut IN ('publié', 'actif') AND capacite >= ?" . $dateFilter;
+$sql_heb = "SELECT id, titre, prix, localisation, capacite, photo_principale FROM hebergement WHERE (localisation LIKE ? OR titre LIKE ?) AND statut IN ('publié', 'actif') AND capacite >= ?" . $dateFilter;
 // Modification to handle title search as well
 $st_heb = mysqli_prepare($conn, $sql_heb);
 if ($st_heb) {
     if ($dateFilter !== '') {
-        mysqli_stmt_bind_param($st_heb, 'ssiss', $searchTerm, $searchTerm, $personnes, $date_debut, $date_fin);
+        mysqli_stmt_bind_param($st_heb, 'sssii', $searchTerm, $searchTerm, $personnes, $date_debut, $date_fin);
     } else {
         mysqli_stmt_bind_param($st_heb, 'ssi', $searchTerm, $searchTerm, $personnes);
     }
@@ -59,15 +57,13 @@ if ($st_heb) {
     }
     mysqli_stmt_close($st_heb);
 }
-}
 
 // 2. Repas
-if ($typeFilter === '' || $typeFilter === 'repas') {
-    $sql_rep = "SELECT id, titre, prix, localisation, capacite, photo_principale FROM repas WHERE (localisation LIKE ? OR titre LIKE ?) AND statut = 'publié' AND capacite >= ?" . $dateFilter;
+$sql_rep = "SELECT id, titre, prix, localisation, capacite, photo_principale FROM repas WHERE (localisation LIKE ? OR titre LIKE ?) AND statut = 'publié' AND capacite >= ?" . $dateFilter;
 $st_rep = mysqli_prepare($conn, $sql_rep);
 if ($st_rep) {
     if ($dateFilter !== '') {
-        mysqli_stmt_bind_param($st_rep, 'ssiss', $searchTerm, $searchTerm, $personnes, $date_debut, $date_fin);
+        mysqli_stmt_bind_param($st_rep, 'sssii', $searchTerm, $searchTerm, $personnes, $date_debut, $date_fin);
     } else {
         mysqli_stmt_bind_param($st_rep, 'ssi', $searchTerm, $searchTerm, $personnes);
     }
@@ -80,15 +76,13 @@ if ($st_rep) {
     }
     mysqli_stmt_close($st_rep);
 }
-}
 
 // 3. Guide
-if ($typeFilter === '' || $typeFilter === 'guide') {
-    $sql_gui = "SELECT id, titre, prix, localisation, capacite, photo_principale FROM guide WHERE (localisation LIKE ? OR titre LIKE ?) AND statut = 'publié' AND capacite >= ?" . $dateFilter;
+$sql_gui = "SELECT id, titre, prix, localisation, capacite, photo_principale FROM guide WHERE (localisation LIKE ? OR titre LIKE ?) AND statut = 'publié' AND capacite >= ?" . $dateFilter;
 $st_gui = mysqli_prepare($conn, $sql_gui);
 if ($st_gui) {
     if ($dateFilter !== '') {
-        mysqli_stmt_bind_param($st_gui, 'ssiss', $searchTerm, $searchTerm, $personnes, $date_debut, $date_fin);
+        mysqli_stmt_bind_param($st_gui, 'sssii', $searchTerm, $searchTerm, $personnes, $date_debut, $date_fin);
     } else {
         mysqli_stmt_bind_param($st_gui, 'ssi', $searchTerm, $searchTerm, $personnes);
     }
@@ -101,15 +95,13 @@ if ($st_gui) {
     }
     mysqli_stmt_close($st_gui);
 }
-}
 
 // 4. Evenement
-if ($typeFilter === '' || $typeFilter === 'evenement') {
-    $sql_eve = "SELECT id, titre, prix, localisation, capacite, photo_principale FROM evenement WHERE (localisation LIKE ? OR titre LIKE ?) AND statut = 'publié' AND capacite >= ?" . $dateFilter;
+$sql_eve = "SELECT id, titre, prix, localisation, capacite, photo_principale FROM evenement WHERE (localisation LIKE ? OR titre LIKE ?) AND statut = 'publié' AND capacite >= ?" . $dateFilter;
 $st_eve = mysqli_prepare($conn, $sql_eve);
 if ($st_eve) {
     if ($dateFilter !== '') {
-        mysqli_stmt_bind_param($st_eve, 'ssiss', $searchTerm, $searchTerm, $personnes, $date_debut, $date_fin);
+        mysqli_stmt_bind_param($st_eve, 'sssii', $searchTerm, $searchTerm, $personnes, $date_debut, $date_fin);
     } else {
         mysqli_stmt_bind_param($st_eve, 'ssi', $searchTerm, $searchTerm, $personnes);
     }
@@ -122,11 +114,9 @@ if ($st_eve) {
     }
     mysqli_stmt_close($st_eve);
 }
-}
 
 // 5. Artisanat (No dates, use stock)
-if ($typeFilter === '' || $typeFilter === 'artisanat') {
-    $sql_art = "SELECT id, titre, prix, localisation, stock as capacite, photo_principale FROM artisanat WHERE (localisation LIKE ? OR titre LIKE ?) AND statut = 'publié' AND stock >= ?";
+$sql_art = "SELECT id, titre, prix, localisation, stock as capacite, photo_principale FROM artisanat WHERE (localisation LIKE ? OR titre LIKE ?) AND statut = 'publié' AND stock >= ?";
 $st_art = mysqli_prepare($conn, $sql_art);
 if ($st_art) {
     mysqli_stmt_bind_param($st_art, 'ssi', $searchTerm, $searchTerm, $personnes);
@@ -138,7 +128,6 @@ if ($st_art) {
         $services[] = $row;
     }
     mysqli_stmt_close($st_art);
-}
 }
 
 shuffle($services);
@@ -167,6 +156,7 @@ $page_title = 'Résultats de recherche – Tarkina';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $page_title ?></title>
+    <link rel="stylesheet" href="assets/css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Lato:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -200,8 +190,27 @@ $page_title = 'Résultats de recherche – Tarkina';
         
         .results-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 30px; }
         
-        .service-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; text-decoration: none; color: inherit; transition: transform 0.2s, box-shadow 0.2s; display: flex; flex-direction: column; }
-        .service-card:hover { transform: translateY(-5px); box-shadow: 0 10px 30px rgba(0,0,0,0.08); }
+        .service-card-link {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            cursor: pointer;
+            position: relative;
+            z-index: 1;
+        }
+        .service-card {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
+            height: 100%;
+            pointer-events: auto;
+        }
+        .service-card-link:hover .service-card {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        }
         
         .card-image { height: 200px; overflow: hidden; position: relative; }
         .card-image img { width: 100%; height: 100%; object-fit: cover; }
@@ -226,17 +235,38 @@ $page_title = 'Résultats de recherche – Tarkina';
 </head>
 <body>
 
-<nav>
-    <a class="nav-logo" href="index.php">Tarkina <span>·</span></a>
+<nav class="navbar">
+    <a href="index.php" class="nav-logo">
+        <img src="assets/img/logo.png" alt="TARKINA" onerror="this.style.display='none';this.nextElementSibling.style.display='inline'">
+        <span style="display:none">Tarkina</span>
+    </a>
     <ul class="nav-links">
         <li><a href="index.php">Accueil</a></li>
         <li><a href="explorer.php">Explorer</a></li>
         <li><a href="about.php">À propos</a></li>
         <li><a href="contact.php">Contact</a></li>
     </ul>
+    <div class="nav-auth">
+        <?php if(isset($_SESSION['user_id'])): ?>
+          <a href="profile.php" class="btn-nav-primary">Mon Profil</a>
+          <a href="logout.php" class="btn-nav-outline">Déconnexion</a>
+        <?php else: ?>
+          <a href="login.php" class="btn-nav-outline">Connexion</a>
+          <a href="register.php" class="btn-nav-primary">S'inscrire</a>
+        <?php endif; ?>
+    </div>
 </nav>
 
+<button onclick="history.back()" 
+  style="background:none;border:none;cursor:pointer;font-size:1.3rem;
+  color:#1B3A4B;padding:14px 0 0 24px;display:flex;align-items:center;gap:6px;"
+  onmouseover="this.style.color='#E05A2B'" 
+  onmouseout="this.style.color='#1B3A4B'">
+  &#8592;
+</button>
+
 <div class="search-header">
+
     <h1>Résultats pour "<?= htmlspecialchars($destination ?: 'Toute la Tunisie') ?>"</h1>
     <p class="search-summary"><?= count($services) ?> service(s) trouvé(s) <?= $date_debut ? "du " . date('d/m/Y', strtotime($date_debut)) : "" ?> <?= $date_fin ? "au " . date('d/m/Y', strtotime($date_fin)) : "" ?></p>
 </div>
@@ -247,14 +277,18 @@ $page_title = 'Résultats de recherche – Tarkina';
             <div class="no-results">
                 <h2>Aucun résultat trouvé</h2>
                 <p style="margin-bottom: 30px; color: var(--muted);">Essayez de modifier vos critères de recherche ou de changer de destination.</p>
-                <a href="index.php" class="btn-back">Retour à l'accueil</a>
+
             </div>
         <?php else: ?>
-            <?php foreach ($services as $srv): 
+            <?php foreach ($services as $srv):
                 $img = formatImagePath($srv['photo_principale'], $srv['type']);
                 $rating = number_format(rand(45, 50) / 10, 1);
+                $serviceType = htmlspecialchars($srv['type'], ENT_QUOTES, 'UTF-8');
+                $serviceId = (int) $srv['id'];
+                $serviceUrl = $serviceType . '.php?id=' . $serviceId;
             ?>
-                <a href="<?= htmlspecialchars($srv['type']) ?>.php?id=<?= $srv['id'] ?>" class="service-card">
+                <a href="<?= $serviceUrl ?>" class="service-card-link" style="text-decoration:none;color:inherit;display:block;">
+                    <div class="service-card">
                     <div class="card-image">
                         <img src="<?= htmlspecialchars($img) ?>" alt="<?= htmlspecialchars($srv['titre']) ?>">
                         <span class="card-badge"><?= htmlspecialchars($srv['type_label']) ?></span>
@@ -275,6 +309,7 @@ $page_title = 'Résultats de recherche – Tarkina';
                                 <?= $rating ?>
                             </div>
                         </div>
+                    </div>
                     </div>
                 </a>
             <?php endforeach; ?>

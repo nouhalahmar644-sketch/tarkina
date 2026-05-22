@@ -1,4 +1,5 @@
 <?php
+session_start();
 require_once __DIR__ . '/includes/auth_guard.php';
 require_once __DIR__ . '/db.php';
 
@@ -117,6 +118,7 @@ if ($commande_id > 0) {
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title><?= $title ?> – Tarkina</title>
+  <link rel="stylesheet" href="assets/css/style.css">
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Lato:wght@400;600;700&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -163,8 +165,26 @@ if ($commande_id > 0) {
 </head>
 <body>
 
-<nav>
-  <a class="nav-logo" href="index.php">Tarkina <span>·</span></a>
+<nav class="navbar">
+  <a href="index.php" class="nav-logo">
+    <img src="assets/img/logo.png" alt="TARKINA" onerror="this.style.display='none';this.nextElementSibling.style.display='inline'">
+    <span style="display:none">Tarkina</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="index.php">Accueil</a></li>
+    <li><a href="explorer.php">Explorer</a></li>
+    <li><a href="about.php">À propos</a></li>
+    <li><a href="contact.php">Contact</a></li>
+  </ul>
+  <div class="nav-auth">
+    <?php if(isset($_SESSION['user_id'])): ?>
+      <a href="profile.php" class="btn-nav-primary">Mon Profil</a>
+      <a href="logout.php" class="btn-nav-outline">Déconnexion</a>
+    <?php else: ?>
+      <a href="login.php" class="btn-nav-outline">Connexion</a>
+      <a href="register.php" class="btn-nav-primary">S'inscrire</a>
+    <?php endif; ?>
+  </div>
 </nav>
 
 <div class="main-container">

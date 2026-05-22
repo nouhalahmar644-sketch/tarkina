@@ -1,302 +1,261 @@
 <?php
-require_once __DIR__ . '/db.php';
 session_start();
+require 'db.php';
+mysqli_set_charset($conn, 'utf8mb4');
 
-// Fetch all regions
+$regions_query = mysqli_query($conn, "SELECT * FROM region");
 $regions = [];
-$res_reg = mysqli_query($conn, "SELECT * FROM region ORDER BY nom ASC");
-if ($res_reg) { while ($r = mysqli_fetch_assoc($res_reg)) $regions[] = $r; }
-
-// Fetch published services
-$hebergements = [];
-$res = mysqli_query($conn, "SELECT id, titre, prix, localisation, capacite, photo_principale FROM hebergement WHERE statut IN ('publié','actif') ORDER BY created_at DESC LIMIT 6");
-if ($res) { while ($r = mysqli_fetch_assoc($res)) { $r['type']='hebergement'; $r['type_label']='Hébergement'; $hebergements[] = $r; } }
-
-$repas_list = [];
-$res = mysqli_query($conn, "SELECT id, titre, prix, localisation, capacite, photo_principale FROM repas WHERE statut='publié' ORDER BY created_at DESC LIMIT 6");
-if ($res) { while ($r = mysqli_fetch_assoc($res)) { $r['type']='repas'; $r['type_label']='Repas maison'; $repas_list[] = $r; } }
-
-$guides = [];
-$res = mysqli_query($conn, "SELECT id, titre, prix, localisation, capacite, photo_principale FROM guide WHERE statut='publié' ORDER BY created_at DESC LIMIT 6");
-if ($res) { while ($r = mysqli_fetch_assoc($res)) { $r['type']='guide'; $r['type_label']='Guide local'; $guides[] = $r; } }
-
-$evenements = [];
-$res = mysqli_query($conn, "SELECT id, titre, prix, localisation, capacite, photo_principale FROM evenement WHERE statut='publié' ORDER BY created_at DESC LIMIT 6");
-if ($res) { while ($r = mysqli_fetch_assoc($res)) { $r['type']='evenement'; $r['type_label']='Événement'; $evenements[] = $r; } }
-
-$artisanats = [];
-$res = mysqli_query($conn, "SELECT id, titre, prix, localisation, stock as capacite, photo_principale FROM artisanat WHERE statut='publié' ORDER BY created_at DESC LIMIT 6");
-if ($res) { while ($r = mysqli_fetch_assoc($res)) { $r['type']='artisanat'; $r['type_label']='Artisanat'; $artisanats[] = $r; } }
-
-function fmtImg($path, $type) {
-    if (empty($path)) return 'https://placehold.co/800x600?text=Pas+de+photo';
-    if (strpos($path, 'http') === 0) return $path;
-    if (strpos($path, 'uploads/') === 0) return $path;
-    return 'uploads/' . $type . '/' . ltrim($path, '/');
+while ($r = mysqli_fetch_assoc($regions_query)) {
+    $regions[] = $r;
 }
+
+// Static history + coordinates per region (match by name)
+$region_meta = [
+    'Djerba' => [
+        'lat' => 33.8075, 'lng' => 10.8451,
+        'history' => "Surnommée l'île des rêves, Djerba est habitée depuis l'Antiquité. Phéniciens, Romains et Berbères y ont laissé leurs traces. Sa synagogue El Ghriba est l'une des plus anciennes du monde.",
+        'highlight' => 'Synagogue El Ghriba · Plages de Sidi Mahres · Musée Guellala'
+    ],
+    'Kairouan' => [
+        'lat' => 35.6781, 'lng' => 10.0963,
+        'history' => "Fondée en 670 ap. J.-C., Kairouan est la quatrième ville sainte de l'Islam. Son médina classée UNESCO abrite la Grande Mosquée Okba, l'une des plus anciennes d'Afrique.",
+        'highlight' => 'Grande Mosquée · Bassins des Aghlabides · Médina UNESCO'
+    ],
+    'Sidi Bou Saïd' => [
+        'lat' => 36.8689, 'lng' => 10.3417,
+        'history' => "Village perché sur une falaise dominant la mer, célèbre pour ses maisons bleu et blanc. Paul Klee et Gustave Flaubert y ont séjourné. Un symbole de l'identité tunisienne.",
+        'highlight' => 'Café des Nattes · Dar Ennejma Ezzahra · Vue sur Carthage'
+    ],
+    'Tozeur' => [
+        'lat' => 33.9197, 'lng' => 8.1335,
+        'history' => "Porte du Sahara tunisien, Tozeur est connue pour ses palmeraies immenses et son architecture en brique de terre cuite. Star Wars y fut tourné. Une oasis au bord du désert.",
+        'highlight' => 'Chott El Jérid · Palmeraie · Décors Star Wars'
+    ],
+    'Takrouna' => [
+        'lat' => 36.0500, 'lng' => 10.0833,
+        'history' => "Village berbère perché sur un piton rocheux surplombant la plaine. L'un des derniers villages berbères de Tunisie, Takrouna offre une vue panoramique exceptionnelle et une architecture unique.",
+        'highlight' => 'Village berbère · Vue panoramique · Artisanat local'
+    ],
+    'Kessra' => [
+        'lat' => 35.7167, 'lng' => 9.3667,
+        'history' => "Village de montagne niché dans le Djebel Kesra, l'un des plus beaux villages de Tunisie. Ses ruelles en pierre, ses maisons traditionnelles et son calme en font un refuge authentique.",
+        'highlight' => 'Architecture en pierre · Randonnées · Vue sur la vallée'
+    ],
+];
 ?>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Explorer – Tarkina</title>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Lato:wght@400;600;700&display=swap" rel="stylesheet">
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root {
-      --cream: #f5f2ee; --dark: #1c1c2e; --navy: #1a2340; --orange: #e8642c;
-      --muted: #6b6b6b; --border: #e0dbd4; --white: #ffffff; --radius: 14px;
-    }
-    body { font-family: 'Lato', sans-serif; background: var(--cream); color: var(--dark); }
-
-    nav { background: var(--white); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 56px; height: 60px; position: sticky; top: 0; z-index: 100; }
-    .nav-logo { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 800; color: var(--dark); text-decoration: none; }
-    .nav-logo span { color: var(--orange); }
-    .nav-links { display: flex; gap: 32px; list-style: none; }
-    .nav-links a { text-decoration: none; color: var(--dark); font-size: 14px; font-weight: 600; opacity: .7; transition: opacity .2s; }
-    .nav-links a:hover { opacity: 1; }
-    .nav-actions { display: flex; gap: 12px; }
-    .btn-nav { background: var(--orange); color: var(--white); border: none; border-radius: 8px; padding: 9px 22px; font-size: 14px; font-weight: 700; text-decoration: none; }
-
-    .hero-banner { background: var(--navy); color: var(--white); padding: 60px 56px; text-align: center; }
-    .hero-banner h1 { font-family: 'Playfair Display', serif; font-size: 42px; margin-bottom: 12px; }
-    .hero-banner p { opacity: .7; font-size: 16px; max-width: 600px; margin: 0 auto; }
-
-    .container { padding: 48px 56px; max-width: 1400px; margin: 0 auto; }
-
-    .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
-    .section-title { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 800; }
-    .section-link { color: var(--orange); font-weight: 700; text-decoration: none; font-size: 14px; }
-    .section-link:hover { text-decoration: underline; }
-
-    .region-scroll { display: flex; gap: 20px; overflow-x: auto; padding-bottom: 16px; margin-bottom: 48px; }
-    .region-card { min-width: 280px; height: 200px; border-radius: var(--radius); overflow: hidden; position: relative; flex-shrink: 0; cursor: pointer; text-decoration: none; }
-    .region-card img { width: 100%; height: 100%; object-fit: cover; transition: transform .4s; }
-    .region-card:hover img { transform: scale(1.08); }
-    .region-card .overlay { position: absolute; bottom: 0; left: 0; right: 0; padding: 20px; background: linear-gradient(transparent, rgba(0,0,0,.7)); color: var(--white); }
-    .region-card .overlay h3 { font-family: 'Playfair Display', serif; font-size: 20px; margin-bottom: 4px; }
-    .region-card .overlay p { font-size: 12px; opacity: .8; }
-
-    .services-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 24px; margin-bottom: 56px; }
-    .card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; text-decoration: none; color: inherit; transition: transform .2s, box-shadow .2s; }
-    .card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(0,0,0,.08); }
-    .card-img { height: 200px; overflow: hidden; position: relative; }
-    .card-img img { width: 100%; height: 100%; object-fit: cover; }
-    .card-badge { position: absolute; top: 12px; left: 12px; background: var(--orange); color: var(--white); font-size: 10px; font-weight: 700; padding: 4px 10px; border-radius: 50px; text-transform: uppercase; letter-spacing: .05em; }
-    .card-body { padding: 18px; }
-    .card-loc { font-size: 12px; color: var(--muted); margin-bottom: 6px; }
-    .card-title { font-family: 'Playfair Display', serif; font-size: 17px; font-weight: 700; margin-bottom: 10px; line-height: 1.3; }
-    .card-footer { display: flex; justify-content: space-between; align-items: center; padding-top: 12px; border-top: 1px solid var(--border); }
-    .card-price { font-weight: 800; font-size: 15px; }
-    .card-price small { font-weight: 400; color: var(--muted); }
-    .card-rating { display: flex; align-items: center; gap: 4px; font-weight: 700; font-size: 13px; }
-    .card-rating svg { width: 14px; height: 14px; fill: var(--orange); }
-
-    .empty-msg { text-align: center; padding: 40px; color: var(--muted); background: var(--white); border-radius: var(--radius); border: 1px solid var(--border); }
-
-    footer { background: var(--navy); color: var(--white); padding: 48px 56px; text-align: center; margin-top: 40px; }
-    footer p { opacity: .6; font-size: 14px; }
-
-    @media (max-width: 768px) {
-      nav { padding: 0 20px; }
-      .hero-banner { padding: 40px 20px; }
-      .hero-banner h1 { font-size: 28px; }
-      .container { padding: 32px 20px; }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explorer les régions — Tarkina</title>
+    <meta name="description" content="Découvrez toutes les régions de Tunisie, leurs hébergements, repas maison, guides locaux et événements authentiques.">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Lato:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        :root {
+            --navy: #1B3A4B;
+            --coral: #E05A2B;
+            --cream: #FAF8F5;
+            --border: #E5E7EB;
+            --muted: #6B7280;
+            --dark: #1a1a2e;
+            --primary: #E05A2B;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Lato', 'Segoe UI', sans-serif; background: var(--cream); color: var(--dark); }
+        
+        .navbar { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background: #fff; border-bottom: 1px solid var(--border); padding: 0 60px; height: 70px; display: flex; align-items: center; justify-content: space-between; }
+        .nav-logo { display: flex; align-items: center; text-decoration: none; }
+        .nav-logo img { height: 36px; }
+        .nav-links { display: flex; gap: 36px; list-style: none; }
+        .nav-links a { text-decoration: none; color: var(--text-dark); font-size: 0.95rem; font-weight: 500; transition: color .2s; }
+        .nav-links a:hover { color: var(--primary); }
+        .nav-auth { display: flex; gap: 12px; align-items: center; }
+        .btn-nav-outline { padding: 8px 20px; border: 1.5px solid var(--navy); border-radius: 50px; color: var(--navy); text-decoration: none; font-size: 0.9rem; font-weight: 600; transition: all .2s; }
+        .btn-nav-outline:hover { background: var(--navy); color: #fff; }
+        .btn-nav-primary { padding: 8px 20px; background: var(--primary); border-radius: 50px; color: #fff; text-decoration: none; font-size: 0.9rem; font-weight: 600; }
+    </style>
 </head>
 <body>
 
-<nav>
-  <a class="nav-logo" href="index.php">Tarkina <span>·</span></a>
+<!-- NAVBAR -->
+<nav class="navbar">
+  <a href="index.php" class="nav-logo">
+    <img src="assets/img/logo.png" alt="TARKINA" onerror="this.style.display='none';this.nextElementSibling.style.display='inline'">
+    <span style="display:none;font-weight:800;font-size:1.4rem;color:#1B3A4B;">Tarkina</span>
+  </a>
   <ul class="nav-links">
     <li><a href="index.php">Accueil</a></li>
-    <li><a href="explorer.php" style="opacity:1;">Explorer</a></li>
+    <li><a href="explorer.php" style="color:var(--primary);">Explorer</a></li>
     <li><a href="about.php">À propos</a></li>
+    <li><a href="stories.php">Stories</a></li>
     <li><a href="contact.php">Contact</a></li>
   </ul>
-  <div class="nav-actions">
+  <div class="nav-auth">
     <?php if(isset($_SESSION['user_id'])): ?>
-      <a href="profile.php" class="btn-nav">Mon profil</a>
+      <a href="profile.php" class="btn-nav-primary">Mon Profil</a>
+      <a href="logout.php" class="btn-nav-outline">Déconnexion</a>
     <?php else: ?>
-      <a href="login.php" class="btn-nav">Se connecter</a>
+      <a href="login.php" class="btn-nav-outline">Connexion</a>
+      <a href="register.php" class="btn-nav-primary">S'inscrire</a>
     <?php endif; ?>
   </div>
 </nav>
 
-<div class="hero-banner">
-  <h1>Explorez la Tunisie autrement</h1>
-  <p>Hébergements, gastronomie, guides locaux, artisanat et événements – trouvez votre prochaine aventure.</p>
+<div style="position:absolute;top:80px;left:40px;z-index:100;margin-top:0;padding-top:0;">
+    <a href="index.php" style="display:inline-flex;align-items:center;gap:6px;color:#fff;font-size:0.9rem;font-weight:600;text-decoration:none;opacity:0.7;transition:opacity 0.2s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.7'">
+        ← Retour à l'accueil
+    </a>
 </div>
 
-<div class="container">
-
-  <!-- RÉGIONS -->
-  <?php if (!empty($regions)): ?>
-  <div class="section-header">
-    <h2 class="section-title">Nos régions</h2>
-  </div>
-  <div class="region-scroll">
-    <?php foreach ($regions as $reg):
-      $img = !empty($reg['photo_principale']) ? (strpos($reg['photo_principale'],'http')===0 ? $reg['photo_principale'] : 'uploads/'.$reg['photo_principale']) : 'https://images.unsplash.com/photo-1540260074744-934336c53549?auto=format&fit=crop&w=800&q=80';
-    ?>
-    <a class="region-card" href="region.php?id=<?= $reg['id'] ?>">
-      <img src="<?= htmlspecialchars($img) ?>" alt="<?= htmlspecialchars($reg['nom']) ?>">
-      <div class="overlay">
-        <h3><?= htmlspecialchars($reg['nom']) ?></h3>
-        <p><?= htmlspecialchars(mb_substr($reg['description'] ?? '', 0, 60)) ?>...</p>
-      </div>
-    </a>
-    <?php endforeach; ?>
-  </div>
-  <?php endif; ?>
-
-  <!-- HÉBERGEMENTS -->
-  <div class="section-header" id="hebergements">
-    <h2 class="section-title">Hébergements</h2>
-    <a href="search.php?type=hebergement" class="section-link">Voir tout →</a>
-  </div>
-  <?php if (empty($hebergements)): ?>
-    <div class="empty-msg">Aucun hébergement disponible pour le moment.</div>
-  <?php else: ?>
-  <div class="services-grid">
-    <?php foreach ($hebergements as $s): $img = fmtImg($s['photo_principale']??'', $s['type']); ?>
-    <a class="card" href="hebergement.php?id=<?= $s['id'] ?>">
-      <div class="card-img">
-        <img src="<?= htmlspecialchars($img) ?>" alt="<?= htmlspecialchars($s['titre']) ?>">
-        <span class="card-badge"><?= $s['type_label'] ?></span>
-      </div>
-      <div class="card-body">
-        <div class="card-loc"><?= htmlspecialchars($s['localisation']) ?></div>
-        <div class="card-title"><?= htmlspecialchars($s['titre']) ?></div>
-        <div class="card-footer">
-          <div class="card-price"><?= number_format($s['prix'],2,'.',' ') ?> TND <small>/ nuit</small></div>
-          <div class="card-rating"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> <?= number_format(rand(45,50)/10,1) ?></div>
-        </div>
-      </div>
-    </a>
-    <?php endforeach; ?>
-  </div>
-  <?php endif; ?>
-
-  <!-- REPAS -->
-  <div class="section-header">
-    <h2 class="section-title">Repas maison</h2>
-    <a href="search.php?type=repas" class="section-link">Voir tout →</a>
-  </div>
-  <?php if (empty($repas_list)): ?>
-    <div class="empty-msg">Aucun repas disponible pour le moment.</div>
-  <?php else: ?>
-  <div class="services-grid">
-    <?php foreach ($repas_list as $s): $img = fmtImg($s['photo_principale']??'', $s['type']); ?>
-    <a class="card" href="repas.php?id=<?= $s['id'] ?>">
-      <div class="card-img">
-        <img src="<?= htmlspecialchars($img) ?>" alt="<?= htmlspecialchars($s['titre']) ?>">
-        <span class="card-badge"><?= $s['type_label'] ?></span>
-      </div>
-      <div class="card-body">
-        <div class="card-loc"><?= htmlspecialchars($s['localisation']) ?></div>
-        <div class="card-title"><?= htmlspecialchars($s['titre']) ?></div>
-        <div class="card-footer">
-          <div class="card-price"><?= number_format($s['prix'],2,'.',' ') ?> TND <small>/ pers.</small></div>
-          <div class="card-rating"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> <?= number_format(rand(45,50)/10,1) ?></div>
-        </div>
-      </div>
-    </a>
-    <?php endforeach; ?>
-  </div>
-  <?php endif; ?>
-
-  <!-- GUIDES -->
-  <div class="section-header">
-    <h2 class="section-title">Guides locaux</h2>
-    <a href="search.php?type=guide" class="section-link">Voir tout →</a>
-  </div>
-  <?php if (empty($guides)): ?>
-    <div class="empty-msg">Aucun guide disponible pour le moment.</div>
-  <?php else: ?>
-  <div class="services-grid">
-    <?php foreach ($guides as $s): $img = fmtImg($s['photo_principale']??'', $s['type']); ?>
-    <a class="card" href="guide.php?id=<?= $s['id'] ?>">
-      <div class="card-img">
-        <img src="<?= htmlspecialchars($img) ?>" alt="<?= htmlspecialchars($s['titre']) ?>">
-        <span class="card-badge"><?= $s['type_label'] ?></span>
-      </div>
-      <div class="card-body">
-        <div class="card-loc"><?= htmlspecialchars($s['localisation']) ?></div>
-        <div class="card-title"><?= htmlspecialchars($s['titre']) ?></div>
-        <div class="card-footer">
-          <div class="card-price"><?= number_format($s['prix'],2,'.',' ') ?> TND <small>/ pers.</small></div>
-          <div class="card-rating"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> <?= number_format(rand(45,50)/10,1) ?></div>
-        </div>
-      </div>
-    </a>
-    <?php endforeach; ?>
-  </div>
-  <?php endif; ?>
-
-  <!-- ÉVÉNEMENTS -->
-  <div class="section-header">
-    <h2 class="section-title">Événements</h2>
-    <a href="search.php?type=evenement" class="section-link">Voir tout →</a>
-  </div>
-  <?php if (empty($evenements)): ?>
-    <div class="empty-msg">Aucun événement disponible pour le moment.</div>
-  <?php else: ?>
-  <div class="services-grid">
-    <?php foreach ($evenements as $s): $img = fmtImg($s['photo_principale']??'', $s['type']); ?>
-    <a class="card" href="evenement.php?id=<?= $s['id'] ?>">
-      <div class="card-img">
-        <img src="<?= htmlspecialchars($img) ?>" alt="<?= htmlspecialchars($s['titre']) ?>">
-        <span class="card-badge"><?= $s['type_label'] ?></span>
-      </div>
-      <div class="card-body">
-        <div class="card-loc"><?= htmlspecialchars($s['localisation']) ?></div>
-        <div class="card-title"><?= htmlspecialchars($s['titre']) ?></div>
-        <div class="card-footer">
-          <div class="card-price"><?= number_format($s['prix'],2,'.',' ') ?> TND <small>/ pers.</small></div>
-          <div class="card-rating"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> <?= number_format(rand(45,50)/10,1) ?></div>
-        </div>
-      </div>
-    </a>
-    <?php endforeach; ?>
-  </div>
-  <?php endif; ?>
-
-  <!-- ARTISANAT -->
-  <div class="section-header">
-    <h2 class="section-title">Boutique artisanale</h2>
-    <a href="search.php?type=artisanat" class="section-link">Voir tout →</a>
-  </div>
-  <?php if (empty($artisanats)): ?>
-    <div class="empty-msg">Aucun produit artisanal disponible pour le moment.</div>
-  <?php else: ?>
-  <div class="services-grid">
-    <?php foreach ($artisanats as $s): $img = fmtImg($s['photo_principale']??'', $s['type']); ?>
-    <a class="card" href="artisanat.php?id=<?= $s['id'] ?>">
-      <div class="card-img">
-        <img src="<?= htmlspecialchars($img) ?>" alt="<?= htmlspecialchars($s['titre']) ?>">
-        <span class="card-badge"><?= $s['type_label'] ?></span>
-      </div>
-      <div class="card-body">
-        <div class="card-loc"><?= htmlspecialchars($s['localisation']) ?></div>
-        <div class="card-title"><?= htmlspecialchars($s['titre']) ?></div>
-        <div class="card-footer">
-          <div class="card-price"><?= number_format($s['prix'],2,'.',' ') ?> TND <small>/ unité</small></div>
-          <div class="card-rating"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> <?= number_format(rand(45,50)/10,1) ?></div>
-        </div>
-      </div>
-    </a>
-    <?php endforeach; ?>
-  </div>
-  <?php endif; ?>
-
+<div class="explorer-hero" style="margin-top: 70px;">
+    <div class="hero-tag">Tunisie authentique</div>
+    <h1>Explorez la Tunisie</h1>
+    <p>Découvrez nos régions, leur histoire et leurs trésors cachés</p>
+    <div class="hero-search">
+        <input type="text" id="region-search" placeholder="Rechercher une région…" oninput="filterCards(this.value)">
+        <button onclick="filterCards(document.getElementById('region-search').value)">Rechercher</button>
+    </div>
+    <div class="hero-stats">
+        <div class="hero-stat"><span class="stat-num">6</span><span class="stat-label">Régions</span></div>
+        <div class="hero-stat"><span class="stat-num">24+</span><span class="stat-label">Expériences</span></div>
+        <div class="hero-stat"><span class="stat-num">100%</span><span class="stat-label">Authentique</span></div>
+    </div>
 </div>
 
-<footer>
-  <p>&copy; <?= date('Y') ?> Tarkina — Voyagez autrement en Tunisie.</p>
+<div class="explorer-map" id="map"></div>
+
+<div class="explorer-regions">
+    <div class="section-header">
+        <h2>Nos régions</h2>
+    </div>
+    <div class="regions-list" id="regions-grid">
+        <?php foreach ($regions as $r):
+            $name = $r['nom'];
+            $meta = $region_meta[$name] ?? ['history' => '', 'highlight' => '', 'lat' => 0, 'lng' => 0];
+            $photo = !empty($r['photo']) 
+                ? (strpos($r['photo'], 'http') === 0 ? $r['photo'] : 'uploads/' . $r['photo']) 
+                : 'https://images.unsplash.com/photo-1540260074744-934336c53549?w=800&fit=crop';
+        ?>
+        <div class="region-card" id="card-<?= $r['id'] ?>" data-lat="<?= $meta['lat'] ?>" data-lng="<?= $meta['lng'] ?>" data-id="<?= $r['id'] ?>" data-name="<?= strtolower(htmlspecialchars($name)) ?>">
+            <div class="card-img">
+                <img src="<?= htmlspecialchars($photo) ?>" alt="<?= htmlspecialchars($name) ?>">
+                <div class="card-img-badge"><?= htmlspecialchars($name) ?></div>
+            </div>
+            <div class="card-body">
+                <div class="card-top">
+                    <h3><?= htmlspecialchars($name) ?></h3>
+                    <p><?= htmlspecialchars($meta['history']) ?></p>
+                </div>
+                <div class="card-bottom">
+                    <div class="card-highlights">📍 <?= htmlspecialchars($meta['highlight']) ?></div>
+                    <a href="region.php?id=<?= $r['id'] ?>" class="btn-explore">Découvrir →</a>
+                </div>
+            </div>
+        </div>
+        <?php endforeach; ?>
+    </div>
+</div>
+
+<!-- STORIES TEASER — add before footer in explorer.php -->
+<section style="background:#1B3A4B;padding:60px 0;text-align:center;">
+  <div class="container">
+    <h2 style="color:#fff;font-size:2rem;font-weight:700;margin-bottom:0.5rem;">Tarkina Stories</h2>
+    <p style="color:rgba(255,255,255,0.7);font-size:1rem;margin-bottom:1.5rem;">
+      De vraies expériences partagées par des voyageurs comme vous
+    </p>
+    <a href="stories.php" style="background:#E05A2B;color:#fff;border-radius:999px;padding:12px 32px;font-size:15px;font-weight:600;text-decoration:none;">
+      Découvrir les stories →
+    </a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer style="background:#1B3A4B;color:#fff;padding:48px 60px 28px;margin-top:40px;">
+  <div style="display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:48px;max-width:1200px;margin:0 auto 36px;">
+    <div>
+      <div style="font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:800;margin-bottom:10px;">Tarkina</div>
+      <p style="color:rgba(255,255,255,0.55);font-size:0.875rem;line-height:1.7;">Découvrez la Tunisie cachée à travers ses habitants, ses saveurs et son artisanat.</p>
+    </div>
+    <div>
+      <h4 style="font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.45);margin-bottom:16px;">Explorer</h4>
+      <ul style="list-style:none;display:flex;flex-direction:column;gap:10px;">
+        <li><a href="explorer.php" style="color:rgba(255,255,255,0.7);text-decoration:none;font-size:14px;">Toutes les régions</a></li>
+        <li><a href="search.php?type=hebergement" style="color:rgba(255,255,255,0.7);text-decoration:none;font-size:14px;">Hébergements</a></li>
+        <li><a href="search.php?type=repas" style="color:rgba(255,255,255,0.7);text-decoration:none;font-size:14px;">Repas maison</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4 style="font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.45);margin-bottom:16px;">Contact</h4>
+      <p style="color:rgba(255,255,255,0.7);font-size:14px;line-height:2;">📍 Tunis, Tunisie<br>✉️ hello@tarkina.tn<br>📞 +216 71 000 000</p>
+    </div>
+  </div>
+  <div style="border-top:1px solid rgba(255,255,255,0.1);padding-top:20px;text-align:center;font-size:13px;color:rgba(255,255,255,0.35);max-width:1200px;margin:0 auto;">
+    © 2026 Tarkina — Voyagez autrement en Tunisie.
+  </div>
 </footer>
 
+<script>
+const map = L.map('map', {
+    center: [33.8869, 9.5375],
+    zoom: 6,
+    minZoom: 5,
+    maxZoom: 10,
+    maxBounds: [[29.0, 7.0], [38.5, 13.5]],
+    maxBoundsViscosity: 1.0,
+    zoomControl: false
+});
+
+L.control.zoom({
+    zoomInTitle: 'Zoom avant',
+    zoomOutTitle: 'Zoom arrière'
+}).addTo(map);
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© contributeurs d\'OpenStreetMap'
+}).addTo(map);
+
+const orangeIcon = L.divIcon({
+    className: '',
+    html: `<div style="background:#E05A2B;width:14px;height:14px;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,0.3)"></div>`,
+    iconSize: [20, 20], iconAnchor: [10, 10]
+});
+
+document.querySelectorAll('.region-card').forEach(card => {
+    const lat = parseFloat(card.dataset.lat);
+    const lng = parseFloat(card.dataset.lng);
+    const id = card.dataset.id;
+    const name = card.querySelector('h3').textContent;
+
+    if (!lat || !lng) return;
+
+    const marker = L.marker([lat, lng], { icon: orangeIcon })
+        .addTo(map)
+        .bindPopup(`<strong>${name}</strong>`);
+
+    marker.on('click', () => {
+        document.querySelectorAll('.region-card').forEach(c => c.classList.remove('active'));
+        card.classList.add('active');
+        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+
+    card.addEventListener('click', () => {
+        map.setView([lat, lng], 9, { animate: true });
+        marker.openPopup();
+        document.querySelectorAll('.region-card').forEach(c => c.classList.remove('active'));
+        card.classList.add('active');
+    });
+});
+function filterCards(query) {
+    const q = query.toLowerCase();
+    document.querySelectorAll('.region-card').forEach(card => {
+        const name = card.dataset.name || '';
+        card.style.display = name.includes(q) ? 'flex' : 'none';
+    });
+}
+</script>
 </body>
 </html>
