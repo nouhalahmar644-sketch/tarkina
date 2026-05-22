@@ -1,33 +1,33 @@
 <?php
 session_start();
 
-$host = '127.0.0.1'; $dbname = 'tourisme'; $db_user = 'root'; $db_pass = '';
-try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $db_user, $db_pass);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch(PDOException $e) { $pdo = null; }
+require 'db.php';
 
 // Fetch regions
 $regions = [];
-if($pdo) {
-    try {
-        $stmt = $pdo->query("SELECT r.*, 
-            (SELECT COUNT(*) FROM hebergement WHERE region_id = r.id AND statut IN ('actif','publié')) +
-            (SELECT COUNT(*) FROM repas WHERE region_id = r.id AND statut IN ('actif','publié')) +
-            (SELECT COUNT(*) FROM guide WHERE region_id = r.id AND statut IN ('actif','publié')) +
-            (SELECT COUNT(*) FROM evenement WHERE region_id = r.id AND statut IN ('actif','publié')) AS nb_services
-            FROM region r ORDER BY r.nom ASC LIMIT 3");
-        $regions = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    } catch(Exception $e) { $regions = []; }
+if(isset($conn) && $conn) {
+    $res = mysqli_query($conn, "SELECT r.*, 
+        (SELECT COUNT(*) FROM hebergement WHERE region_id = r.id AND statut IN ('actif','publié')) +
+        (SELECT COUNT(*) FROM repas WHERE region_id = r.id AND statut IN ('actif','publié')) +
+        (SELECT COUNT(*) FROM guide WHERE region_id = r.id AND statut IN ('actif','publié')) +
+        (SELECT COUNT(*) FROM evenement WHERE region_id = r.id AND statut IN ('actif','publié')) AS nb_services
+        FROM region r ORDER BY r.nom ASC LIMIT 3");
+    if($res) {
+        while($row = mysqli_fetch_assoc($res)) {
+            $regions[] = $row;
+        }
+    }
 }
 
 // Fetch guides for hosts section
 $guides = [];
-if($pdo) {
-    try {
-        $stmt2 = $pdo->query("SELECT g.*, r.nom as region_nom FROM guide g LEFT JOIN region r ON g.region_id = r.id WHERE g.statut IN ('actif','publié') LIMIT 6");
-        $guides = $stmt2->fetchAll(PDO::FETCH_ASSOC);
-    } catch(Exception $e) { $guides = []; }
+if(isset($conn) && $conn) {
+    $res2 = mysqli_query($conn, "SELECT g.*, r.nom as region_nom FROM guide g LEFT JOIN region r ON g.region_id = r.id WHERE g.statut IN ('actif','publié') LIMIT 6");
+    if($res2) {
+        while($row = mysqli_fetch_assoc($res2)) {
+            $guides[] = $row;
+        }
+    }
 }
 ?>
 <!DOCTYPE html>
@@ -285,13 +285,15 @@ if($pdo) {
             <select name="destination" style="border:none;outline:none;background:transparent;font-size:14px;color:#333;font-family:inherit;width:100%;cursor:pointer;">
                 <option value="">Où allez-vous ?</option>
                 <?php
-                if ($pdo) {
-                    $reg_q = $pdo->query("SELECT id, nom FROM region ORDER BY nom ASC");
-                    while ($reg_row = $reg_q->fetch(PDO::FETCH_ASSOC)):
+                if (isset($conn) && $conn) {
+                    $reg_q = mysqli_query($conn, "SELECT id, nom FROM region ORDER BY nom ASC");
+                    if($reg_q) {
+                        while ($reg_row = mysqli_fetch_assoc($reg_q)):
                 ?>
                 <option value="<?= $reg_row['id'] ?>"><?= htmlspecialchars($reg_row['nom'], ENT_QUOTES, 'UTF-8') ?></option>
                 <?php 
-                    endwhile; 
+                        endwhile;
+                    } 
                 }
                 ?>
             </select>

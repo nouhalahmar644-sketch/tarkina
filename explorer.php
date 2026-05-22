@@ -139,7 +139,7 @@ $region_meta = [
     </div>
 </div>
 
-<!-- STORIES TEASER — add before footer in explorer.php -->
+<!-- BLOG TEASER —— before footer in explorer.php -->
 <section style="background:#1B3A4B;padding:60px 0;text-align:center;">
   <div class="container">
     <h2 style="color:#fff;font-size:2rem;font-weight:700;margin-bottom:0.5rem;">Le Blog des voyageurs</h2>

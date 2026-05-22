@@ -8,10 +8,9 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST' || empty($_POST['id'])) {
     exit;
 }
 
-$id = (int)$_POST['id'];
-mysqli_query($conn, "UPDATE stories SET likes = likes + 1 WHERE id = $id");
-$result = mysqli_query($conn, "SELECT likes FROM stories WHERE id = $id");
-$row = mysqli_fetch_assoc($result);
+$id = (int) $_POST['id'];
+mysqli_query($conn, "UPDATE blogs SET likes = likes + 1 WHERE id = $id");
+$result = mysqli_query($conn, "SELECT likes FROM blogs WHERE id = $id");
+$row    = mysqli_fetch_assoc($result);
 
-echo json_encode(['success' => true, 'likes' => $row['likes']]);
-?>
+echo json_encode(['success' => true, 'likes' => (int) $row['likes']]);

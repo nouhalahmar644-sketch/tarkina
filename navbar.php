@@ -78,7 +78,7 @@ $tk_active = function (string $f) use ($__tkCur) {
     <ul class="tk-nav__links">
       <li><a href="index.php" class="<?= $tk_active('index.php') ?>">Accueil</a></li>
       <li><a href="explorer.php" class="<?= $tk_active('explorer.php') ?>">Explorer</a></li>
-      <li><a href="blogs.php" class="<?= (strpos($__tkCur, 'blog') === 0 || $__tkCur === 'stories.php') ? 'tk-nav-link active' : 'tk-nav-link' ?>">Blog</a></li>
+      <li><a href="blogs.php" class="<?= strpos($__tkCur, 'blog') === 0 ? 'tk-nav-link active' : 'tk-nav-link' ?>">Blog</a></li>
       <li><a href="about.php" class="<?= $tk_active('about.php') ?>">À propos</a></li>
       <li><a href="contact.php" class="<?= $tk_active('contact.php') ?>">Contact</a></li>
     </ul>
