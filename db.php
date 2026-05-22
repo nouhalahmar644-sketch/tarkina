@@ -12,7 +12,7 @@ $db_user = 'root';
 $db_pass = '';
 
 // Nom de la base pour la plateforme tourisme (PFE)
-$db_name = 'tarkina';
+$db_name = 'tourisme';
 
 // Étape 2 : ouvrir la connexion MySQLi en mode procédural
 $conn = mysqli_connect($host, $db_user, $db_pass, $db_name);
