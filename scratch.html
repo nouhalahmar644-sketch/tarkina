@@ -1,0 +1,774 @@
+﻿<style>
+:root {
+  --navy: #1B3A4B;
+  --coral: #E05A2B;
+  --cream: #FAF8F5;
+  --white: #FFFFFF;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes bounceScroll {
+  0%, 20%, 50%, 80%, 100% { transform: translateY(0) translateX(-50%); }
+  40% { transform: translateY(-20px) translateX(-50%); }
+  60% { transform: translateY(-10px) translateX(-50%); }
+}
+
+.stagger-1 { animation: fadeInUp 0.8s ease forwards; opacity: 0; animation-delay: 0.2s; }
+.stagger-2 { animation: fadeInUp 0.8s ease forwards; opacity: 0; animation-delay: 0.4s; }
+.stagger-3 { animation: fadeInUp 0.8s ease forwards; opacity: 0; animation-delay: 0.6s; }
+.fade-up-el { opacity: 0; transform: translateY(40px); transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
+.fade-up-el.visible { opacity: 1; transform: translateY(0); }
+
+/* HERO */
+.hero-redesign {
+  position: relative;
+  height: 100vh;
+  min-height: 800px;
+  background-image: url('https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?auto=format&fit=crop&w=1920&q=80');
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+.hero-redesign::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(27, 58, 75, 0.5);
+}
+.hero-content {
+  position: relative;
+  z-index: 2;
+  color: #fff;
+  padding: 0 20px;
+  margin-top: -50px;
+}
+.hero-label {
+  color: var(--coral);
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+  font-size: 0.9rem;
+}
+.hero-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 5.5rem;
+  font-weight: 800;
+  line-height: 1.1;
+  margin-bottom: 20px;
+}
+@media (max-width: 768px) {
+  .hero-title { font-size: 3.5rem; }
+}
+.hero-subtitle {
+  font-size: 1.25rem;
+  opacity: 0.8;
+  max-width: 600px;
+  margin: 0 auto 50px;
+}
+
+/* Glass Search */
+.glass-search {
+  position: absolute;
+  bottom: 10vh;
+  z-index: 2;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 999px;
+  padding: 10px;
+  width: 90%;
+  max-width: 1000px;
+}
+.glass-search form {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  margin: 0;
+}
+.gs-field {
+  flex: 1;
+  padding: 5px 25px;
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+.gs-field label {
+  color: rgba(255,255,255,0.8);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 4px;
+  font-weight: 700;
+}
+.gs-field input {
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-weight: 600;
+  font-size: 1rem;
+  outline: none;
+  width: 100%;
+}
+.gs-field input::placeholder { color: rgba(255,255,255,0.6); }
+.gs-divider {
+  width: 1px;
+  height: 40px;
+  background: rgba(255,255,255,0.3);
+}
+.gs-btn {
+  background: var(--coral);
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  padding: 15px 40px;
+  font-weight: 700;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+.gs-btn:hover { background: #c24921; }
+
+@media (max-width: 992px) {
+  .glass-search {
+    border-radius: 24px;
+    bottom: 5vh;
+  }
+  .glass-search form { flex-direction: column; gap: 10px; padding: 10px; }
+  .gs-field { width: 100%; padding: 10px; }
+  .gs-divider { width: 100%; height: 1px; }
+  .gs-btn { width: 100%; margin-top: 10px; }
+}
+
+.scroll-arrow {
+  position: absolute;
+  bottom: 2vh;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #fff;
+  font-size: 2rem;
+  animation: bounceScroll 2s infinite;
+  z-index: 2;
+  opacity: 0.8;
+}
+
+/* STATS */
+.stats-bar {
+  background: var(--navy);
+  color: #fff;
+  padding: 80px 0;
+}
+.stat-item { text-align: center; }
+.stat-item h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 3.5rem;
+  color: var(--coral);
+  margin-bottom: 5px;
+  font-weight: 800;
+}
+.stat-item p {
+  font-size: 1.1rem;
+  opacity: 0.8;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.stat-divider {
+  border-right: 1px solid rgba(255,255,255,0.15);
+}
+@media (max-width: 768px) {
+  .stat-divider { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.15); margin-bottom: 30px; padding-bottom: 30px; }
+  .stat-item:last-child .stat-divider { border: none; margin: 0; padding: 0; }
+}
+
+/* REGIONS */
+.regions-sec {
+  padding: 120px 0;
+  background: var(--cream);
+}
+.sec-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 3.5rem;
+  color: var(--navy);
+  margin-bottom: 15px;
+  text-align: center;
+  font-weight: 800;
+}
+.title-underline {
+  width: 80px;
+  height: 4px;
+  background: var(--coral);
+  margin: 0 auto 60px;
+  border-radius: 2px;
+}
+.reg-card {
+  position: relative;
+  border-radius: 24px;
+  overflow: hidden;
+  height: 450px;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+}
+.reg-card:hover { transform: scale(1.03) translateY(-10px); box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
+.reg-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.reg-card:hover img { transform: scale(1.08); }
+.reg-overlay {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  background: linear-gradient(to top, rgba(27,58,75,0.9) 0%, rgba(27,58,75,0.4) 60%, transparent 100%);
+  padding: 40px 30px 30px;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+.reg-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.2rem;
+  margin-bottom: 0;
+  transform: translateY(20px);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  font-weight: 700;
+}
+.reg-desc {
+  font-size: 1rem;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  height: 0;
+  overflow: hidden;
+  line-height: 1.6;
+}
+.reg-card:hover .reg-name { transform: translateY(0); margin-bottom: 10px; }
+.reg-card:hover .reg-desc { opacity: 1; transform: translateY(0); height: auto; }
+
+/* EXPERIENCES */
+.exp-sec {
+  padding: 120px 0;
+  background: #fff;
+}
+.exp-row { margin-bottom: 100px; }
+.exp-row:last-child { margin-bottom: 0; }
+.exp-img-wrapper {
+  border-radius: 24px;
+  overflow: hidden;
+  height: 550px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+  position: relative;
+}
+.parallax-img {
+  width: 100%;
+  height: 130%;
+  object-fit: cover;
+  transform: translateY(-15%);
+  transition: transform 0.1s linear;
+}
+.exp-content {
+  padding: 0 60px;
+}
+.exp-icon-box {
+  width: 70px;
+  height: 70px;
+  background: var(--cream);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+  margin-bottom: 30px;
+}
+.exp-content h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 3rem;
+  color: var(--navy);
+  margin-bottom: 25px;
+  font-weight: 800;
+}
+.exp-content p {
+  color: #666;
+  font-size: 1.15rem;
+  line-height: 1.8;
+  margin-bottom: 40px;
+}
+.btn-coral-outline {
+  display: inline-block;
+  border: 2px solid var(--coral);
+  color: var(--coral);
+  padding: 12px 30px;
+  border-radius: 999px;
+  text-decoration: none;
+  font-weight: 700;
+  transition: all 0.3s;
+}
+.btn-coral-outline:hover {
+  background: var(--coral);
+  color: #fff;
+}
+@media (max-width: 992px) {
+  .exp-content { padding: 40px 15px; text-align: center; }
+  .exp-icon-box { margin: 0 auto 30px; }
+  .exp-img-wrapper { height: 400px; }
+}
+
+/* HOW IT WORKS */
+.hiw-sec {
+  padding: 120px 0;
+  background: var(--navy);
+  color: #fff;
+}
+.hiw-sec .sec-title { color: #fff; }
+.hiw-grid {
+  position: relative;
+  margin-top: 80px;
+}
+.hiw-line {
+  position: absolute;
+  top: 45px;
+  left: 15%;
+  right: 15%;
+  height: 2px;
+  background-image: linear-gradient(to right, var(--coral) 50%, transparent 50%);
+  background-size: 20px 2px;
+  z-index: 1;
+  opacity: 0.5;
+}
+.hiw-step {
+  position: relative;
+  z-index: 2;
+  padding: 0 30px;
+  text-align: center;
+}
+.hiw-num {
+  width: 90px;
+  height: 90px;
+  background: var(--coral);
+  color: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Playfair Display', serif;
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin: 0 auto 35px;
+  box-shadow: 0 0 0 12px var(--navy);
+}
+.hiw-step h4 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.8rem;
+  margin-bottom: 20px;
+}
+.hiw-step p {
+  opacity: 0.7;
+  font-size: 1.1rem;
+  line-height: 1.7;
+}
+@media (max-width: 768px) {
+  .hiw-line { display: none; }
+  .hiw-step { margin-bottom: 60px; }
+}
+
+/* TESTIMONIALS */
+.testi-sec {
+  padding: 120px 0;
+  background: var(--cream);
+}
+.testi-card {
+  background: #fff;
+  padding: 50px 40px;
+  border-radius: 24px;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.04);
+  height: 100%;
+  position: relative;
+}
+.quote-mark {
+  font-family: 'Playfair Display', serif;
+  font-size: 6rem;
+  color: var(--coral);
+  line-height: 0;
+  position: absolute;
+  top: 60px;
+  left: 40px;
+  opacity: 0.2;
+}
+.testi-text {
+  font-size: 1.2rem;
+  font-style: italic;
+  color: var(--navy);
+  margin-bottom: 40px;
+  line-height: 1.8;
+  position: relative;
+  z-index: 2;
+  margin-top: 20px;
+}
+.testi-author {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.testi-author img {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.testi-author h5 {
+  margin: 0 0 5px;
+  color: var(--navy);
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+.testi-stars { color: var(--coral); font-size: 1rem; }
+
+/* CTA SECTION */
+.cta-sec {
+  padding: 140px 0;
+  background: linear-gradient(135deg, var(--coral), #b83c13);
+  position: relative;
+  text-align: center;
+  color: #fff;
+}
+.cta-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 4rem;
+  margin-bottom: 40px;
+  font-weight: 800;
+}
+.cta-btn {
+  display: inline-block;
+  border: 2px solid #fff;
+  background: transparent;
+  color: #fff;
+  padding: 18px 50px;
+  font-size: 1.2rem;
+  font-weight: 700;
+  border-radius: 999px;
+  text-decoration: none;
+  transition: all 0.3s;
+}
+.cta-btn:hover {
+  background: #fff;
+  color: var(--coral);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+}
+
+/* NAVBAR TWEAKS */
+.navbar { transition: all 0.3s ease; position: fixed; top: 0; width: 100%; z-index: 1000; background: transparent; padding: 20px 0; border: none; }
+.navbar-brand img { transition: filter 0.3s ease; filter: brightness(0) invert(1); height: 40px; }
+.navbar.scrolled { background: #fff; box-shadow: 0 4px 30px rgba(0,0,0,0.1); padding: 15px 0; }
+.navbar.scrolled .navbar-brand img { filter: none; }
+.navbar .nav-link { color: #fff !important; font-weight: 600; font-size: 1.05rem; }
+.navbar.scrolled .nav-link { color: var(--navy) !important; }
+.navbar .btn-nav-outline { border: 2px solid #fff; color: #fff; border-radius: 999px; padding: 8px 24px; text-decoration: none; font-weight: 700; transition: all 0.3s; display:inline-block;}
+.navbar .btn-nav-outline:hover { background: #fff; color: var(--navy); }
+.navbar.scrolled .btn-nav-outline { border-color: var(--navy); color: var(--navy); }
+.navbar.scrolled .btn-nav-outline:hover { background: var(--navy); color: #fff; }
+.navbar .btn-nav-primary { background: var(--coral); color: #fff; border: 2px solid var(--coral); border-radius: 999px; padding: 8px 24px; text-decoration: none; font-weight: 700; transition: all 0.3s; display:inline-block;}
+.navbar .btn-nav-primary:hover { background: transparent; color: #fff; border-color: #fff; }
+.navbar.scrolled .btn-nav-primary:hover { background: transparent; color: var(--coral); border-color: var(--coral); }
+</style>
+
+<!-- 1. HERO SECTION -->
+<header class="hero-redesign">
+  <div class="hero-content">
+    <p class="hero-label stagger-1">Découvrez la Tunisie authentique</p>
+    <h1 class="hero-title stagger-2">Vivez des expériences<br>inoubliables</h1>
+    <p class="hero-subtitle stagger-3">Plongez au cœur de l'hospitalité tunisienne, hors des sentiers battus.</p>
+  </div>
+
+  <div class="glass-search stagger-3">
+    <form action="search.php" method="GET">
+       <div class="gs-field">
+         <label>Destination</label>
+         <input type="text" name="destination" placeholder="Où allez-vous ?">
+       </div>
+       <div class="gs-divider"></div>
+       <div class="gs-field" onclick="document.getElementById('date_debut').click()">
+         <label>Arrivée</label>
+         <input type="text" id="date_debut" name="date_debut" placeholder="jj/mm/aaaa">
+       </div>
+       <div class="gs-divider"></div>
+       <div class="gs-field" onclick="document.getElementById('date_fin').click()">
+         <label>Départ</label>
+         <input type="text" id="date_fin" name="date_fin" placeholder="jj/mm/aaaa">
+       </div>
+       <div class="gs-divider"></div>
+       <div class="gs-field">
+         <label>Voyageurs</label>
+         <input type="number" name="personnes" value="1" min="1">
+       </div>
+       <button type="submit" class="gs-btn">Rechercher</button>
+    </form>
+  </div>
+  
+  <div class="scroll-arrow">
+    <i class="bi bi-chevron-down"></i>
+  </div>
+</header>
+
+<!-- 2. STATS BAR -->
+<section class="stats-bar">
+  <div class="container">
+    <div class="row">
+      <div class="col-6 col-md-3 stat-item stat-divider fade-up-el">
+        <h3 class="counter" data-target="6">0</h3>
+        <p>Régions</p>
+      </div>
+      <div class="col-6 col-md-3 stat-item stat-divider fade-up-el">
+        <h3><span class="counter" data-target="50">0</span>+</h3>
+        <p>Expériences</p>
+      </div>
+      <div class="col-6 col-md-3 stat-item stat-divider fade-up-el">
+        <h3><span class="counter" data-target="200">0</span>+</h3>
+        <p>Voyageurs</p>
+      </div>
+      <div class="col-6 col-md-3 stat-item fade-up-el">
+        <h3><span class="counter-float" data-target="4.9">0</span>★</h3>
+        <p>Note moyenne</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 3. REGIONS SECTION -->
+<section class="regions-sec">
+  <div class="container">
+    <h2 class="sec-title fade-up-el">Explorez nos régions</h2>
+    <div class="title-underline fade-up-el"></div>
+    <div class="row">
+      <?php foreach ( as ): ?>
+      <div class="col-md-4 mb-4 fade-up-el">
+        <a href="region.php?id=<?= \['id'] ?>" class="text-decoration-none">
+          <div class="reg-card">
+             <img src="<?= htmlspecialchars((strpos(\['photo_principale'], 'uploads/') === 0) ? \['photo_principale'] : 'uploads/' . \['photo_principale']) ?>" alt="<?= htmlspecialchars(\['nom']) ?>" onerror="this.src='https://images.unsplash.com/photo-1540260074744-934336c53549?auto=format&fit=crop&w=800&q=80'">
+             <div class="reg-overlay">
+               <h3 class="reg-name"><?= htmlspecialchars(\['nom']) ?></h3>
+               <div class="reg-desc"><?= htmlspecialchars(substr(\['description'], 0, 100)) ?>...</div>
+             </div>
+          </div>
+        </a>
+      </div>
+      <?php endforeach; ?>
+    </div>
+  </div>
+</section>
+
+<!-- 4. EXPERIENCES SECTION -->
+<section class="exp-sec">
+  <div class="container">
+    <!-- Exp 1 -->
+    <div class="row align-items-center exp-row fade-up-el">
+      <div class="col-md-6 mb-4 mb-md-0">
+        <div class="exp-img-wrapper">
+          <img src="https://images.unsplash.com/photo-1509316785289-025f5b846b35?auto=format&fit=crop&w=1000&q=80" alt="Hébergement" class="parallax-img">
+        </div>
+      </div>
+      <div class="col-md-6 exp-content">
+        <div class="exp-icon-box">🏠</div>
+        <h3>Dormez chez l'habitant</h3>
+        <p>Découvrez des logements typiques et chaleureux. Des maisons troglodytes du Sud aux Dars traditionnels de la Médina, vivez comme un vrai Tunisien au plus près de la culture locale.</p>
+        <a href="search.php?type=hebergement" class="btn-coral-outline">Trouver un hébergement</a>
+      </div>
+    </div>
+    
+    <!-- Exp 2 -->
+    <div class="row align-items-center exp-row flex-md-row-reverse fade-up-el">
+      <div class="col-md-6 mb-4 mb-md-0">
+        <div class="exp-img-wrapper">
+          <img src="https://images.unsplash.com/photo-1548013146-72479768bada?auto=format&fit=crop&w=1000&q=80" alt="Gastronomie" class="parallax-img">
+        </div>
+      </div>
+      <div class="col-md-6 exp-content">
+        <div class="exp-icon-box">🍽️</div>
+        <h3>Repas authentiques</h3>
+        <p>Partagez un repas fait maison avec vos hôtes. Dégustez un couscous familial, découvrez les secrets de la harissa artisanale et laissez-vous emporter par les saveurs méditerranéennes.</p>
+        <a href="search.php?type=repas" class="btn-coral-outline">Découvrir la gastronomie</a>
+      </div>
+    </div>
+    
+    <!-- Exp 3 -->
+    <div class="row align-items-center exp-row fade-up-el">
+      <div class="col-md-6 mb-4 mb-md-0">
+        <div class="exp-img-wrapper">
+          <img src="https://images.unsplash.com/photo-1539650116574-75c0c6d73f6e?auto=format&fit=crop&w=1000&q=80" alt="Guide" class="parallax-img">
+        </div>
+      </div>
+      <div class="col-md-6 exp-content">
+        <div class="exp-icon-box">🧭</div>
+        <h3>Guides locaux passionnés</h3>
+        <p>Laissez-vous guider par ceux qui connaissent la région mieux que personne. Explorez les ruelles secrètes, les marchés d'artisanat et écoutez les légendes locales racontées par des passionnés.</p>
+        <a href="search.php?type=guide" class="btn-coral-outline">Trouver un guide</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 5. HOW IT WORKS -->
+<section class="hiw-sec">
+  <div class="container text-center">
+    <h2 class="sec-title fade-up-el">Comment ça marche</h2>
+    <div class="row hiw-grid">
+      <div class="hiw-line fade-up-el"></div>
+      
+      <div class="col-md-4 hiw-step fade-up-el">
+        <div class="hiw-num">01</div>
+        <h4>Découvrez</h4>
+        <p>Parcourez nos régions et trouvez les expériences qui vous correspondent parmi des dizaines d'offres authentiques.</p>
+      </div>
+      
+      <div class="col-md-4 hiw-step fade-up-el" style="transition-delay: 0.2s;">
+        <div class="hiw-num">02</div>
+        <h4>Réservez</h4>
+        <p>Contactez l'hôte et sécurisez votre séjour en quelques clics via notre plateforme de réservation simple et fiable.</p>
+      </div>
+      
+      <div class="col-md-4 hiw-step fade-up-el" style="transition-delay: 0.4s;">
+        <div class="hiw-num">03</div>
+        <h4>Voyagez</h4>
+        <p>Vivez des moments inoubliables, partagez le quotidien de vos hôtes et soutenez l'économie locale directe.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 6. TESTIMONIALS -->
+<section class="testi-sec">
+  <div class="container">
+    <h2 class="sec-title fade-up-el">Ce qu'ils en disent</h2>
+    <div class="title-underline fade-up-el"></div>
+    <div class="row g-4 mt-4">
+      <div class="col-md-4 fade-up-el">
+        <div class="testi-card">
+          <div class="quote-mark">"</div>
+          <p class="testi-text">Un séjour incroyable à Tataouine ! La famille nous a accueillis comme les leurs. Le repas du soir sous les étoiles restera gravé dans notre mémoire.</p>
+          <div class="testi-author">
+            <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Sarah">
+            <div>
+              <h5>Sarah B.</h5>
+              <div class="testi-stars">★★★★★</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-4 fade-up-el" style="transition-delay: 0.2s;">
+        <div class="testi-card">
+          <div class="quote-mark">"</div>
+          <p class="testi-text">Grâce à Tarkina, nous avons évité les circuits touristiques classiques. Notre guide local à Tunis nous a fait découvrir des trésors cachés.</p>
+          <div class="testi-author">
+            <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Mehdi">
+            <div>
+              <h5>Mehdi K.</h5>
+              <div class="testi-stars">★★★★★</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-4 fade-up-el" style="transition-delay: 0.4s;">
+        <div class="testi-card">
+          <div class="quote-mark">"</div>
+          <p class="testi-text">L'atelier de poterie artisanale à Sejnane était une expérience hors du temps. Une immersion totale dans le savoir-faire tunisien.</p>
+          <div class="testi-author">
+            <img src="https://randomuser.me/api/portraits/women/68.jpg" alt="Amira">
+            <div>
+              <h5>Amira T.</h5>
+              <div class="testi-stars">★★★★★</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 7. CTA SECTION -->
+<section class="cta-sec">
+  <div class="container fade-up-el">
+    <h2 class="cta-title">L'aventure commence ici</h2>
+    <a href="explorer.php" class="cta-btn">Commencer l'aventure</a>
+  </div>
+</section>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  // Navbar scroll
+  const navbar = document.querySelector('.navbar');
+  window.addEventListener('scroll', () => {
+    if (window.scrollY > 50) {
+      navbar.classList.add('scrolled');
+      navbar.classList.remove('navbar-dark');
+      navbar.classList.add('navbar-light');
+    } else {
+      navbar.classList.remove('scrolled');
+      navbar.classList.add('navbar-dark');
+      navbar.classList.remove('navbar-light');
+    }
+  });
+
+  // Intersection Observer for fade ups
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.fade-up-el').forEach(el => observer.observe(el));
+
+  // Stats count up
+  const statsObserver = new IntersectionObserver((entries, obs) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const counter = entry.target.querySelector('.counter, .counter-float');
+        if (counter) {
+          const target = parseFloat(counter.getAttribute('data-target'));
+          const isFloat = counter.classList.contains('counter-float');
+          const duration = 2000;
+          const stepTime = 20;
+          const steps = duration / stepTime;
+          const increment = target / steps;
+          let current = 0;
+          
+          const timer = setInterval(() => {
+            current += increment;
+            if (current >= target) {
+              counter.innerText = target;
+              clearInterval(timer);
+            } else {
+              counter.innerText = isFloat ? current.toFixed(1) : Math.floor(current);
+            }
+          }, stepTime);
+        }
+        obs.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.5 });
+
+  document.querySelectorAll('.stat-item').forEach(el => statsObserver.observe(el));
+
+  // Parallax
+  window.addEventListener('scroll', () => {
+    const scrolled = window.pageYOffset;
+    document.querySelectorAll('.parallax-img').forEach(img => {
+      const speed = 0.15;
+      img.style.transform = 	ranslateY(\%);
+    });
+  });
+});
+</script>

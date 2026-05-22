@@ -22,5 +22,8 @@ if (!$conn) {
     die('Erreur de connexion à la base de données : ' . mysqli_connect_error());
 }
 
-// Étape 4 : forcer l'encodage UTF-8 pour éviter les problèmes d'accents
 mysqli_set_charset($conn, 'utf8mb4');
+
+// Table réservations (utilisée par les pages de service)
+require_once __DIR__ . '/includes/service_helpers.php';
+service_ensure_reservations_table($conn);

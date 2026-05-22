@@ -1,0 +1,278 @@
+<?php
+session_start();
+require_once __DIR__ . '/includes/auth_guard.php';
+require_once __DIR__ . '/db.php';
+
+$user_id = $_SESSION['user_id'];
+$success_msg = '';
+$error_msg = '';
+
+// Handle cancel action
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'cancel') {
+    $res_id = isset($_POST['reservation_id']) ? (int)$_POST['reservation_id'] : 0;
+    if ($res_id > 0) {
+        // Only allow canceling if 'en_attente'
+        $res_check = mysqli_query($conn, "SELECT statut FROM reservations WHERE id = $res_id AND user_id = $user_id LIMIT 1");
+        $row_check = $res_check ? mysqli_fetch_assoc($res_check) : null;
+
+        if ($row_check && $row_check['statut'] === 'en_attente') {
+            if (mysqli_query($conn, "UPDATE reservations SET statut = 'annulée' WHERE id = $res_id")) {
+                $success_msg = 'La réservation a été annulée avec succès.';
+            } else {
+                $error_msg = 'Erreur lors de l\'annulation de la réservation.';
+            }
+        } else {
+            $error_msg = 'Cette réservation ne peut pas être annulée.';
+        }
+    }
+}
+
+// Fetch all reservations for the user
+$sql = "
+    SELECT r.*,
+           h.titre AS hebergement_titre,
+           rp.titre AS repas_titre,
+           g.titre AS guide_titre,
+           e.titre AS evenement_titre,
+           a.titre AS artisanat_titre
+    FROM reservations r
+    LEFT JOIN hebergement h ON r.type_service = 'hebergement' AND r.service_id = h.id
+    LEFT JOIN repas rp ON r.type_service = 'repas' AND r.service_id = rp.id
+    LEFT JOIN guide g ON r.type_service = 'guide' AND r.service_id = g.id
+    LEFT JOIN evenement e ON r.type_service = 'evenement' AND r.service_id = e.id
+    LEFT JOIN artisanat a ON r.type_service = 'artisanat' AND r.service_id = a.id
+    WHERE r.user_id = $user_id
+    ORDER BY r.created_at DESC
+";
+$result = mysqli_query($conn, $sql);
+$reservations = [];
+if ($result) {
+    while ($row = mysqli_fetch_assoc($result)) {
+        $reservations[] = $row;
+    }
+}
+
+?>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mes Réservations – Tarkina</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Lato:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --cream: #f5f2ee;
+      --dark: #1c1c2e;
+      --navy: #1a2340;
+      --orange: #e8642c;
+      --white: #ffffff;
+      --border: #e0dbd4;
+      --radius: 14px;
+      --green: #2ecc71;
+      --red: #e74c3c;
+      --muted: #6b6b6b;
+    }
+    body { font-family: 'Lato', sans-serif; background: var(--cream); color: var(--dark); font-size: 15px; line-height: 1.7; display: flex; flex-direction: column; min-height: 100vh; }
+ 
+    nav { background: var(--white); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 56px; height: 60px; }
+    .nav-logo { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 800; color: var(--dark); text-decoration: none; display: flex; align-items: center; gap: 4px; }
+    .nav-logo span { color: var(--orange); }
+    .nav-links { display: flex; gap: 32px; list-style: none; }
+    .nav-links a { text-decoration: none; color: var(--dark); font-size: 14px; font-weight: 600; opacity: .7; transition: opacity .2s; }
+    .nav-links a:hover { opacity: 1; }
+    .nav-actions { display: flex; align-items: center; gap: 16px; }
+    .btn-nav { background: var(--orange); color: var(--white); border: none; border-radius: 8px; padding: 9px 22px; font-size: 14px; font-weight: 700; cursor: pointer; text-decoration:none; }
+
+    .main-container { flex: 1; padding: 48px 56px; max-width: 1200px; margin: 0 auto; width: 100%; }
+    
+    .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; }
+    .page-title { font-family: 'Playfair Display', serif; font-size: 36px; font-weight: 800; color: var(--dark); }
+    
+    .alert { padding: 16px; border-radius: 8px; margin-bottom: 24px; font-weight: 600; }
+    .alert-success { background: rgba(46, 204, 113, 0.1); color: var(--green); border: 1px solid rgba(46, 204, 113, 0.2); }
+    .alert-error { background: rgba(231, 76, 60, 0.1); color: var(--red); border: 1px solid rgba(231, 76, 60, 0.2); }
+
+    .reservations-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 24px; }
+    
+    .res-card { background: var(--white); border-radius: var(--radius); padding: 24px; border: 1px solid var(--border); display: flex; flex-direction: column; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
+    
+    .res-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+    .res-type { font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+    .res-title { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 800; color: var(--dark); line-height: 1.2; }
+    
+    .badge { padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 700; text-transform: uppercase; }
+    .badge-en_attente { background: rgba(232, 100, 44, 0.1); color: var(--orange); }
+    .badge-confirmee { background: rgba(46, 204, 113, 0.1); color: var(--green); }
+    .badge-annulee { background: rgba(231, 76, 60, 0.1); color: var(--red); }
+    
+    .res-details { flex: 1; margin-bottom: 24px; }
+    .detail-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px; }
+    .detail-label { color: var(--muted); }
+    .detail-value { font-weight: 600; color: var(--dark); }
+    .res-total { font-size: 18px; font-weight: 800; margin-top: 16px; padding-top: 16px; border-top: 1px dashed var(--border); display: flex; justify-content: space-between; }
+    
+    .res-actions { display: flex; gap: 12px; }
+    .btn { flex: 1; padding: 10px; text-align: center; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; text-decoration: none; transition: background 0.2s, opacity 0.2s; border: none; }
+    .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--dark); }
+    .btn-outline:hover { background: var(--cream); }
+    .btn-danger { background: rgba(231, 76, 60, 0.1); color: var(--red); }
+    .btn-danger:hover { background: rgba(231, 76, 60, 0.2); }
+    
+    .empty-state { text-align: center; padding: 64px 20px; background: var(--white); border-radius: var(--radius); border: 1px solid var(--border); }
+    .empty-state h3 { font-family: 'Playfair Display', serif; font-size: 24px; margin-bottom: 12px; }
+    
+    footer { background: var(--navy); color: var(--white); padding: 48px 56px; text-align: center; margin-top: auto; }
+  </style>
+</head>
+<body>
+
+<nav class="navbar">
+  <a href="index.php" class="nav-logo">
+    <img src="assets/img/logo.png" alt="TARKINA" onerror="this.style.display='none';this.nextElementSibling.style.display='inline'">
+    <span style="display:none">Tarkina</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="index.php">Accueil</a></li>
+    <li><a href="explorer.php">Explorer</a></li>
+    <li><a href="about.php">À propos</a></li>
+    <li><a href="contact.php">Contact</a></li>
+  </ul>
+  <div class="nav-auth">
+    <?php if(isset($_SESSION['user_id'])): ?>
+      <a href="profile.php" class="btn-nav-primary">Mon Profil</a>
+      <a href="logout.php" class="btn-nav-outline">Déconnexion</a>
+    <?php else: ?>
+      <a href="login.php" class="btn-nav-outline">Connexion</a>
+      <a href="register.php" class="btn-nav-primary">S'inscrire</a>
+    <?php endif; ?>
+  </div>
+</nav>
+
+<div class="main-container">
+  <div class="page-header">
+    <h1 class="page-title">Mes Réservations</h1>
+  </div>
+
+  <?php if ($success_msg): ?>
+    <div class="alert alert-success"><?= htmlspecialchars($success_msg) ?></div>
+  <?php endif; ?>
+  <?php if ($error_msg): ?>
+    <div class="alert alert-error"><?= htmlspecialchars($error_msg) ?></div>
+  <?php endif; ?>
+
+  <?php if (empty($reservations)): ?>
+    <div class="empty-state">
+      <h3>Aucune réservation</h3>
+      <p style="color:var(--muted); margin-bottom:24px;">Vous n'avez pas encore effectué de réservation.</p>
+      <a href="explorer.php" class="btn-nav">Explorer les offres</a>
+    </div>
+  <?php else: ?>
+    <div class="reservations-grid">
+      <?php foreach ($reservations as $r): 
+        $type = '';
+        $titre = '';
+        $prix = 0;
+        $url = '';
+        
+        if ($r['type_service'] === 'hebergement') {
+            $type = 'Hébergement';
+            $titre = $r['hebergement_titre'];
+        } elseif ($r['type_service'] === 'repas') {
+            $type = 'Gastronomie';
+            $titre = $r['repas_titre'];
+        } elseif ($r['type_service'] === 'guide') {
+            $type = 'Guide Local';
+            $titre = $r['guide_titre'];
+        } elseif ($r['type_service'] === 'evenement') {
+            $type = 'Événement';
+            $titre = $r['evenement_titre'];
+        } elseif ($r['type_service'] === 'artisanat') {
+            $type = 'Artisanat';
+            $titre = $r['artisanat_titre'];
+        }
+        $url = $r['type_service'] . '.php?id=' . $r['service_id'];
+        
+        $total = (float)$r['prix_total'];
+        
+        if ($r['type_service'] === 'hebergement') {
+            $dates_str = date('d/m/Y', strtotime($r['date_debut'])) . ' au ' . date('d/m/Y', strtotime($r['date_fin']));
+        } else {
+            $dates_str = date('d/m/Y', strtotime($r['date_debut']));
+        }
+        
+        $statut_class = '';
+        $statut_label = '';
+        switch ($r['statut']) {
+            case 'en_attente':
+                $statut_class = 'badge-en_attente';
+                $statut_label = 'En attente';
+                break;
+            case 'confirmée':
+            case 'confirmee':
+                $statut_class = 'badge-confirmee';
+                $statut_label = 'Confirmée';
+                break;
+            case 'annulée':
+            case 'annulee':
+                $statut_class = 'badge-annulee';
+                $statut_label = 'Annulée';
+                break;
+            default:
+                $statut_class = 'badge-en_attente';
+                $statut_label = htmlspecialchars($r['statut']);
+        }
+      ?>
+      <div class="res-card">
+        <div class="res-header">
+            <div>
+                <div class="res-type"><?= htmlspecialchars($type) ?></div>
+                <div class="res-title"><?= htmlspecialchars($titre) ?></div>
+            </div>
+            <div class="badge <?= $statut_class ?>"><?= $statut_label ?></div>
+        </div>
+        
+        <div class="res-details">
+            <div class="detail-row">
+                <span class="detail-label">N° de réservation</span>
+                <span class="detail-value">#<?= $r['id'] ?></span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Date de la demande</span>
+                <span class="detail-value"><?= date('d/m/Y', strtotime($r['created_at'])) ?></span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label"><?= $type === 'Hébergement' ? 'Dates du séjour' : 'Date prévue' ?></span>
+                <span class="detail-value"><?= $dates_str ?></span>
+            </div>
+            
+            <div class="res-total">
+                <span class="detail-label">Total estimé</span>
+                <span style="color:var(--orange);"><?= number_format($total, 2, '.', ' ') ?> TND</span>
+            </div>
+        </div>
+        
+        <div class="res-actions">
+            <a href="<?= $url ?>" class="btn btn-outline">Voir détails</a>
+            <?php if ($r['statut'] === 'en_attente'): ?>
+                <form method="post" action="mes-reservations.php" style="flex:1; display:flex;" onsubmit="return confirm('Êtes-vous sûr de vouloir annuler cette réservation ?');">
+                    <input type="hidden" name="action" value="cancel">
+                    <input type="hidden" name="reservation_id" value="<?= $r['id'] ?>">
+                    <button type="submit" class="btn btn-danger" style="width:100%;">Annuler</button>
+                </form>
+            <?php endif; ?>
+        </div>
+      </div>
+      <?php endforeach; ?>
+    </div>
+  <?php endif; ?>
+
+</div>
+
+<footer>
+    <p>&copy; <?= date('Y') ?> Tarkina. Tous droits réservés.</p>
+</footer>
+
+</body>
+</html>
