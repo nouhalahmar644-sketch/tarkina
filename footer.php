@@ -1,25 +1,65 @@
-<!-- FOOTER -->
-<footer style="background:#1B3A4B;color:#fff;padding:48px 60px 28px;margin-top:40px;">
-  <div style="display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:48px;max-width:1200px;margin:0 auto 36px;">
+<?php
+/**
+ * Shared site footer (Tarkina).  Usage:  <?php include 'footer.php'; ?>
+ * Self-contained scoped styles (tkf- prefix).
+ */
+?>
+<style>
+.tkf{background:#1B3A4B;color:#fff;padding:56px clamp(20px,5vw,60px) 26px;margin-top:60px;font-family:'Lato','Segoe UI',system-ui,sans-serif;}
+.tkf__grid{display:grid;grid-template-columns:1.6fr 1fr 1fr 1.2fr;gap:40px;max-width:1200px;margin:0 auto 40px;}
+.tkf__brand-name{font-family:'Playfair Display',Georgia,serif;font-size:1.6rem;font-weight:800;margin-bottom:12px;}
+.tkf__brand-desc{color:rgba(255,255,255,.6);font-size:.9rem;line-height:1.75;margin-bottom:18px;max-width:300px;}
+.tkf__socials{display:flex;gap:10px;}
+.tkf__socials a{width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;color:#fff;text-decoration:none;font-size:.8rem;font-weight:700;transition:background .2s;}
+.tkf__socials a:hover{background:#E05A2B;}
+.tkf__col h4{font-size:.72rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.45);margin:0 0 16px;}
+.tkf__col ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px;}
+.tkf__col a{color:rgba(255,255,255,.72);text-decoration:none;font-size:.9rem;transition:color .2s;}
+.tkf__col a:hover{color:#fff;}
+.tkf__contact{color:rgba(255,255,255,.72);font-size:.9rem;line-height:2;}
+.tkf__bottom{border-top:1px solid rgba(255,255,255,.1);padding-top:22px;max-width:1200px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;font-size:.82rem;color:rgba(255,255,255,.4);}
+.tkf__bottom a{color:rgba(255,255,255,.4);text-decoration:none;}
+.tkf__bottom a:hover{color:rgba(255,255,255,.7);}
+@media(max-width:760px){.tkf__grid{grid-template-columns:1fr 1fr;gap:28px;}.tkf__bottom{flex-direction:column;text-align:center;}}
+</style>
+<footer class="tkf">
+  <div class="tkf__grid">
     <div>
-      <div style="font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:800;margin-bottom:10px;">Tarkina</div>
-      <p style="color:rgba(255,255,255,0.55);font-size:0.875rem;line-height:1.7;">Découvrez la Tunisie cachée à travers ses habitants, ses saveurs et son artisanat.</p>
+      <div class="tkf__brand-name">Tarkina</div>
+      <p class="tkf__brand-desc">Découvrez la Tunisie cachée à travers ses habitants, ses saveurs et son artisanat.</p>
+      <div class="tkf__socials">
+        <a href="https://instagram.com" target="_blank" rel="noopener" title="Instagram">ig</a>
+        <a href="https://facebook.com" target="_blank" rel="noopener" title="Facebook">fb</a>
+        <a href="https://twitter.com" target="_blank" rel="noopener" title="X">x</a>
+      </div>
     </div>
-    <div>
-      <h4 style="font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.45);margin-bottom:16px;">Explorer</h4>
-      <ul style="list-style:none;display:flex;flex-direction:column;gap:10px;">
-        <li><a href="explorer.php" style="color:rgba(255,255,255,0.7);text-decoration:none;font-size:14px;">Toutes les régions</a></li>
-        <li><a href="stories.php" style="color:rgba(255,255,255,0.7);text-decoration:none;font-size:14px;">Tarkina Stories</a></li>
-        <li><a href="search.php?type=hebergement" style="color:rgba(255,255,255,0.7);text-decoration:none;font-size:14px;">Hébergements</a></li>
-        <li><a href="search.php?type=repas" style="color:rgba(255,255,255,0.7);text-decoration:none;font-size:14px;">Repas maison</a></li>
+    <div class="tkf__col">
+      <h4>Explorer</h4>
+      <ul>
+        <li><a href="explorer.php">Toutes les régions</a></li>
+        <li><a href="blogs.php">Le Blog</a></li>
+        <li><a href="search.php?type=hebergement">Hébergements</a></li>
+        <li><a href="search.php?type=repas">Repas maison</a></li>
+        <li><a href="search.php?type=guide">Guides locaux</a></li>
       </ul>
     </div>
-    <div>
-      <h4 style="font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.45);margin-bottom:16px;">Contact</h4>
-      <p style="color:rgba(255,255,255,0.7);font-size:14px;line-height:2;">📍 Tunis, Tunisie<br>✉️ hello@tarkina.tn<br>📞 +216 71 000 000</p>
+    <div class="tkf__col">
+      <h4>À propos</h4>
+      <ul>
+        <li><a href="about.php">Qui sommes-nous</a></li>
+        <li><a href="contact.php">Contact</a></li>
+        <li><a href="register.php">Devenir hôte</a></li>
+        <li><a href="search.php?type=artisanat">Artisanat</a></li>
+        <li><a href="search.php?type=evenement">Événements</a></li>
+      </ul>
+    </div>
+    <div class="tkf__col">
+      <h4>Contact</h4>
+      <p class="tkf__contact">📍 Tunis, Tunisie<br>✉️ hello@tarkina.tn<br>📞 +216 71 000 000</p>
     </div>
   </div>
-  <div style="border-top:1px solid rgba(255,255,255,0.1);padding-top:20px;text-align:center;font-size:13px;color:rgba(255,255,255,0.35);max-width:1200px;margin:0 auto;">
-    © 2026 Tarkina — Voyagez autrement en Tunisie.
+  <div class="tkf__bottom">
+    <span>© 2026 Tarkina — Voyagez autrement en Tunisie.</span>
+    <span><a href="about.php">Mentions légales</a> · <a href="contact.php">Confidentialité</a></span>
   </div>
 </footer>

@@ -287,10 +287,10 @@ require_once __DIR__ . '/includes/sidebar.php';
           <div class="topbar-greeting">
             <h1>Hey, <?php echo htmlspecialchars($_SESSION['user_name']); ?></h1>
           </div>
-          <div class="search-wrapper">
+          <form class="search-wrapper" action="users.php" method="get">
             <i class="bi bi-search"></i>
-            <input type="text" placeholder="What do you want to find today...">
-          </div>
+            <input type="text" name="q" placeholder="Rechercher un utilisateur...">
+          </form>
         </div>
 
         <div class="promo-banner">
@@ -300,9 +300,7 @@ require_once __DIR__ . '/includes/sidebar.php';
         </div>
 
         <div class="section-title">
-          Catégories
-          <a href="#">Voir tout <i class="bi bi-chevron-right"></i></a>
-        </div>
+          Catégories        </div>
         <div class="category-list">
           <a href="content.php" class="category-item active">
             <i class="bi bi-house-heart-fill"></i>
@@ -331,9 +329,7 @@ require_once __DIR__ . '/includes/sidebar.php';
         </div>
 
         <div class="section-title">
-          Statistiques Principales
-          <a href="#">Voir tout <i class="bi bi-chevron-right"></i></a>
-        </div>
+          Statistiques Principales        </div>
         <div class="popular-grid">
           
           <article class="pop-card">
@@ -346,7 +342,7 @@ require_once __DIR__ . '/includes/sidebar.php';
               <p class="muted" style="margin-top:0; margin-bottom:12px;">Comptes inscrits</p>
               <div class="pop-card-price">
                 <?php echo (int) $totalUsers; ?>
-                <button class="pop-btn"><i class="bi bi-plus"></i></button>
+                <a href="users.php" class="pop-btn" title="Gérer les utilisateurs"><i class="bi bi-arrow-right"></i></a>
               </div>
             </div>
           </article>
@@ -361,7 +357,7 @@ require_once __DIR__ . '/includes/sidebar.php';
               <p class="muted" style="margin-top:0; margin-bottom:12px;">Établissements</p>
               <div class="pop-card-price">
                 <?php echo (int) $totalHebergements; ?>
-                <button class="pop-btn"><i class="bi bi-plus"></i></button>
+                <a href="content.php?add=1" class="pop-btn" title="Ajouter un hébergement"><i class="bi bi-plus"></i></a>
               </div>
             </div>
           </article>
@@ -376,7 +372,7 @@ require_once __DIR__ . '/includes/sidebar.php';
               <p class="muted" style="margin-top:0; margin-bottom:12px;">Expériences</p>
               <div class="pop-card-price">
                 <?php echo (int) $totalRepas; ?>
-                <button class="pop-btn"><i class="bi bi-plus"></i></button>
+                <a href="repas.php?add=1" class="pop-btn" title="Ajouter un repas"><i class="bi bi-plus"></i></a>
               </div>
             </div>
           </article>
@@ -391,7 +387,7 @@ require_once __DIR__ . '/includes/sidebar.php';
               <p class="muted" style="margin-top:0; margin-bottom:12px;">Produits</p>
               <div class="pop-card-price">
                 <?php echo (int) $totalArtisanat; ?>
-                <button class="pop-btn"><i class="bi bi-plus"></i></button>
+                <a href="artisanat.php?add=1" class="pop-btn" title="Ajouter un produit"><i class="bi bi-plus"></i></a>
               </div>
             </div>
           </article>
@@ -406,7 +402,7 @@ require_once __DIR__ . '/includes/sidebar.php';
               <p class="muted" style="margin-top:0; margin-bottom:12px;">Festivals & Sorties</p>
               <div class="pop-card-price">
                 <?php echo (int) $totalEvenements; ?>
-                <button class="pop-btn"><i class="bi bi-plus"></i></button>
+                <a href="evenement.php?add=1" class="pop-btn" title="Ajouter un événement"><i class="bi bi-plus"></i></a>
               </div>
             </div>
           </article>
@@ -421,7 +417,7 @@ require_once __DIR__ . '/includes/sidebar.php';
               <p class="muted" style="margin-top:0; margin-bottom:12px;">Experts locaux</p>
               <div class="pop-card-price">
                 <?php echo (int) $totalGuides; ?>
-                <button class="pop-btn"><i class="bi bi-plus"></i></button>
+                <a href="guide.php?add=1" class="pop-btn" title="Ajouter un guide"><i class="bi bi-plus"></i></a>
               </div>
             </div>
           </article>
@@ -437,9 +433,8 @@ require_once __DIR__ . '/includes/sidebar.php';
       <div class="dashboard-sidebar">
         
         <div class="top-actions">
-          <a href="#" class="action-btn"><i class="bi bi-chat-dots-fill"></i></a>
-          <a href="#" class="action-btn"><i class="bi bi-bell-fill"></i></a>
-          <a href="#" class="action-btn"><i class="bi bi-gear-fill"></i></a>
+          <a href="../index.php" target="_blank" class="action-btn" title="Voir le site"><i class="bi bi-box-arrow-up-right"></i></a>
+          <a href="logout.php" class="action-btn" title="Déconnexion"><i class="bi bi-box-arrow-right"></i></a>
           <img src="https://ui-avatars.com/api/?name=<?php echo urlencode($_SESSION['user_name']); ?>&background=1B2A4A&color=fff" class="user-avatar" alt="Admin">
         </div>
 
@@ -447,15 +442,14 @@ require_once __DIR__ . '/includes/sidebar.php';
           <div class="balance-title">Statut Système</div>
           <div class="balance-amount">Actif</div>
           <div class="balance-actions">
-            <button class="bal-btn"><i class="bi bi-arrow-clockwise"></i> Sync</button>
-            <button class="bal-btn"><i class="bi bi-cloud-arrow-up"></i> Backup</button>
+            <a href="reservations.php" class="bal-btn"><i class="bi bi-calendar-check"></i> Réservations</a>
+            <a href="commandes.php" class="bal-btn"><i class="bi bi-bag-check"></i> Commandes</a>
           </div>
         </div>
 
         <div class="address-card">
           <div class="addr-header">
             <div class="addr-title">Détails Serveur</div>
-            <a href="#" class="addr-change">Modifier</a>
           </div>
           <div class="addr-body">
             <i class="bi bi-hdd-network addr-icon"></i>
@@ -514,7 +508,7 @@ require_once __DIR__ . '/includes/sidebar.php';
             <span><?php echo $totalRegions + $totalHebergements + $totalRepas + $totalGuides + $totalEvenements + $totalArtisanat; ?></span>
           </div>
           
-          <button class="btn-checkout">Générer Rapport</button>
+          <button class="btn-checkout" onclick="window.print()">Imprimer le rapport</button>
         </div>
 
       </div>

@@ -210,22 +210,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </style>
 </head>
 <body>
-<nav class="navbar">
-    <a href="index.php" class="nav-logo">
-        <img src="assets/img/logo.png" alt="TARKINA" onerror="this.style.display='none';this.nextElementSibling.style.display='inline'">
-        <span style="display:none">Tarkina</span>
-    </a>
-    <ul class="nav-links">
-        <li><a href="index.php">Accueil</a></li>
-        <li><a href="explorer.php">Explorer</a></li>
-        <li><a href="about.php">À propos</a></li>
-        <li><a href="contact.php">Contact</a></li>
-    </ul>
-    <div class="nav-auth">
-        <a href="profile.php" class="btn-nav-primary">Mon Profil</a>
-        <a href="logout.php" class="btn-nav-outline">Déconnexion</a>
-    </div>
-</nav>
+<?php include 'navbar.php'; ?>
 
 <button onclick="history.back()" 
   style="background:none;border:none;cursor:pointer;font-size:1.3rem;
@@ -296,43 +281,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 </div>
 
-<footer>
-    <div class="footer-grid">
-        <div>
-            <div class="footer-brand-name">Tarkina</div>
-            <p class="footer-brand-desc">Découvrez la Tunisie cachée à travers ses habitants, ses saveurs et son artisanat.</p>
-        </div>
-        <div class="footer-col">
-            <h4>Explorer</h4>
-            <ul>
-                <li><a href="explorer.php">Toutes les régions</a></li>
-                <li><a href="search.php">Hébergements</a></li>
-                <li><a href="search.php">Repas maison</a></li>
-            </ul>
-        </div>
-        <div class="footer-col">
-            <h4>Compte</h4>
-            <ul>
-                <li><a href="mes-reservations.php">Mes réservations</a></li>
-                <li><a href="mes-favoris.php">Mes favoris</a></li>
-                <li><a href="edit-profile.php">Modifier le profil</a></li>
-                <li><a href="logout.php">Déconnexion</a></li>
-            </ul>
-        </div>
-        <div class="footer-col">
-            <h4>Contact</h4>
-            <div style="color:rgba(255,255,255,0.75);font-size:0.9rem;line-height:2;">
-                📍 Tunis, Tunisie<br>
-                ✉️ hello@tarkina.tn<br>
-                📞 +216 71 000 000
-            </div>
-        </div>
-    </div>
-    <div class="footer-watermark">TARKINA</div>
-    <hr class="footer-divider">
-    <div class="footer-bottom">
-        <span>© 2026 Tarkina — Voyagez autrement en Tunisie.</span>
-    </div>
-</footer>
+<?php include 'footer.php'; ?>
 </body>
 </html>

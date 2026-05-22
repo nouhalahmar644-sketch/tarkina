@@ -2,7 +2,7 @@
 require_once __DIR__ . '/includes/auth_admin.php';
 
 // ---------- Upload directory ----------
-$uploadBase = realpath(__DIR__ . '/../../') . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'regions';
+$uploadBase = realpath(__DIR__ . '/..') . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'regions';
 if (!is_dir($uploadBase)) { @mkdir($uploadBase, 0755, true); }
 
 // ---------- Flash messages ----------
@@ -360,14 +360,14 @@ require_once __DIR__ . '/includes/sidebar.php';
                   <td>
                     <div class="actions">
                       <a class="btn-small btn-soft"
-                         href="region.php?edit=<?php echo (int)$item['id']; ?>&q=<?php echo urlencode($search); ?>&page=<?php echo (int)$page; ?>">Modifier</a>
+                         href="region.php?edit=<?php echo (int)$item['id']; ?>&q=<?php echo urlencode($search); ?>&page=<?php echo (int)$page; ?>" title="Modifier"><i class="bi bi-pencil-square"></i></a>
                       <form method="post" action="region.php" class="inline-form"
                             onsubmit="return confirm('Supprimer cette région ?');">
                         <input type="hidden" name="action"    value="delete">
                         <input type="hidden" name="region_id" value="<?php echo (int)$item['id']; ?>">
                         <input type="hidden" name="q"         value="<?php echo htmlspecialchars($search); ?>">
                         <input type="hidden" name="page"      value="<?php echo (int)$page; ?>">
-                        <button type="submit" class="btn-small btn-soft">Supprimer</button>
+                        <button type="submit" class="btn-small btn-soft" title="Supprimer"><i class="bi bi-trash" style="color:#c0392b"></i></button>
                       </form>
                     </div>
                   </td>

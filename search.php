@@ -59,7 +59,7 @@ if ($st_heb) {
 }
 
 // 2. Repas
-$sql_rep = "SELECT id, titre, prix, localisation, capacite, photo_principale FROM repas WHERE (localisation LIKE ? OR titre LIKE ?) AND statut = 'publié' AND capacite >= ?" . $dateFilter;
+$sql_rep = "SELECT id, titre, prix, localisation, capacite, photo_principale FROM repas WHERE (localisation LIKE ? OR titre LIKE ?) AND statut IN ('publié','actif') AND capacite >= ?" . $dateFilter;
 $st_rep = mysqli_prepare($conn, $sql_rep);
 if ($st_rep) {
     if ($dateFilter !== '') {
@@ -78,7 +78,7 @@ if ($st_rep) {
 }
 
 // 3. Guide
-$sql_gui = "SELECT id, titre, prix, localisation, capacite, photo_principale FROM guide WHERE (localisation LIKE ? OR titre LIKE ?) AND statut = 'publié' AND capacite >= ?" . $dateFilter;
+$sql_gui = "SELECT id, titre, prix, localisation, capacite, photo_principale FROM guide WHERE (localisation LIKE ? OR titre LIKE ?) AND statut IN ('publié','actif') AND capacite >= ?" . $dateFilter;
 $st_gui = mysqli_prepare($conn, $sql_gui);
 if ($st_gui) {
     if ($dateFilter !== '') {
@@ -97,7 +97,7 @@ if ($st_gui) {
 }
 
 // 4. Evenement
-$sql_eve = "SELECT id, titre, prix, localisation, capacite, photo_principale FROM evenement WHERE (localisation LIKE ? OR titre LIKE ?) AND statut = 'publié' AND capacite >= ?" . $dateFilter;
+$sql_eve = "SELECT id, titre, prix, localisation, capacite, photo_principale FROM evenement WHERE (localisation LIKE ? OR titre LIKE ?) AND statut IN ('publié','actif') AND capacite >= ?" . $dateFilter;
 $st_eve = mysqli_prepare($conn, $sql_eve);
 if ($st_eve) {
     if ($dateFilter !== '') {
@@ -116,7 +116,7 @@ if ($st_eve) {
 }
 
 // 5. Artisanat (No dates, use stock)
-$sql_art = "SELECT id, titre, prix, localisation, stock as capacite, photo_principale FROM artisanat WHERE (localisation LIKE ? OR titre LIKE ?) AND statut = 'publié' AND stock >= ?";
+$sql_art = "SELECT id, titre, prix, localisation, stock as capacite, photo_principale FROM artisanat WHERE (localisation LIKE ? OR titre LIKE ?) AND statut IN ('publié','actif') AND stock >= ?";
 $st_art = mysqli_prepare($conn, $sql_art);
 if ($st_art) {
     mysqli_stmt_bind_param($st_art, 'ssi', $searchTerm, $searchTerm, $personnes);
@@ -235,27 +235,7 @@ $page_title = 'Résultats de recherche – Tarkina';
 </head>
 <body>
 
-<nav class="navbar">
-    <a href="index.php" class="nav-logo">
-        <img src="assets/img/logo.png" alt="TARKINA" onerror="this.style.display='none';this.nextElementSibling.style.display='inline'">
-        <span style="display:none">Tarkina</span>
-    </a>
-    <ul class="nav-links">
-        <li><a href="index.php">Accueil</a></li>
-        <li><a href="explorer.php">Explorer</a></li>
-        <li><a href="about.php">À propos</a></li>
-        <li><a href="contact.php">Contact</a></li>
-    </ul>
-    <div class="nav-auth">
-        <?php if(isset($_SESSION['user_id'])): ?>
-          <a href="profile.php" class="btn-nav-primary">Mon Profil</a>
-          <a href="logout.php" class="btn-nav-outline">Déconnexion</a>
-        <?php else: ?>
-          <a href="login.php" class="btn-nav-outline">Connexion</a>
-          <a href="register.php" class="btn-nav-primary">S'inscrire</a>
-        <?php endif; ?>
-    </div>
-</nav>
+<?php include 'navbar.php'; ?>
 
 <button onclick="history.back()" 
   style="background:none;border:none;cursor:pointer;font-size:1.3rem;
@@ -317,9 +297,7 @@ $page_title = 'Résultats de recherche – Tarkina';
     </div>
 </div>
 
-<footer>
-    <p>&copy; <?= date('Y') ?> Tarkina — Voyagez autrement en Tunisie.</p>
-</footer>
+<?php include 'footer.php'; ?>
 
 </body>
 </html>

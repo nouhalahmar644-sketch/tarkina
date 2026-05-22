@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-$host = 'localhost'; $dbname = 'tarkina'; $db_user = 'root'; $db_pass = '';
+$host = '127.0.0.1'; $dbname = 'tourisme'; $db_user = 'root'; $db_pass = '';
 try {
     $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $db_user, $db_pass);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -12,10 +12,10 @@ $regions = [];
 if($pdo) {
     try {
         $stmt = $pdo->query("SELECT r.*, 
-            (SELECT COUNT(*) FROM hebergement WHERE region_id = r.id AND statut='actif') +
-            (SELECT COUNT(*) FROM repas WHERE region_id = r.id AND statut='actif') +
-            (SELECT COUNT(*) FROM guide WHERE region_id = r.id AND statut='actif') +
-            (SELECT COUNT(*) FROM evenement WHERE region_id = r.id AND statut='actif') AS nb_services
+            (SELECT COUNT(*) FROM hebergement WHERE region_id = r.id AND statut IN ('actif','publié')) +
+            (SELECT COUNT(*) FROM repas WHERE region_id = r.id AND statut IN ('actif','publié')) +
+            (SELECT COUNT(*) FROM guide WHERE region_id = r.id AND statut IN ('actif','publié')) +
+            (SELECT COUNT(*) FROM evenement WHERE region_id = r.id AND statut IN ('actif','publié')) AS nb_services
             FROM region r ORDER BY r.nom ASC LIMIT 3");
         $regions = $stmt->fetchAll(PDO::FETCH_ASSOC);
     } catch(Exception $e) { $regions = []; }
@@ -25,7 +25,7 @@ if($pdo) {
 $guides = [];
 if($pdo) {
     try {
-        $stmt2 = $pdo->query("SELECT g.*, r.nom as region_nom FROM guide g LEFT JOIN region r ON g.region_id = r.id WHERE g.statut='actif' LIMIT 6");
+        $stmt2 = $pdo->query("SELECT g.*, r.nom as region_nom FROM guide g LEFT JOIN region r ON g.region_id = r.id WHERE g.statut IN ('actif','publié') LIMIT 6");
         $guides = $stmt2->fetchAll(PDO::FETCH_ASSOC);
     } catch(Exception $e) { $guides = []; }
 }
@@ -70,7 +70,8 @@ if($pdo) {
         .hero-search { background:#fff; border-radius:50px; display:flex; align-items:center; padding:6px 6px 6px 20px; width:100%; max-width:600px; box-shadow:0 8px 30px rgba(0,0,0,.2); margin-bottom:24px; }
         .hero-search input { flex:1; border:none; outline:none; font-size:1rem; color:var(--text-dark); background:transparent; }
         .hero-search input::placeholder { color:#9ca3af; }
-        .btn-search { padding:11px 28px; background:var(--primary); color:#fff; border:none; border-radius:50px; font-size:.95rem; font-weight:700; cursor:pointer; transition:background .2s; white-space:nowrap; }
+        .btn-search { padding:0; width:46px; height:46px; flex-shrink:0; background:var(--primary); color:#fff; border:none; border-radius:50%; cursor:pointer; transition:background .2s; display:flex; align-items:center; justify-content:center; }
+        .btn-search svg { width:20px; height:20px; }
         .btn-search:hover { background:#c44d22; }
         .hero-pills { display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin-bottom:28px; }
         .hero-pill { padding:8px 18px; border:1.5px solid rgba(255,255,255,.6); border-radius:50px; color:#fff; text-decoration:none; font-size:.85rem; font-weight:600; display:flex; align-items:center; gap:6px; transition:all .2s; backdrop-filter:blur(4px); background:rgba(255,255,255,.1); }
@@ -264,33 +265,18 @@ if($pdo) {
 <body>
 
 <!-- NAVBAR -->
-<nav class="navbar" id="mainNav">
-    <a href="index.php" class="nav-logo-text">TARKINA.</a>
-    <ul class="nav-links">
-        <li><a href="index.php">Accueil</a></li>
-        <li><a href="explorer.php">Explorer</a></li>
-        <li><a href="about.php">À propos</a></li>
-        <li><a href="contact.php">Contact</a></li>
-    </ul>
-    <div class="nav-auth">
-        <?php if(isset($_SESSION['user_id'])): ?>
-            <a href="profile.php" class="btn-nav-primary">Mon Profil</a>
-            <a href="logout.php" class="btn-nav-outline">Déconnexion</a>
-        <?php else: ?>
-            <a href="login.php" class="btn-nav-outline">Connexion</a>
-            <a href="register.php" class="btn-nav-primary">S'inscrire</a>
-        <?php endif; ?>
-    </div>
-</nav>
+<?php $navTransparent = true; include 'navbar.php'; ?>
 
 <!-- HERO -->
 <section class="hero">
     <div class="hero-overlay" style="position:absolute;inset:0;background:linear-gradient(135deg,rgba(27,58,75,0.75) 0%,rgba(224,90,43,0.45) 100%);z-index:0;"></div>
-    <h1 class="hero-title">VOYAGEZ CHEZ L'HABITANT.<br>DÉCOUVREZ LA VRAIE TUNISIE.</h1>
+    <h1 class="hero-title">VOYAGEZ CHEZ L'HABITANT.<br>DÉCOUVREZ LA <span style="color:var(--primary)">VRAIE TUNISIE</span>.</h1>
 
     <form class="hero-search" action="search.php" method="GET">
         <input type="text" name="q" placeholder="Rechercher une ville, une expérience...">
-        <button type="submit" class="btn-search">Recherche</button>
+        <button type="submit" class="btn-search" aria-label="Rechercher" title="Rechercher">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35" stroke-linecap="round"/></svg>
+        </button>
     </form>
 
     <form class="booking-bar" action="search.php" method="GET">
@@ -366,7 +352,7 @@ if($pdo) {
         <div class="regions-header">
             <div>
                 <p class="section-label">Destinations · Tunisie</p>
-                <h2 class="section-heading">Découvrez nos régions</h2>
+                <h2 class="section-heading">Découvrez nos <span style="color:var(--primary)">régions</span></h2>
             </div>
             <a href="explorer.php" class="link-all">Voir toutes les régions →</a>
         </div>
@@ -392,7 +378,7 @@ if($pdo) {
                         $photo = 'https://images.unsplash.com/photo-1539635278303-d4002c07eae3?w=600&q=80';
                     }
                     ?>
-                    <img src="<?= $photo ?>" alt="<?= htmlspecialchars($region['nom'], ENT_QUOTES, 'UTF-8') ?>">
+                    <img loading="lazy" src="<?= $photo ?>" alt="<?= htmlspecialchars($region['nom'], ENT_QUOTES, 'UTF-8') ?>">
                     <div class="region-card-badge"><?= $region['nb_services'] ?> service<?= $region['nb_services'] != 1 ? 's' : '' ?></div>
                     <div class="region-card-body">
                         <p class="region-card-name"><?= htmlspecialchars($region['nom']) ?></p>
@@ -416,16 +402,16 @@ if($pdo) {
 <section class="forfaits-section">
     <div class="forfaits-inner">
         <div style="text-align:center;">
-            <p class="section-label">Forfaits Populaires</p>
-            <h2 class="section-heading">Partez l'esprit tranquille</h2>
-            <p class="section-sub">Des expériences complètes, pensées pour vous</p>
+            <p class="section-label">Nos Packs</p>
+            <h2 class="section-heading">Partez l'esprit <span style="color:var(--primary)">tranquille</span></h2>
+            <p class="section-sub">Des forfaits complets, pensés pour un voyage sans souci</p>
         </div>
         <div class="forfaits-grid">
 
             <!-- Forfait 1 -->
             <div class="forfait-card animate-up">
                 <div class="forfait-img-wrap">
-                    <img src="https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=800&fit=crop" alt="Escapade Saharienne" onerror="this.src='assets/img/placeholder.jpg'">
+                    <img loading="lazy" src="https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=800&fit=crop" alt="Escapade Saharienne" onerror="this.src='assets/img/placeholder.jpg'">
                     <span class="forfait-price-badge">À partir de 350 DT</span>
                 </div>
                 <div class="forfait-body">
@@ -449,7 +435,7 @@ if($pdo) {
             <!-- Forfait 2 -->
             <div class="forfait-card animate-up">
                 <div class="forfait-img-wrap">
-                    <img src="https://images.unsplash.com/photo-1561625116-5f8675632053?w=800&fit=crop" alt="Kairouanite Culturelle" onerror="this.src='assets/img/placeholder.jpg'">
+                    <img loading="lazy" src="https://images.unsplash.com/photo-1561625116-5f8675632053?w=800&fit=crop" alt="Kairouanite Culturelle" onerror="this.src='assets/img/placeholder.jpg'">
                     <span class="forfait-price-badge">À partir de 220 DT</span>
                 </div>
                 <div class="forfait-body">
@@ -472,7 +458,7 @@ if($pdo) {
             <!-- Forfait 3 -->
             <div class="forfait-card">
                 <div class="forfait-img-wrap">
-                    <img src="https://images.unsplash.com/photo-1539650116574-75c0c6d73f6e?w=800&fit=crop" alt="Djerba Authentique" onerror="this.src='assets/img/placeholder.jpg'">
+                    <img loading="lazy" src="https://images.unsplash.com/photo-1539650116574-75c0c6d73f6e?w=800&fit=crop" alt="Djerba Authentique" onerror="this.src='assets/img/placeholder.jpg'">
                     <span class="forfait-price-badge">À partir de 480 DT</span>
                 </div>
                 <div class="forfait-body">
@@ -503,12 +489,12 @@ if($pdo) {
         <h2 class="gallery-title">La Tunisie en Images</h2>
         <div class="gallery-underline"></div>
         <div class="gallery-grid">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/73/Sidi_Bou_Said_-_TN.jpg/800px-Sidi_Bou_Said_-_TN.jpg" alt="Sidi Bou Said" onerror="this.src='https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=800&fit=crop'">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/63/Kairouan_Great_Mosque.jpg/800px-Kairouan_Great_Mosque.jpg" alt="Kairouan" onerror="this.src='https://images.unsplash.com/photo-1561625116-5f8675632053?w=800&fit=crop'">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2d/Desert_-_Tunisia_%28Rades%29.jpg/800px-Desert_-_Tunisia_%28Rades%29.jpg" alt="Désert Tunisien" onerror="this.src='https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=800&fit=crop'">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Houmt_Souk_port.jpg/800px-Houmt_Souk_port.jpg" alt="Djerba" onerror="this.src='https://images.unsplash.com/photo-1539650116574-75c0c6d73f6e?w=800&fit=crop'">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6c/Matmata_cave_houses.jpg/800px-Matmata_cave_houses.jpg" alt="Matmata" onerror="this.src='https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=800&fit=crop'">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/ElJem_amphitheatre.jpg/800px-ElJem_amphitheatre.jpg" alt="El Jem" onerror="this.src='https://images.unsplash.com/photo-1561625116-5f8675632053?w=800&fit=crop'">
+            <img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/73/Sidi_Bou_Said_-_TN.jpg/800px-Sidi_Bou_Said_-_TN.jpg" alt="Sidi Bou Said" onerror="this.src='https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=800&fit=crop'">
+            <img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/63/Kairouan_Great_Mosque.jpg/800px-Kairouan_Great_Mosque.jpg" alt="Kairouan" onerror="this.src='https://images.unsplash.com/photo-1561625116-5f8675632053?w=800&fit=crop'">
+            <img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2d/Desert_-_Tunisia_%28Rades%29.jpg/800px-Desert_-_Tunisia_%28Rades%29.jpg" alt="Désert Tunisien" onerror="this.src='https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=800&fit=crop'">
+            <img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Houmt_Souk_port.jpg/800px-Houmt_Souk_port.jpg" alt="Djerba" onerror="this.src='https://images.unsplash.com/photo-1539650116574-75c0c6d73f6e?w=800&fit=crop'">
+            <img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6c/Matmata_cave_houses.jpg/800px-Matmata_cave_houses.jpg" alt="Matmata" onerror="this.src='https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=800&fit=crop'">
+            <img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/ElJem_amphitheatre.jpg/800px-ElJem_amphitheatre.jpg" alt="El Jem" onerror="this.src='https://images.unsplash.com/photo-1561625116-5f8675632053?w=800&fit=crop'">
         </div>
         <div class="gallery-cta">
             <a href="explorer.php" class="btn-gallery">Explorer toutes les régions →</a>
@@ -605,7 +591,7 @@ if($pdo) {
                         $photo = 'https://randomuser.me/api/portraits/men/' . ($guide['id'] % 50) . '.jpg';
                     }
                     ?>
-                    <img src="<?= $photo ?>" alt="<?= htmlspecialchars($guide['titre'], ENT_QUOTES, 'UTF-8') ?>">
+                    <img loading="lazy" src="<?= $photo ?>" alt="<?= htmlspecialchars($guide['titre'], ENT_QUOTES, 'UTF-8') ?>">
                 </div>
                 <div class="host-info">
                     <strong><?= htmlspecialchars($guide['titre']) ?></strong>
@@ -667,14 +653,14 @@ if($pdo) {
 
             <div class="temo-card">
                 <div class="temo-card-inner">
-                    <div class="temo-avatar"><img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Sarah B."></div>
+                    <div class="temo-avatar"><img loading="lazy" src="https://randomuser.me/api/portraits/women/44.jpg" alt="Sarah B."></div>
                     <p class="temo-quote">"Un séjour inoubliable à Kessra. L'accueil était incroyable..."</p>
                     <p class="temo-name">Sarah B.</p>
                     <p class="temo-city">Voyageuse · Paris</p>
                     <div class="temo-stars">★★★★★</div>
                 </div>
                 <div class="temo-popup">
-                    <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Sarah B.">
+                    <img loading="lazy" src="https://randomuser.me/api/portraits/women/44.jpg" alt="Sarah B.">
                     <div class="temo-popup-content">
                         <div class="temo-stars">★★★★★</div>
                         <p>"Un séjour inoubliable à Kessra. L'accueil de la famille était incroyable et la nourriture... je n'ai jamais mangé un couscous aussi bon !"</p>
@@ -687,14 +673,14 @@ if($pdo) {
 
             <div class="temo-card">
                 <div class="temo-card-inner">
-                    <div class="temo-avatar"><img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Mehdi K."></div>
+                    <div class="temo-avatar"><img loading="lazy" src="https://randomuser.me/api/portraits/men/32.jpg" alt="Mehdi K."></div>
                     <p class="temo-quote">"Le guide local m'a emmené dans des endroits magiques..."</p>
                     <p class="temo-name">Mehdi K.</p>
                     <p class="temo-city">Voyageur · Lyon</p>
                     <div class="temo-stars">★★★★★</div>
                 </div>
                 <div class="temo-popup">
-                    <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Mehdi K.">
+                    <img loading="lazy" src="https://randomuser.me/api/portraits/men/32.jpg" alt="Mehdi K.">
                     <div class="temo-popup-content">
                         <div class="temo-stars">★★★★★</div>
                         <p>"Le guide local m'a emmené dans des endroits que je n'aurais jamais trouvés seul. Une expérience humaine authentique, loin du tourisme de masse."</p>
@@ -707,14 +693,14 @@ if($pdo) {
 
             <div class="temo-card">
                 <div class="temo-card-inner">
-                    <div class="temo-avatar"><img src="https://randomuser.me/api/portraits/women/68.jpg" alt="Amira T."></div>
+                    <div class="temo-avatar"><img loading="lazy" src="https://randomuser.me/api/portraits/women/68.jpg" alt="Amira T."></div>
                     <p class="temo-quote">"L'atelier poterie à Sejnane était une expérience magique..."</p>
                     <p class="temo-name">Amira T.</p>
                     <p class="temo-city">Voyageuse · Montréal</p>
                     <div class="temo-stars">★★★★★</div>
                 </div>
                 <div class="temo-popup">
-                    <img src="https://randomuser.me/api/portraits/women/68.jpg" alt="Amira T.">
+                    <img loading="lazy" src="https://randomuser.me/api/portraits/women/68.jpg" alt="Amira T.">
                     <div class="temo-popup-content">
                         <div class="temo-stars">★★★★★</div>
                         <p>"L'atelier poterie à Sejnane était magique. La maîtresse artisane nous a transmis un savoir-faire ancestral avec une générosité rare."</p>
@@ -733,9 +719,9 @@ if($pdo) {
 <section class="newsletter-section">
     <div class="newsletter-inner">
         <div class="newsletter-avatars">
-            <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="">
-            <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="">
-            <img src="https://randomuser.me/api/portraits/women/68.jpg" alt="">
+            <img loading="lazy" src="https://randomuser.me/api/portraits/women/44.jpg" alt="">
+            <img loading="lazy" src="https://randomuser.me/api/portraits/men/32.jpg" alt="">
+            <img loading="lazy" src="https://randomuser.me/api/portraits/women/68.jpg" alt="">
         </div>
         <p class="newsletter-badge">Rejoignez 1 200+ voyageurs</p>
         <h2 class="newsletter-title">Prêt pour votre prochaine aventure ?</h2>
@@ -750,55 +736,8 @@ if($pdo) {
 <!-- CTA HOST Removed -->
 
 <!-- FOOTER -->
-<footer>
-    <div class="footer-grid">
-        <div>
-            <div class="footer-brand-name">Tarkina</div>
-            <p class="footer-brand-desc">Découvrez la Tunisie cachée à travers ses habitants, ses saveurs et son artisanat.</p>
-            <div class="footer-socials">
-                <a href="#">ig</a><a href="#">fb</a><a href="#">x</a>
-            </div>
-        </div>
-        <div class="footer-col">
-            <h4>Explorer</h4>
-            <ul>
-                <li><a href="explorer.php">Toutes les régions</a></li>
-                <li><a href="search.php?type=hebergement">Hébergements</a></li>
-                <li><a href="search.php?type=repas">Repas maison</a></li>
-                <li><a href="search.php?type=guide">Guide local</a></li>
-            </ul>
-        </div>
-        <div class="footer-col">
-            <h4>À propos</h4>
-            <ul>
-                <li><a href="about.php">Qui sommes-nous</a></li>
-                <li><a href="contact.php">Contact</a></li>
-                <li><a href="#">Devenir hôte</a></li>
-                <li><a href="#">CGU</a></li>
-                <li><a href="#">Confidentialité</a></li>
-            </ul>
-        </div>
-        <div class="footer-col">
-            <h4>Contact</h4>
-            <div class="footer-contact-item">📍 Tunis, Tunisie</div>
-            <div class="footer-contact-item">✉️ hello@tarkina.tn</div>
-            <div class="footer-contact-item">📞 +216 71 000 000</div>
-        </div>
-    </div>
-    <div class="footer-watermark">TARKINA</div>
-    <hr class="footer-divider">
-    <div class="footer-bottom">
-        <span>© 2026 Tarkina — Voyagez autrement en Tunisie.</span>
-        <span><a href="#">Mentions légales</a> · <a href="#">Confidentialité</a></span>
-    </div>
-</footer>
+<?php include 'footer.php'; ?>
 
-<script>
-// Navbar scroll effect
-window.addEventListener('scroll', () => {
-    document.getElementById('mainNav').classList.toggle('scrolled', window.scrollY > 50);
-});
-</script>
 
 <script>
 flatpickr.localize(flatpickr.l10ns.fr);

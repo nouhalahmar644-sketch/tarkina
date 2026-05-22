@@ -74,6 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Tarkina — Créer un compte</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/typography.css">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
  
@@ -418,7 +419,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
  
   <div class="auth-image">
     <div class="auth-image-content">
-      <div class="auth-logo">Tarkina<span>.</span></div>
+      <a href="index.php" class="auth-logo" style="text-decoration:none;display:inline-block;">Tarkina<span>.</span></a>
       <div class="auth-tagline">LA TUNISIE HORS DES SENTIERS BATTUS</div>
       <div class="auth-quote">Découvrez la <span>vraie</span> Tunisie.</div>
       <div class="auth-sub">Hébergement, repas maison, guides locaux, artisanat & événements dans les régions oubliées du pays.</div>
@@ -432,13 +433,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <p class="form-alert success">Inscription réussie. Vous pouvez maintenant vous connecter.</p>
       <?php endif; ?>
     </div>
- 
-    <a href="#" class="btn-google">
-      <img src="https://www.google.com/favicon.ico" alt="Google">
-      Continuer avec Google
-    </a>
- 
-    <div class="divider">ou</div>
  
     <?php if ($success): ?>
       <a href="login.php" class="btn-submit" style="display:block; text-align:center; text-decoration:none;">Aller à la connexion</a>
@@ -496,10 +490,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
  
     <div class="social-links">
-      <a href="#">f</a>
-      <a href="#">𝕏</a>
-      <a href="#">📷</a>
-      <a href="#">in</a>
+      <a href="https://facebook.com" target="_blank" rel="noopener" title="Facebook">f</a>
+      <a href="https://twitter.com" target="_blank" rel="noopener" title="X">𝕏</a>
+      <a href="https://instagram.com" target="_blank" rel="noopener" title="Instagram">📷</a>
+      <a href="https://linkedin.com" target="_blank" rel="noopener" title="LinkedIn">in</a>
     </div>
   </div>
  

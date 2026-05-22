@@ -1,0 +1,14 @@
+/* Tarkina global typography — rounded font (Nunito) applied site-wide.
+   Loaded from navbar.php (public pages), admin header, and login/register. */
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap');
+
+body, h1, h2, h3, h4, h5, h6, p, a, span, li, ul, ol, label,
+button, input, select, textarea, small, strong, b, em, td, th,
+blockquote, figcaption, div, section, article, aside, header, footer, nav {
+  font-family: 'Nunito', 'Segoe UI', system-ui, -apple-system, sans-serif !important;
+}
+
+/* Preserve Bootstrap Icons (they rely on their own font-family) */
+.bi, [class*="bi-"]::before, [class*="bi-"] {
+  font-family: 'bootstrap-icons' !important;
+}

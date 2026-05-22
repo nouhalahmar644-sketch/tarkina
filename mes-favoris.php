@@ -18,32 +18,13 @@ require_once __DIR__ . '/db.php';
 </head>
 <body>
 
-<nav class="navbar">
-  <a href="index.php" class="nav-logo">
-    <img src="assets/img/logo.png" alt="TARKINA" onerror="this.style.display='none';this.nextElementSibling.style.display='inline'">
-    <span style="display:none">Tarkina</span>
-  </a>
-  <ul class="nav-links">
-    <li><a href="index.php">Accueil</a></li>
-    <li><a href="explorer.php">Explorer</a></li>
-    <li><a href="about.php">À propos</a></li>
-    <li><a href="contact.php">Contact</a></li>
-  </ul>
-  <div class="nav-auth">
-    <?php if(isset($_SESSION['user_id'])): ?>
-      <a href="profile.php" class="btn-nav-primary">Mon Profil</a>
-      <a href="logout.php" class="btn-nav-outline">Déconnexion</a>
-    <?php else: ?>
-      <a href="login.php" class="btn-nav-outline">Connexion</a>
-      <a href="register.php" class="btn-nav-primary">S'inscrire</a>
-    <?php endif; ?>
-  </div>
-</nav>
+<?php include 'navbar.php'; ?>
 
 <div class="page-container">
     <h1 class="page-title">Mes Favoris</h1>
     <p>Retrouvez ici tous les services que vous avez ajoutés à vos favoris.</p>
 </div>
 
+<?php include 'footer.php'; ?>
 </body>
 </html>

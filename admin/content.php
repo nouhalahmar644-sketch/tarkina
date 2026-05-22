@@ -27,10 +27,14 @@ foreach ([
     "ALTER TABLE hebergement ADD COLUMN inclus           TEXT NULL",
     "ALTER TABLE hebergement ADD COLUMN photo_principale VARCHAR(500) NULL",
     "ALTER TABLE hebergement ADD COLUMN photos_sec       TEXT NULL",
-] as $alt) { @mysqli_query($conn, $alt); }
+] as $alt) {
+    // Idempotent migration: ignore "duplicate column" when it already exists.
+    // (PHP 8.2 mysqli throws exceptions, which the old @ operator no longer suppresses.)
+    try { mysqli_query($conn, $alt); } catch (\mysqli_sql_exception $e) { /* column already present */ }
+}
 
 // ---------- Upload directory ----------
-$uploadBase = realpath(__DIR__ . '/../../') . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'hebergements';
+$uploadBase = realpath(__DIR__ . '/..') . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'hebergements';
 if (!is_dir($uploadBase)) { @mkdir($uploadBase, 0755, true); }
 
 // ---------- Fetch regions for dropdown ----------
@@ -489,14 +493,14 @@ require_once __DIR__ . '/includes/sidebar.php';
                   <td>
                     <div class="actions">
                       <a class="btn-small btn-soft"
-                         href="content.php?edit=<?php echo (int)$item['id']; ?>&q=<?php echo urlencode($search); ?>&page=<?php echo (int)$page; ?>">Modifier</a>
+                         href="content.php?edit=<?php echo (int)$item['id']; ?>&q=<?php echo urlencode($search); ?>&page=<?php echo (int)$page; ?>" title="Modifier"><i class="bi bi-pencil-square"></i></a>
                       <form method="post" action="content.php" class="inline-form"
                             onsubmit="return confirm('Supprimer cet hébergement ?');">
                         <input type="hidden" name="action"     value="delete">
                         <input type="hidden" name="hebergement_id" value="<?php echo (int)$item['id']; ?>">
                         <input type="hidden" name="q"          value="<?php echo htmlspecialchars($search); ?>">
                         <input type="hidden" name="page"       value="<?php echo (int)$page; ?>">
-                        <button type="submit" class="btn-small btn-soft">Supprimer</button>
+                        <button type="submit" class="btn-small btn-soft" title="Supprimer"><i class="bi bi-trash" style="color:#c0392b"></i></button>
                       </form>
                     </div>
                   </td>

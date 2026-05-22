@@ -28,7 +28,7 @@ $all_items = [];
 
 function fetch_category($conn, $table, $type_label, $region_id, $prix_max) {
     $items = [];
-    $r = mysqli_query($conn, "SELECT * FROM `$table` WHERE region_id = $region_id AND prix <= $prix_max AND statut = 'actif'");
+    $r = mysqli_query($conn, "SELECT * FROM `$table` WHERE region_id = $region_id AND prix <= $prix_max AND statut IN ('actif','publié')");
     while ($r && $row = mysqli_fetch_assoc($r)) {
         $row['_type'] = $type_label;
         $items[] = $row;
@@ -123,25 +123,7 @@ footer{background:var(--navy);color:#fff;padding:48px 40px 28px;margin-top:60px;
 </head>
 <body>
 
-<nav class="top-nav">
-  <a href="index.php" class="nav-logo">Tarkina</a>
-  <ul class="nav-links">
-    <li><a href="index.php">Accueil</a></li>
-    <li><a href="explorer.php">Explorer</a></li>
-    <li><a href="stories.php">Stories</a></li>
-    <li><a href="about.php">À propos</a></li>
-    <li><a href="contact.php">Contact</a></li>
-  </ul>
-  <div class="nav-auth">
-    <?php if(isset($_SESSION['user_id'])): ?>
-      <a href="profile.php" class="btn-primary-nav">Mon Profil</a>
-      <a href="logout.php" class="btn-outline-nav">Déconnexion</a>
-    <?php else: ?>
-      <a href="login.php" class="btn-outline-nav">Connexion</a>
-      <a href="register.php" class="btn-primary-nav">S'inscrire</a>
-    <?php endif; ?>
-  </div>
-</nav>
+<?php include 'navbar.php'; ?>
 
 <button onclick="history.back()" 
   style="background:none;border:none;cursor:pointer;font-size:1.3rem;
@@ -274,32 +256,7 @@ footer{background:var(--navy);color:#fff;padding:48px 40px 28px;margin-top:60px;
   </div>
 </div>
 
-<footer>
-  <div class="footer-grid">
-    <div>
-      <div class="footer-brand">Tarkina</div>
-      <p class="footer-desc">Découvrez la Tunisie cachée à travers ses habitants, ses saveurs et son artisanat.</p>
-    </div>
-    <div class="footer-col">
-      <h4>Explorer</h4>
-      <ul>
-        <li><a href="explorer.php">Toutes les régions</a></li>
-        <li><a href="explorer.php?type=hebergement">Hébergements</a></li>
-        <li><a href="explorer.php?type=repas">Repas maison</a></li>
-        <li><a href="explorer.php?type=guide">Guides locaux</a></li>
-      </ul>
-    </div>
-    <div class="footer-col">
-      <h4>Contact</h4>
-      <ul>
-        <li><a href="about.php">À propos</a></li>
-        <li><a href="contact.php">Nous contacter</a></li>
-        <li><a href="#">Devenir hôte</a></li>
-      </ul>
-    </div>
-  </div>
-  <div class="footer-bottom">© 2026 Tarkina — Voyagez autrement en Tunisie.</div>
-</footer>
+<?php include 'footer.php'; ?>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>

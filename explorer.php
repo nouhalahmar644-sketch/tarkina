@@ -82,28 +82,7 @@ $region_meta = [
 <body>
 
 <!-- NAVBAR -->
-<nav class="navbar">
-  <a href="index.php" class="nav-logo">
-    <img src="assets/img/logo.png" alt="TARKINA" onerror="this.style.display='none';this.nextElementSibling.style.display='inline'">
-    <span style="display:none;font-weight:800;font-size:1.4rem;color:#1B3A4B;">Tarkina</span>
-  </a>
-  <ul class="nav-links">
-    <li><a href="index.php">Accueil</a></li>
-    <li><a href="explorer.php" style="color:var(--primary);">Explorer</a></li>
-    <li><a href="about.php">À propos</a></li>
-    <li><a href="stories.php">Stories</a></li>
-    <li><a href="contact.php">Contact</a></li>
-  </ul>
-  <div class="nav-auth">
-    <?php if(isset($_SESSION['user_id'])): ?>
-      <a href="profile.php" class="btn-nav-primary">Mon Profil</a>
-      <a href="logout.php" class="btn-nav-outline">Déconnexion</a>
-    <?php else: ?>
-      <a href="login.php" class="btn-nav-outline">Connexion</a>
-      <a href="register.php" class="btn-nav-primary">S'inscrire</a>
-    <?php endif; ?>
-  </div>
-</nav>
+<?php include 'navbar.php'; ?>
 
 <div style="position:absolute;top:80px;left:40px;z-index:100;margin-top:0;padding-top:0;">
     <a href="index.php" style="display:inline-flex;align-items:center;gap:6px;color:#fff;font-size:0.9rem;font-weight:600;text-decoration:none;opacity:0.7;transition:opacity 0.2s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.7'">
@@ -163,40 +142,18 @@ $region_meta = [
 <!-- STORIES TEASER — add before footer in explorer.php -->
 <section style="background:#1B3A4B;padding:60px 0;text-align:center;">
   <div class="container">
-    <h2 style="color:#fff;font-size:2rem;font-weight:700;margin-bottom:0.5rem;">Tarkina Stories</h2>
+    <h2 style="color:#fff;font-size:2rem;font-weight:700;margin-bottom:0.5rem;">Le Blog des voyageurs</h2>
     <p style="color:rgba(255,255,255,0.7);font-size:1rem;margin-bottom:1.5rem;">
       De vraies expériences partagées par des voyageurs comme vous
     </p>
-    <a href="stories.php" style="background:#E05A2B;color:#fff;border-radius:999px;padding:12px 32px;font-size:15px;font-weight:600;text-decoration:none;">
-      Découvrir les stories →
+    <a href="blogs.php" style="background:#E05A2B;color:#fff;border-radius:999px;padding:12px 32px;font-size:15px;font-weight:600;text-decoration:none;">
+      Découvrir le blog →
     </a>
   </div>
 </section>
 
 <!-- FOOTER -->
-<footer style="background:#1B3A4B;color:#fff;padding:48px 60px 28px;margin-top:40px;">
-  <div style="display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:48px;max-width:1200px;margin:0 auto 36px;">
-    <div>
-      <div style="font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:800;margin-bottom:10px;">Tarkina</div>
-      <p style="color:rgba(255,255,255,0.55);font-size:0.875rem;line-height:1.7;">Découvrez la Tunisie cachée à travers ses habitants, ses saveurs et son artisanat.</p>
-    </div>
-    <div>
-      <h4 style="font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.45);margin-bottom:16px;">Explorer</h4>
-      <ul style="list-style:none;display:flex;flex-direction:column;gap:10px;">
-        <li><a href="explorer.php" style="color:rgba(255,255,255,0.7);text-decoration:none;font-size:14px;">Toutes les régions</a></li>
-        <li><a href="search.php?type=hebergement" style="color:rgba(255,255,255,0.7);text-decoration:none;font-size:14px;">Hébergements</a></li>
-        <li><a href="search.php?type=repas" style="color:rgba(255,255,255,0.7);text-decoration:none;font-size:14px;">Repas maison</a></li>
-      </ul>
-    </div>
-    <div>
-      <h4 style="font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.45);margin-bottom:16px;">Contact</h4>
-      <p style="color:rgba(255,255,255,0.7);font-size:14px;line-height:2;">📍 Tunis, Tunisie<br>✉️ hello@tarkina.tn<br>📞 +216 71 000 000</p>
-    </div>
-  </div>
-  <div style="border-top:1px solid rgba(255,255,255,0.1);padding-top:20px;text-align:center;font-size:13px;color:rgba(255,255,255,0.35);max-width:1200px;margin:0 auto;">
-    © 2026 Tarkina — Voyagez autrement en Tunisie.
-  </div>
-</footer>
+<?php include 'footer.php'; ?>
 
 <script>
 const map = L.map('map', {

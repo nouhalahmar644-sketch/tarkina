@@ -23,7 +23,3 @@ if (!$conn) {
 }
 
 mysqli_set_charset($conn, 'utf8mb4');
-
-// Table réservations (utilisée par les pages de service)
-require_once __DIR__ . '/includes/service_helpers.php';
-service_ensure_reservations_table($conn);

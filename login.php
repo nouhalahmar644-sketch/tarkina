@@ -74,6 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Tarkina — Se connecter</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/typography.css">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
  
@@ -370,7 +371,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <!-- LEFT -->
   <div class="auth-image">
     <div class="auth-image-content">
-      <div class="auth-logo">Tarkina<span>.</span></div>
+      <a href="index.php" class="auth-logo" style="text-decoration:none;display:inline-block;">Tarkina<span>.</span></a>
       <div class="auth-tagline">LA TUNISIE HORS DES SENTIERS BATTUS</div>
       <div class="auth-quote">Bienvenue <span>à nouveau.</span></div>
       <div class="auth-sub">Retrouvez vos réservations, vos favoris et vos expériences authentiques en un clic.</div>
@@ -417,10 +418,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
  
     <div class="social-links">
-      <a href="#">f</a>
-      <a href="#">𝕏</a>
-      <a href="#">📷</a>
-      <a href="#">in</a>
+      <a href="https://facebook.com" target="_blank" rel="noopener" title="Facebook">f</a>
+      <a href="https://twitter.com" target="_blank" rel="noopener" title="X">𝕏</a>
+      <a href="https://instagram.com" target="_blank" rel="noopener" title="Instagram">📷</a>
+      <a href="https://linkedin.com" target="_blank" rel="noopener" title="LinkedIn">in</a>
     </div>
   </div>
  

@@ -42,8 +42,8 @@ if (!isset($activePage)) {
   </nav>
 
   <div class="upgrade-card">
-    <h4>Admin Pro</h4>
-    <p>Gérez Tarkina avec tous les privilèges administrateur.</p>
-    <a href="#" class="btn-upgrade">Détails</a>
+    <h4>Site public</h4>
+    <p>Consultez Tarkina tel que le voient vos visiteurs.</p>
+    <a href="../index.php" target="_blank" rel="noopener" class="btn-upgrade">Voir le site</a>
   </div>
 </aside>

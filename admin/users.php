@@ -228,7 +228,7 @@ require_once __DIR__ . '/includes/sidebar.php';
                         <input type="hidden" name="user_id" value="<?php echo (int) $user['id']; ?>">
                         <input type="hidden" name="q" value="<?php echo htmlspecialchars($search); ?>">
                         <input type="hidden" name="page" value="<?php echo (int) $page; ?>">
-                        <button type="submit" class="btn-small btn-soft">Supprimer</button>
+                        <button type="submit" class="btn-small btn-soft" title="Supprimer"><i class="bi bi-trash" style="color:#c0392b"></i></button>
                       </form>
                     </div>
                   </td>
