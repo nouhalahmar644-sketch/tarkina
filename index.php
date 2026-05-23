@@ -114,11 +114,12 @@ if(isset($conn) && $conn) {
         .booking-field:hover { background:#faf8f5; }
         .booking-field.dest { flex:1.4; }
         .booking-field label { display:block; font-size:.66rem; font-weight:800; letter-spacing:1.2px; text-transform:uppercase; color:#9aa3ab; margin-bottom:4px; pointer-events:none; }
-        .bf-control { display:flex; align-items:center; gap:8px; }
-        .bf-ico { width:15px; height:15px; flex-shrink:0; }
+        .bf-control { display:flex; align-items:center; gap:8px; position:relative; }
+        .bf-ico { width:15px; height:15px; flex-shrink:0; pointer-events:none; }
+        .booking-field.dest select { padding-right:18px; }
         .booking-field input, .booking-field select { width:100%; border:none; outline:none; background:transparent; font-size:.93rem; color:#1B3A4B; font-family:inherit; font-weight:600; cursor:pointer; padding:0; appearance:none; -webkit-appearance:none; -moz-appearance:none; text-overflow:ellipsis; }
         .booking-field input::placeholder { color:#aab1b8; font-weight:500; }
-        .booking-caret { width:13px; height:13px; flex-shrink:0; margin-left:auto; }
+        .booking-caret { width:13px; height:13px; position:absolute; right:0; top:50%; transform:translateY(-50%); pointer-events:none; }
         .booking-btn { flex-shrink:0; width:62px; background:var(--primary); display:flex; align-items:center; justify-content:center; border:none; cursor:pointer; transition:background .2s; }
         .booking-btn:hover { background:#c44d22; }
         .booking-btn svg { width:22px; height:22px; stroke:#fff; }
@@ -782,6 +783,19 @@ document.getElementById('bookingBar')?.addEventListener('submit', function(e) {
     window.location.href = 'region.php?' + p.toString();
   }
 });
+
+// Make the whole Destination field open the dropdown (icon/label/blank area)
+(function(){
+  var df = document.querySelector('.booking-field.dest');
+  var ds = document.getElementById('bk_dest');
+  if (df && ds) {
+    df.addEventListener('click', function(e){
+      if (e.target === ds) return; // native click already opens it
+      if (typeof ds.showPicker === 'function') { try { ds.showPicker(); return; } catch(_){} }
+      ds.focus();
+    });
+  }
+})();
 </script>
 
 </body>
