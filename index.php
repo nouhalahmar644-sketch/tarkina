@@ -109,13 +109,20 @@ if(isset($conn) && $conn) {
         .hero-pills { display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin-bottom:28px; }
         .hero-pill { padding:8px 18px; border:1.5px solid rgba(255,255,255,.6); border-radius:50px; color:#fff; text-decoration:none; font-size:.85rem; font-weight:600; display:flex; align-items:center; gap:6px; transition:all .2s; backdrop-filter:blur(4px); background:rgba(255,255,255,.1); }
         .hero-pill:hover, .hero-pill.active { background:#fff; color:var(--navy); border-color:#fff; }
-        .booking-bar { background:rgba(255,255,255,.97); border-radius:16px; display:grid; grid-template-columns:2fr 1.2fr 1.2fr 1fr auto; align-items:center; width:100%; max-width:860px; overflow:hidden; box-shadow:0 8px 30px rgba(0,0,0,.2); }
-        .booking-field { padding:16px 20px; border-right:1px solid var(--border); }
-        .booking-field label { display:block; font-size:.68rem; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:#9ca3af; margin-bottom:5px; }
-        .booking-field input { width:100%; border:none; outline:none; font-size:.95rem; color:var(--text-dark); background:transparent; }
-        .booking-btn { padding:0 24px; background:var(--primary); height:100%; display:flex; align-items:center; justify-content:center; border:none; cursor:pointer; transition:background .2s; }
+        .booking-bar { background:#fff; border-radius:18px; display:flex; align-items:stretch; width:100%; max-width:940px; box-shadow:0 14px 44px rgba(0,0,0,.22); overflow:hidden; }
+        .booking-field { flex:1; padding:13px 22px; border-right:1px solid #eee; display:flex; flex-direction:column; justify-content:center; cursor:pointer; transition:background .15s; min-width:0; text-align:left; }
+        .booking-field:hover { background:#faf8f5; }
+        .booking-field.dest { flex:1.4; }
+        .booking-field label { display:block; font-size:.66rem; font-weight:800; letter-spacing:1.2px; text-transform:uppercase; color:#9aa3ab; margin-bottom:4px; pointer-events:none; }
+        .bf-control { display:flex; align-items:center; gap:8px; }
+        .bf-ico { width:15px; height:15px; flex-shrink:0; }
+        .booking-field input, .booking-field select { width:100%; border:none; outline:none; background:transparent; font-size:.93rem; color:#1B3A4B; font-family:inherit; font-weight:600; cursor:pointer; padding:0; appearance:none; -webkit-appearance:none; -moz-appearance:none; text-overflow:ellipsis; }
+        .booking-field input::placeholder { color:#aab1b8; font-weight:500; }
+        .booking-caret { width:13px; height:13px; flex-shrink:0; margin-left:auto; }
+        .booking-btn { flex-shrink:0; width:62px; background:var(--primary); display:flex; align-items:center; justify-content:center; border:none; cursor:pointer; transition:background .2s; }
         .booking-btn:hover { background:#c44d22; }
         .booking-btn svg { width:22px; height:22px; stroke:#fff; }
+        @media(max-width:760px){ .booking-bar{ flex-direction:column; max-width:420px; } .booking-field{ border-right:none; border-bottom:1px solid #eee; } .booking-btn{ width:100%; height:52px; } }
 
         /* ── TRUST BAR ── */
         .trust-bar { background:#fff; border-top:1px solid var(--border); border-bottom:1px solid var(--border); padding:28px 60px; }
@@ -310,36 +317,49 @@ if(isset($conn) && $conn) {
         <button type="submit" style="padding:11px 28px;flex-shrink:0;background:var(--primary);color:#fff;border:none;border-radius:50px;cursor:pointer;font-size:.95rem;font-weight:700;transition:background .2s;" onmouseover="this.style.background='#c44d22'" onmouseout="this.style.background='#E05A2B'">Rechercher</button>
     </form>
 
-    <form class="booking-bar" action="search.php" method="GET">
-        <div class="booking-field sf-field">
-            <label class="sf-label">Destination</label>
-            <select name="destination" style="border:none;outline:none;background:transparent;font-size:14px;color:#333;font-family:inherit;width:100%;cursor:pointer;appearance:none;-webkit-appearance:none;-moz-appearance:none;padding:0;">
-                <option value="">Où allez-vous ?</option>
-                <?php
-                if (isset($conn) && $conn) {
-                    $reg_q = mysqli_query($conn, "SELECT id, nom FROM region ORDER BY nom ASC");
-                    if($reg_q) {
-                        while ($reg_row = mysqli_fetch_assoc($reg_q)):
-                ?>
-                <option value="<?= $reg_row['id'] ?>"><?= htmlspecialchars($reg_row['nom'], ENT_QUOTES, 'UTF-8') ?></option>
-                <?php 
-                        endwhile;
-                    } 
-                }
-                ?>
-            </select>
+    <form class="booking-bar" action="search.php" method="GET" id="bookingBar">
+        <div class="booking-field dest">
+            <label>Destination</label>
+            <div class="bf-control">
+                <svg class="bf-ico" viewBox="0 0 24 24" fill="none" stroke="#E05A2B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                <select name="destination" id="bk_dest" aria-label="Destination">
+                    <option value="">Où allez-vous ?</option>
+                    <?php
+                    if (isset($conn) && $conn) {
+                        $reg_q = mysqli_query($conn, "SELECT id, nom FROM region ORDER BY nom ASC");
+                        if ($reg_q) {
+                            while ($reg_row = mysqli_fetch_assoc($reg_q)):
+                    ?>
+                    <option value="<?= (int) $reg_row['id'] ?>"><?= htmlspecialchars($reg_row['nom'], ENT_QUOTES, 'UTF-8') ?></option>
+                    <?php
+                            endwhile;
+                        }
+                    }
+                    ?>
+                </select>
+                <svg class="booking-caret" viewBox="0 0 24 24" fill="none" stroke="#9aa3ab" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
         </div>
         <div class="booking-field sf-field">
             <label>Arrivée</label>
-            <input type="text" name="date_debut" id="date_debut" readonly>
+            <div class="bf-control">
+                <svg class="bf-ico" viewBox="0 0 24 24" fill="none" stroke="#E05A2B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                <input type="text" name="date_debut" id="date_debut" placeholder="Ajouter une date" readonly>
+            </div>
         </div>
         <div class="booking-field sf-field">
             <label>Départ</label>
-            <input type="text" name="date_fin" id="date_fin" readonly>
+            <div class="bf-control">
+                <svg class="bf-ico" viewBox="0 0 24 24" fill="none" stroke="#E05A2B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                <input type="text" name="date_fin" id="date_fin" placeholder="Ajouter une date" readonly>
+            </div>
         </div>
-        <div class="booking-field sf-field" style="border-right:none">
+        <div class="booking-field">
             <label>Voyageurs</label>
-            <input type="number" name="personnes" id="personnes" value="1" min="1" max="20" style="width:60px;border:none;outline:none;background:transparent;font-size:14px;font-family:inherit;">
+            <div class="bf-control">
+                <svg class="bf-ico" viewBox="0 0 24 24" fill="none" stroke="#E05A2B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                <input type="number" name="personnes" id="personnes" value="1" min="1" max="20">
+            </div>
         </div>
         <button type="submit" class="booking-btn" aria-label="Rechercher" title="Rechercher">
             <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
@@ -748,11 +768,18 @@ document.querySelectorAll('.sf-field').forEach(field => {
   });
 });
 
-document.querySelector('form.booking-bar, .booking-bar form, .sf-btn')?.closest('form')?.addEventListener('submit', function(e) {
-  const sel = this.querySelector('select[name="destination"]');
-  if (sel && sel.value) {
+document.getElementById('bookingBar')?.addEventListener('submit', function(e) {
+  const dest = this.querySelector('select[name="destination"]');
+  if (dest && dest.value) {
     e.preventDefault();
-    window.location.href = 'region.php?id=' + sel.value;
+    const p = new URLSearchParams({ id: dest.value });
+    const dd = this.querySelector('[name="date_debut"]').value;
+    const df = this.querySelector('[name="date_fin"]').value;
+    const pers = this.querySelector('[name="personnes"]').value;
+    if (dd) p.set('date_debut', dd);
+    if (df) p.set('date_fin', df);
+    if (pers) p.set('personnes', pers);
+    window.location.href = 'region.php?' + p.toString();
   }
 });
 </script>
