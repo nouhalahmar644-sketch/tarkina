@@ -19,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     $newStatus = isset($_POST['statut']) ? trim((string) $_POST['statut']) : '';
     $redirectUrl = 'reservations.php';
 
-    if ($targetId <= 0 || !in_array($newStatus, ['en_attente', 'confirmée', 'annulée'])) {
+    if ($targetId <= 0 || !in_array($newStatus, ['en_attente', 'confirmée', 'annulée', 'terminé'])) {
         $_SESSION['admin_flash_error'] = 'Action invalide.';
         header('Location: ' . $redirectUrl);
         exit;
@@ -196,6 +196,7 @@ require_once __DIR__ . '/includes/sidebar.php';
                               <option value="en_attente" <?php if ($r['statut'] === 'en_attente') echo 'selected'; ?>>En attente</option>
                               <option value="confirmée" <?php if ($r['statut'] === 'confirmée' || $r['statut'] === 'confirmee') echo 'selected'; ?>>Confirmée</option>
                               <option value="annulée" <?php if ($r['statut'] === 'annulée' || $r['statut'] === 'annulee') echo 'selected'; ?>>Annulée</option>
+                              <option value="terminé" <?php if ($r['statut'] === 'terminé' || $r['statut'] === 'terminée' || $r['statut'] === 'termine') echo 'selected'; ?>>Terminée</option>
                           </select>
                       </form>
                   </td>

@@ -18,6 +18,8 @@ $regionNomDisplay = strtoupper($regionNom);
 $mainPhoto = service_main_photo($item, 'https://images.unsplash.com/photo-1459411552885-841d9bcaad72?w=1200&q=80');
 $thumbs = service_secondary_photos($item, 4, $mainPhoto);
 $prix = (float) ($item['prix'] ?? 0);
+require_once __DIR__ . '/includes/avis_helpers.php';
+$__sum = avis_summary($conn, 'artisanat', $id);
 $successMsg = ''; $errorMsg = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -56,13 +58,7 @@ $desc = trim((string) ($item['description'] ?? 'Produit artisanal authentique fa
 <body class="service-page">
 <?php include __DIR__ . '/navbar.php'; ?>
 
-<button onclick="history.back()" 
-  style="background:none;border:none;cursor:pointer;font-size:1.3rem;
-  color:#1B3A4B;padding:14px 0 0 24px;display:flex;align-items:center;gap:6px;"
-  onmouseover="this.style.color='#E05A2B'" 
-  onmouseout="this.style.color='#1B3A4B'">
-  &#8592;
-</button>
+<button onclick="history.back()" style="display:inline-flex;align-items:center;gap:8px;margin:14px 0 0 24px;background:#fff;border:1.5px solid #e2ddd8;border-radius:50px;padding:8px 18px;color:#1B3A4B;cursor:pointer;font-weight:600;font-size:.9rem;font-family:inherit;transition:all .2s;" onmouseover="this.style.borderColor='#E05A2B';this.style.color='#E05A2B'" onmouseout="this.style.borderColor='#e2ddd8';this.style.color='#1B3A4B'">&#8592; Retour</button>
 
 <div class="container py-4">
 
@@ -81,7 +77,7 @@ $desc = trim((string) ($item['description'] ?? 'Produit artisanal authentique fa
       <div class="service-cat">ARTISANAT · <?= htmlspecialchars($regionNomDisplay) ?></div>
       <h1 class="service-title"><?= htmlspecialchars($item['titre']) ?></h1>
       <div class="service-meta">
-        <span>⭐ 5 · 58 avis</span>
+        <span>⭐ <?= $__sum['count'] > 0 ? number_format($__sum['avg'], 1) : '—' ?> · <?= (int) $__sum['count'] ?> avis</span>
         <span>📍 <?= htmlspecialchars(service_localisation($item)) ?></span>
       </div>
       <div class="booking-price" style="margin:16px 0;"><?= number_format($prix, 0) ?> TND</div>
@@ -112,6 +108,11 @@ $desc = trim((string) ($item['description'] ?? 'Produit artisanal authentique fa
       </form>
       <?php endif; ?>
     </div>
+  </div>
+
+  <div class="service-section" style="margin-top:24px;">
+    <h3>Avis des clients</h3>
+    <?php $serviceType = 'artisanat'; $serviceId = $id; include __DIR__ . '/includes/avis_section.php'; ?>
   </div>
 </div>
 

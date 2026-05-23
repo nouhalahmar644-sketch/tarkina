@@ -26,7 +26,24 @@ mysqli_stmt_close($cs);
 
 $isOwner = isset($_SESSION['user_id']) && (int)$_SESSION['user_id'] === (int)$post['utilisateur_id'];
 function bi2($p,$n){ return strtoupper(mb_substr((string)$p,0,1).mb_substr((string)$n,0,1)); }
-$cover = $post['photo'] ?: 'https://images.unsplash.com/photo-1539650116574-75c0c6d73f6e?w=1100&q=80';
+/**
+ * Resolve a blog photo to a usable src, repairing legacy/corrupted values
+ * like "uploads\stories\https://images.unsplash.com/..." by extracting the URL.
+ */
+function post_photo_src($photo, $fallback) {
+    $photo = trim((string) $photo);
+    if ($photo === '') { return $fallback; }
+    if (preg_match('~https?://\S+~', $photo, $m)) { return $m[0]; }
+    if (preg_match('~^https?://~i', $photo)) { return $photo; }
+    return str_replace('\\', '/', $photo);
+}
+function post_date_fr($datetime) {
+    $ts = strtotime((string) $datetime);
+    if (!$ts) { return ''; }
+    $mois = [1=>'janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+    return (int)date('j', $ts) . ' ' . $mois[(int)date('n', $ts)] . ' ' . date('Y', $ts);
+}
+$cover = post_photo_src($post['photo'] ?? '', 'https://images.unsplash.com/photo-1539650116574-75c0c6d73f6e?w=1100&q=80');
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -53,7 +70,7 @@ $cover = $post['photo'] ?: 'https://images.unsplash.com/photo-1539650116574-75c0
         <span class="avatar"><?= htmlspecialchars(bi2($post['prenom'],$post['nom'])) ?></span>
         <div>
           <div class="who"><?= htmlspecialchars($post['prenom'].' '.$post['nom']) ?></div>
-          <div class="when"><?= date('d/m/Y', strtotime($post['created_at'])) ?></div>
+          <div class="when"><i class="bi bi-calendar3"></i> <?= htmlspecialchars(post_date_fr($post['created_at'])) ?></div>
         </div>
       </div>
 
@@ -89,7 +106,7 @@ $cover = $post['photo'] ?: 'https://images.unsplash.com/photo-1539650116574-75c0
       <div class="c-head">
         <span class="avatar"><?= htmlspecialchars(bi2($c['prenom'],$c['nom'])) ?></span>
         <span class="c-who"><?= htmlspecialchars($c['prenom'].' '.$c['nom']) ?></span>
-        <span class="c-when">· <?= date('d/m/Y', strtotime($c['created_at'])) ?></span>
+        <span class="c-when">· <?= htmlspecialchars(post_date_fr($c['created_at'])) ?></span>
       </div>
       <div class="c-text"><?= nl2br(htmlspecialchars($c['contenu'])) ?></div>
     </div>

@@ -27,6 +27,27 @@ function blog_excerpt($text, $len = 130) {
 function blog_initials($prenom, $nom) {
     return strtoupper(mb_substr((string)$prenom, 0, 1) . mb_substr((string)$nom, 0, 1));
 }
+/**
+ * Resolve a blog photo to a usable src.
+ * Handles legacy/corrupted values like "uploads\stories\https://images.unsplash.com/..."
+ * by extracting the embedded URL. Falls back to a tasteful Tunisia image.
+ */
+function blog_photo_src($photo, $fallback) {
+    $photo = trim((string) $photo);
+    if ($photo === '') { return $fallback; }
+    // Corrupted path that contains a full URL glued onto a local prefix
+    if (preg_match('~https?://\S+~', $photo, $m)) { return $m[0]; }
+    // Already a clean absolute URL
+    if (preg_match('~^https?://~i', $photo)) { return $photo; }
+    // Local upload path: normalise Windows backslashes to forward slashes
+    return str_replace('\\', '/', $photo);
+}
+function blog_date_fr($datetime) {
+    $ts = strtotime((string) $datetime);
+    if (!$ts) { return ''; }
+    $mois = [1=>'janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+    return (int)date('j', $ts) . ' ' . $mois[(int)date('n', $ts)] . ' ' . date('Y', $ts);
+}
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -70,7 +91,7 @@ function blog_initials($prenom, $nom) {
     <div class="blog-grid">
       <?php foreach ($posts as $p): ?>
         <?php
-          $img = $p['photo'] ?: 'https://images.unsplash.com/photo-1539650116574-75c0c6d73f6e?w=700&q=80';
+          $img = blog_photo_src($p['photo'] ?? '', 'https://images.unsplash.com/photo-1539650116574-75c0c6d73f6e?w=700&q=80');
         ?>
         <a href="blog-post.php?id=<?= (int)$p['id'] ?>" class="blog-card">
           <div class="blog-card__img">
@@ -79,9 +100,10 @@ function blog_initials($prenom, $nom) {
           </div>
           <div class="blog-card__body">
             <h3 class="blog-card__title"><?= htmlspecialchars($p['titre']) ?></h3>
+            <span class="blog-card__date"><i class="bi bi-calendar3"></i> <?= htmlspecialchars(blog_date_fr($p['created_at'])) ?></span>
             <p class="blog-card__excerpt"><?= htmlspecialchars(blog_excerpt($p['contenu'])) ?></p>
             <div class="blog-card__meta">
-              <span class="blog-card__author"><span class="avatar"><?= htmlspecialchars(blog_initials($p['prenom'], $p['nom'])) ?></span><?= htmlspecialchars($p['prenom']) ?></span>
+              <span class="blog-card__author"><span class="avatar"><?= htmlspecialchars(blog_initials($p['prenom'], $p['nom'])) ?></span><?= htmlspecialchars($p['prenom'].' '.$p['nom']) ?></span>
               <span class="blog-like"><i class="bi bi-heart-fill"></i> <?= (int)$p['likes'] ?></span>
             </div>
           </div>

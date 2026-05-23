@@ -199,6 +199,12 @@ if ($result) {
                 $statut_class = 'badge-annulee';
                 $statut_label = 'Annulée';
                 break;
+            case 'terminé':
+            case 'terminée':
+            case 'termine':
+                $statut_class = 'badge-confirmee';
+                $statut_label = 'Terminée';
+                break;
             default:
                 $statut_class = 'badge-en_attente';
                 $statut_label = htmlspecialchars($r['statut']);
@@ -241,6 +247,9 @@ if ($result) {
                     <input type="hidden" name="reservation_id" value="<?= $r['id'] ?>">
                     <button type="submit" class="btn btn-danger" style="width:100%;">Annuler</button>
                 </form>
+            <?php endif; ?>
+            <?php if (in_array($r['statut'], ['terminé','terminée','termine'], true)): ?>
+                <a href="<?= htmlspecialchars($r['type_service']) ?>.php?id=<?= (int)$r['service_id'] ?>#avis" class="btn" style="flex:1;background:var(--orange);color:#fff;">Laisser un avis</a>
             <?php endif; ?>
         </div>
       </div>

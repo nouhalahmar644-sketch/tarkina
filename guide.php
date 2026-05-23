@@ -20,7 +20,8 @@ $prix = (float) ($item['prix'] ?? 0);
 $capacite = max(1, (int) ($item['capacite'] ?? 4));
 $guideName = explode(' ', trim($item['titre']))[0];
 $inclus = service_default_inclus();
-$reviews = service_placeholder_reviews();
+require_once __DIR__ . '/includes/avis_helpers.php';
+$__sum = avis_summary($conn, 'guide', $id);
 $successMsg = ''; $errorMsg = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -58,13 +59,7 @@ $desc = trim((string) ($item['description'] ?? 'Explorez la région avec un guid
 <body class="service-page">
 <?php include __DIR__ . '/navbar.php'; ?>
 
-<button onclick="history.back()" 
-  style="background:none;border:none;cursor:pointer;font-size:1.3rem;
-  color:#1B3A4B;padding:14px 0 0 24px;display:flex;align-items:center;gap:6px;"
-  onmouseover="this.style.color='#E05A2B'" 
-  onmouseout="this.style.color='#1B3A4B'">
-  &#8592;
-</button>
+<button onclick="history.back()" style="display:inline-flex;align-items:center;gap:8px;margin:14px 0 0 24px;background:#fff;border:1.5px solid #e2ddd8;border-radius:50px;padding:8px 18px;color:#1B3A4B;cursor:pointer;font-weight:600;font-size:.9rem;font-family:inherit;transition:all .2s;" onmouseover="this.style.borderColor='#E05A2B';this.style.color='#E05A2B'" onmouseout="this.style.borderColor='#e2ddd8';this.style.color='#1B3A4B'">&#8592; Retour</button>
 
 <div class="service-gallery-grid6">
   <?php foreach ($gridPhotos as $ph): ?><img src="<?= htmlspecialchars($ph) ?>" alt=""><?php endforeach; ?>
@@ -78,7 +73,7 @@ $desc = trim((string) ($item['description'] ?? 'Explorez la région avec un guid
       <h1 class="service-title"><?= htmlspecialchars($item['titre']) ?></h1>
       <div class="service-meta">
         <span><?= htmlspecialchars(service_localisation($item)) ?></span>
-        <span>⭐ 4.9 (64 avis)</span>
+        <span>⭐ <?= $__sum['count'] > 0 ? number_format($__sum['avg'], 1) : '—' ?> (<?= (int) $__sum['count'] ?> avis)</span>
         <span>Capacité <?= $capacite ?></span>
       </div>
       <p class="service-desc"><?= nl2br(htmlspecialchars($desc)) ?></p>
@@ -86,7 +81,7 @@ $desc = trim((string) ($item['description'] ?? 'Explorez la région avec un guid
       <div class="service-section"><h3>Ce qui est inclus</h3><div class="inclus-grid"><?php foreach ($inclus as $i): ?><div class="inclus-item"><span class="check">✓</span> <?= htmlspecialchars($i) ?></div><?php endforeach; ?></div></div>
       <hr>
       <div class="service-section"><h3>Avis des voyageurs</h3>
-        <?php foreach ($reviews as $r): ?><div class="review-card"><div class="review-head"><span class="review-name"><?= htmlspecialchars($r['name']) ?></span><span class="review-stars">★★★★★</span></div><p class="mb-0 text-muted"><?= htmlspecialchars($r['text']) ?></p></div><?php endforeach; ?>
+        <?php $serviceType = 'guide'; $serviceId = $id; include __DIR__ . '/includes/avis_section.php'; ?>
       </div>
     </div>
     <div class="col-lg-4">

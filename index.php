@@ -270,7 +270,7 @@ if(isset($conn) && $conn) {
 <!-- HERO -->
 <section class="hero">
     <div class="hero-overlay" style="position:absolute;inset:0;background:linear-gradient(135deg,rgba(27,58,75,0.75) 0%,rgba(224,90,43,0.45) 100%);z-index:0;"></div>
-    <h1 class="hero-title">VOYAGEZ CHEZ L'HABITANT.<br>DÉCOUVREZ LA <span style="color:var(--primary)">VRAIE TUNISIE</span>.</h1>
+    <h1 class="hero-title">VIVEZ LA TUNISIE <span style="color:var(--primary)">AUTREMENT</span>.<br>AU PLUS PRÈS DE SES HABITANTS.</h1>
 
     <form class="hero-search" action="search.php" method="GET">
         <input type="text" name="q" placeholder="Rechercher une ville, une expérience...">
@@ -314,6 +314,11 @@ if(isset($conn) && $conn) {
             <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35" stroke-linecap="round"/></svg>
         </button>
     </form>
+
+    <div style="display:flex;gap:16px;flex-wrap:wrap;justify-content:center;margin-top:32px;">
+        <a href="explorer.php" style="display:inline-block;padding:14px 32px;background:#E05A2B;color:#fff;border-radius:50px;text-decoration:none;font-weight:700;font-size:1rem;box-shadow:0 6px 24px rgba(224,90,43,.4);transition:background .2s;" onmouseover="this.style.background='#c44d22'" onmouseout="this.style.background='#E05A2B'">Explorer les régions</a>
+        <a href="blogs.php" style="display:inline-block;padding:14px 32px;background:transparent;color:#fff;border:2px solid rgba(255,255,255,.85);border-radius:50px;text-decoration:none;font-weight:700;font-size:1rem;transition:all .2s;" onmouseover="this.style.background='#fff';this.style.color='#1B3A4B'" onmouseout="this.style.background='transparent';this.style.color='#fff'">Découvrir le blog</a>
+    </div>
 </section>
 
 <!-- TRUST BAR -->
@@ -559,53 +564,6 @@ if(isset($conn) && $conn) {
         </div>
     </div>
 </section>
-
-<!-- HOSTS -->
-<?php if(count($guides) > 0): ?>
-<section class="hosts-section">
-    <div class="hosts-inner">
-        <div class="hosts-header">
-            <div>
-                <p class="section-label">Nos hôtes locaux</p>
-                <h2 class="section-heading">Rencontrez <span style="color:var(--primary)">vos guides</span></h2>
-            </div>
-            <a href="explorer.php" class="btn-see-all">Voir tous les guides →</a>
-        </div>
-        <div class="hosts-grid">
-            <?php foreach($guides as $guide): ?>
-            <a href="guide.php?id=<?= $guide['id'] ?>" class="host-card">
-                <div class="host-photo">
-                    <?php
-                    $photo = '';
-                    if (!empty($guide['photo_principale'])) {
-                        $p = $guide['photo_principale'];
-                        if (strpos($p, 'http') === 0) {
-                            $photo = $p;
-                        } elseif (file_exists('assets/img/guides/' . $p)) {
-                            $photo = 'assets/img/guides/' . $p;
-                        } elseif (file_exists('assets/img/' . $p)) {
-                            $photo = 'assets/img/' . $p;
-                        } elseif (file_exists('uploads/' . $p)) {
-                            $photo = 'uploads/' . $p;
-                        }
-                    }
-                    if (empty($photo)) {
-                        $photo = 'https://randomuser.me/api/portraits/men/' . ($guide['id'] % 50) . '.jpg';
-                    }
-                    ?>
-                    <img loading="lazy" src="<?= $photo ?>" alt="<?= htmlspecialchars($guide['titre'], ENT_QUOTES, 'UTF-8') ?>">
-                </div>
-                <div class="host-info">
-                    <strong><?= htmlspecialchars($guide['titre']) ?></strong>
-                    <span>📍 <?= htmlspecialchars($guide['localisation']) ?></span>
-                    <span class="host-price">À partir de <?= $guide['prix'] ?> DT</span>
-                </div>
-            </a>
-            <?php endforeach; ?>
-        </div>
-    </div>
-</section>
-<?php endif; ?>
 
 <!-- POURQUOI TARKINA -->
 <section class="pourquoi-section">
