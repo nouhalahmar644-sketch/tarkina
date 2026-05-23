@@ -3,6 +3,39 @@ session_start();
 
 require 'db.php';
 
+// Newsletter subscription — table is auto-created so the feature works on any machine
+$nlMsg = ''; $nlOk = false;
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['newsletter_submit'])) {
+    $nlEmail = trim((string) ($_POST['newsletter_email'] ?? ''));
+    if ($nlEmail === '' || !filter_var($nlEmail, FILTER_VALIDATE_EMAIL)) {
+        $nlMsg = 'Veuillez saisir une adresse e-mail valide.';
+    } elseif (isset($conn) && $conn) {
+        try {
+            mysqli_query($conn, "CREATE TABLE IF NOT EXISTS newsletter (id INT AUTO_INCREMENT PRIMARY KEY, email VARCHAR(190) NOT NULL UNIQUE, created_at DATETIME DEFAULT CURRENT_TIMESTAMP) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+            $already = false;
+            if ($chk = mysqli_prepare($conn, "SELECT 1 FROM newsletter WHERE email = ? LIMIT 1")) {
+                mysqli_stmt_bind_param($chk, 's', $nlEmail);
+                mysqli_stmt_execute($chk);
+                mysqli_stmt_store_result($chk);
+                $already = mysqli_stmt_num_rows($chk) > 0;
+                mysqli_stmt_close($chk);
+            }
+            if ($already) {
+                $nlMsg = 'Cette adresse e-mail est déjà inscrite.';
+            } else {
+                $ins = mysqli_prepare($conn, "INSERT INTO newsletter (email) VALUES (?)");
+                mysqli_stmt_bind_param($ins, 's', $nlEmail);
+                mysqli_stmt_execute($ins);
+                mysqli_stmt_close($ins);
+                $nlMsg = 'Merci pour votre inscription !';
+                $nlOk = true;
+            }
+        } catch (\mysqli_sql_exception $e) {
+            $nlMsg = (mysqli_errno($conn) === 1062) ? 'Cette adresse e-mail est déjà inscrite.' : 'Une erreur est survenue. Réessayez.';
+        }
+    }
+}
+
 // Fetch regions
 $regions = [];
 if(isset($conn) && $conn) {
@@ -274,15 +307,13 @@ if(isset($conn) && $conn) {
 
     <form class="hero-search" action="search.php" method="GET">
         <input type="text" name="q" placeholder="Rechercher une ville, une expérience...">
-        <button type="submit" class="btn-search" aria-label="Rechercher" title="Rechercher">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35" stroke-linecap="round"/></svg>
-        </button>
+        <button type="submit" style="padding:11px 28px;flex-shrink:0;background:var(--primary);color:#fff;border:none;border-radius:50px;cursor:pointer;font-size:.95rem;font-weight:700;transition:background .2s;" onmouseover="this.style.background='#c44d22'" onmouseout="this.style.background='#E05A2B'">Rechercher</button>
     </form>
 
     <form class="booking-bar" action="search.php" method="GET">
         <div class="booking-field sf-field">
             <label class="sf-label">Destination</label>
-            <select name="destination" style="border:none;outline:none;background:transparent;font-size:14px;color:#333;font-family:inherit;width:100%;cursor:pointer;">
+            <select name="destination" style="border:none;outline:none;background:transparent;font-size:14px;color:#333;font-family:inherit;width:100%;cursor:pointer;appearance:none;-webkit-appearance:none;-moz-appearance:none;padding:0;">
                 <option value="">Où allez-vous ?</option>
                 <?php
                 if (isset($conn) && $conn) {
@@ -310,8 +341,8 @@ if(isset($conn) && $conn) {
             <label>Voyageurs</label>
             <input type="number" name="personnes" id="personnes" value="1" min="1" max="20" style="width:60px;border:none;outline:none;background:transparent;font-size:14px;font-family:inherit;">
         </div>
-        <button type="submit" class="booking-btn">
-            <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35" stroke-linecap="round"/></svg>
+        <button type="submit" class="booking-btn" aria-label="Rechercher" title="Rechercher">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
         </button>
     </form>
 
@@ -424,18 +455,13 @@ if(isset($conn) && $conn) {
                 <div class="forfait-body">
                     <p class="forfait-meta">Douz & Tozeur · 4 jours</p>
                     <h3 class="forfait-title">Escapade Saharienne</h3>
-                    <div class="forfait-tags">
-                        <span class="forfait-tag tag-desert">Désert</span>
-                        <span class="forfait-tag tag-famille">Famille</span>
-                        <span class="forfait-tag tag-aventure">Aventure</span>
-                    </div>
                     <ul class="forfait-includes">
                         <li>Hébergement</li>
                         <li>Guide local</li>
                         <li>Repas traditionnels</li>
                         <li>Balade à dromadaire</li>
                     </ul>
-                    <a href="search.php?destination=Douz" class="btn-forfait">Réserver ce forfait</a>
+                    <a href="region.php?id=5" class="btn-forfait">Réserver ce forfait</a>
                 </div>
             </div>
 
@@ -448,17 +474,12 @@ if(isset($conn) && $conn) {
                 <div class="forfait-body">
                     <p class="forfait-meta">Kairouan · 3 jours</p>
                     <h3 class="forfait-title">Kairouanite Culturelle</h3>
-                    <div class="forfait-tags">
-                        <span class="forfait-tag tag-culture">Culture</span>
-                        <span class="forfait-tag tag-histoire">Histoire</span>
-                        <span class="forfait-tag tag-solo">Solo</span>
-                    </div>
                     <ul class="forfait-includes">
                         <li>Hébergement</li>
                         <li>Guide certifié</li>
                         <li>Visites monuments</li>
                     </ul>
-                    <a href="search.php?destination=Kairouan" class="btn-forfait">Réserver ce forfait</a>
+                    <a href="region.php?id=4" class="btn-forfait">Réserver ce forfait</a>
                 </div>
             </div>
 
@@ -471,18 +492,13 @@ if(isset($conn) && $conn) {
                 <div class="forfait-body">
                     <p class="forfait-meta">Djerba · 5 jours</p>
                     <h3 class="forfait-title">Djerba Authentique</h3>
-                    <div class="forfait-tags">
-                        <span class="forfait-tag tag-plage">Plage</span>
-                        <span class="forfait-tag tag-artisanat">Artisanat</span>
-                        <span class="forfait-tag tag-couple">Couple</span>
-                    </div>
                     <ul class="forfait-includes">
                         <li>Hébergement bord de mer</li>
                         <li>Atelier poterie</li>
                         <li>Repas inclus</li>
                         <li>Transferts</li>
                     </ul>
-                    <a href="search.php?destination=Djerba" class="btn-forfait">Réserver ce forfait</a>
+                    <a href="region.php?id=3" class="btn-forfait">Réserver ce forfait</a>
                 </div>
             </div>
 
@@ -676,7 +692,7 @@ if(isset($conn) && $conn) {
 </section>
 
 <!-- NEWSLETTER -->
-<section class="newsletter-section">
+<section class="newsletter-section" id="newsletter">
     <div class="newsletter-inner">
         <div class="newsletter-avatars">
             <img loading="lazy" src="https://randomuser.me/api/portraits/women/44.jpg" alt="">
@@ -686,9 +702,12 @@ if(isset($conn) && $conn) {
         <p class="newsletter-badge">Rejoignez 1 200+ voyageurs</p>
         <h2 class="newsletter-title">Prêt pour votre prochaine aventure ?</h2>
         <p class="newsletter-sub">Recevez nos meilleures offres, guides de destinations et conseils exclusifs directement dans votre boîte mail.</p>
-        <form class="newsletter-form" onsubmit="return false;">
-            <input type="email" placeholder="Votre adresse email">
-            <button type="submit">S'abonner</button>
+        <?php if (!empty($nlMsg)): ?>
+          <div style="margin:0 auto 16px;max-width:520px;padding:11px 18px;border-radius:50px;font-weight:600;font-size:.92rem;color:#fff;background:<?= $nlOk ? 'rgba(46,204,113,.25)' : 'rgba(231,76,60,.3)' ?>;border:1px solid rgba(255,255,255,.25);"><?= htmlspecialchars($nlMsg) ?></div>
+        <?php endif; ?>
+        <form class="newsletter-form" method="post" action="index.php#newsletter">
+            <input type="email" name="newsletter_email" placeholder="Votre adresse email" required>
+            <button type="submit" name="newsletter_submit">S'abonner</button>
         </form>
     </div>
 </section>
