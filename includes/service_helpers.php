@@ -99,14 +99,15 @@ function service_secondary_photos($item, $count = 4, $fallback = '')
         $decoded = json_decode($item['photos_sec'], true);
         if (is_array($decoded)) {
             foreach ($decoded as $p) {
-                $photos[] = service_photo_url($p, $fallback);
+                $url = service_photo_url($p, '');
+                // Only include non-empty, non-duplicate URLs
+                if ($url !== '' && !in_array($url, $photos, true)) {
+                    $photos[] = $url;
+                }
             }
         }
     }
-    $main = service_main_photo($item, $fallback);
-    while (count($photos) < $count) {
-        $photos[] = $main;
-    }
+    // Return only real photos — no padding with the main photo
     return array_slice($photos, 0, $count);
 }
 
@@ -195,6 +196,41 @@ function service_placeholder_reviews()
     ];
 }
 
+/**
+ * Normalise a date string to Y-m-d for safe MySQL insertion.
+ * Accepts: Y-m-d, d/m/Y, Y/m/d, or any format strtotime() understands.
+ * Returns NULL string ('') when the date cannot be parsed.
+ */
+function sanitize_date(string $raw): string
+{
+    $raw = trim($raw);
+    if ($raw === '') {
+        return '';
+    }
+
+    // Already Y-m-d (most common from flatpickr)
+    if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $raw)) {
+        return $raw;
+    }
+
+    // d/m/Y  (flatpickr altFormat, or manual user input)
+    if (preg_match('/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/', $raw, $m)) {
+        return sprintf('%04d-%02d-%02d', (int)$m[3], (int)$m[2], (int)$m[1]);
+    }
+
+    // Y/m/d
+    if (preg_match('/^(\d{4})\/(\d{1,2})\/(\d{1,2})$/', $raw, $m)) {
+        return sprintf('%04d-%02d-%02d', (int)$m[1], (int)$m[2], (int)$m[3]);
+    }
+
+    // Fallback: let strtotime() try
+    $ts = strtotime($raw);
+    if ($ts === false || $ts < 0) {
+        return '';
+    }
+    return date('Y-m-d', $ts);
+}
+
 function service_insert_reservation($conn, array $data, &$errorMessage = null)
 {
     service_ensure_reservations_table($conn);
@@ -212,8 +248,8 @@ function service_insert_reservation($conn, array $data, &$errorMessage = null)
     $userId = (int) $data['user_id'];
     $typeService = (string) $data['type_service'];
     $serviceId = (int) $data['service_id'];
-    $dateDebut = (string) $data['date_debut'];
-    $dateFin = (string) $data['date_fin'];
+    $dateDebut = sanitize_date((string) $data['date_debut']);
+    $dateFin   = sanitize_date((string) $data['date_fin']);
     $nbVoyageurs = (int) $data['nb_voyageurs'];
     $prixTotal = (float) $data['prix_total'];
     $nom = (string) $data['nom'];

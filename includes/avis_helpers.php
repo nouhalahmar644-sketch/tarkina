@@ -82,6 +82,24 @@ function avis_user_has($conn, string $type, int $serviceId, int $userId): bool
     return $has;
 }
 
+function avis_user_has_completed_reservation($conn, string $type, int $serviceId, int $userId): bool
+{
+    if ($serviceId <= 0 || $userId <= 0) {
+        return false;
+    }
+    $sql = "SELECT 1 FROM reservations WHERE user_id = ? AND type_service = ? AND service_id = ? AND statut = 'terminé' LIMIT 1";
+    $st = mysqli_prepare($conn, $sql);
+    if (!$st) {
+        return false;
+    }
+    mysqli_stmt_bind_param($st, 'isi', $userId, $type, $serviceId);
+    mysqli_stmt_execute($st);
+    mysqli_stmt_store_result($st);
+    $has = mysqli_stmt_num_rows($st) > 0;
+    mysqli_stmt_close($st);
+    return $has;
+}
+
 /**
  * Insert one review, enforcing one-per-user-per-service.
  * Returns true on success; sets $err on failure.
@@ -94,6 +112,10 @@ function avis_insert($conn, string $type, int $serviceId, int $userId, int $note
     if ($note < 1 || $note > 5) { $err = 'Veuillez choisir une note entre 1 et 5 étoiles.'; return false; }
     if (avis_user_has($conn, $type, $serviceId, $userId)) {
         $err = 'Vous avez déjà laissé un avis pour ce service.';
+        return false;
+    }
+    if (!avis_user_has_completed_reservation($conn, $type, $serviceId, $userId)) {
+        $err = 'Vous devez avoir une réservation terminée pour ce service pour laisser un avis.';
         return false;
     }
     $sql = "INSERT INTO avis (`$col`, utilisateur_id, note, commentaire) VALUES (?, ?, ?, ?)";

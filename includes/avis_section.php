@@ -13,6 +13,7 @@ $__avisList        = avis_list($conn, $serviceType, (int) $serviceId);
 $__avisSum         = avis_summary($conn, $serviceType, (int) $serviceId);
 $__loggedIn        = !empty($_SESSION['user_id']);
 $__alreadyReviewed = $__loggedIn ? avis_user_has($conn, $serviceType, (int) $serviceId, (int) $_SESSION['user_id']) : false;
+$__hasReservation  = $__loggedIn ? avis_user_has_completed_reservation($conn, $serviceType, (int) $serviceId, (int) $_SESSION['user_id']) : false;
 $__avisFlash       = $_SESSION['avis_flash'] ?? null;
 unset($_SESSION['avis_flash']);
 ?>
@@ -77,8 +78,8 @@ unset($_SESSION['avis_flash']);
   <?php if (!$__loggedIn): ?>
     <div class="avis-empty" style="margin-top:14px;"><a href="login.php" style="color:#E05A2B;font-weight:700;">Connectez-vous</a> pour laisser un avis.</div>
   <?php elseif ($__alreadyReviewed): ?>
-    <div class="avis-empty" style="margin-top:14px;">Vous avez déjà laissé un avis pour ce service. Merci&nbsp;!</div>
-  <?php else: ?>
+    <div class="avis-empty" style="margin-top:14px;">Vous avez déjà laissé un avis pour ce service.</div>
+  <?php elseif ($__hasReservation): ?>
     <form class="avis-form" method="post" action="avis-add.php">
       <h4>Laisser un avis</h4>
       <input type="hidden" name="type" value="<?= htmlspecialchars($serviceType) ?>">

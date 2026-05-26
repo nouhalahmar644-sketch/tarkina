@@ -22,7 +22,7 @@ service_resolve_region($conn, $item);
 $regionId = (int) ($item['region_id'] ?? 0);
 $regionNom = !empty($item['region_nom']) ? $item['region_nom'] : service_localisation($item);
 $mainPhoto = service_main_photo($item, 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1200&q=80');
-$sidePhotos = service_secondary_photos($item, 4, $mainPhoto);
+$sidePhotos = service_secondary_photos($item, 4);
 $prix = (float) ($item['prix'] ?? 0);
 $capacite = max(1, (int) ($item['capacite'] ?? 2));
 require_once __DIR__ . '/includes/avis_helpers.php';
@@ -123,14 +123,31 @@ if (count($descParts) < 2) {
 
 <button onclick="history.back()" class="back-btn">&#8592; Retour</button>
 
-<div class="service-gallery-full">
-  <div class="service-gallery-main"><img src="<?= htmlspecialchars($mainPhoto) ?>" alt="<?= htmlspecialchars($item['titre']) ?>"></div>
-  <div class="service-gallery-side">
-    <?php foreach ($sidePhotos as $ph): ?>
-      <img src="<?= htmlspecialchars($ph) ?>" alt="">
-    <?php endforeach; ?>
+<?php $sideCount = count($sidePhotos); ?>
+
+<?php if ($sideCount === 0): ?>
+  <!-- Single image: full-width hero -->
+  <div class="service-gallery-full" style="height:480px;">
+    <div style="width:100%;height:100%;">
+      <img src="<?= htmlspecialchars($mainPhoto) ?>" alt="<?= htmlspecialchars($item['titre']) ?>" style="width:100%;height:100%;object-fit:cover;display:block;">
+    </div>
   </div>
-</div>
+
+<?php else: ?>
+  <div class="service-gallery-full">
+    <div class="service-gallery-main">
+      <img src="<?= htmlspecialchars($mainPhoto) ?>" alt="<?= htmlspecialchars($item['titre']) ?>">
+    </div>
+    <div class="service-gallery-side"
+         style="grid-template-rows: repeat(<?= $sideCount <= 2 ? $sideCount : 2 ?>, 1fr);
+                grid-template-columns: <?= $sideCount === 1 ? '1fr' : '1fr 1fr' ?>;">
+      <?php foreach ($sidePhotos as $ph): ?>
+        <img src="<?= htmlspecialchars($ph) ?>" alt="">
+      <?php endforeach; ?>
+    </div>
+  </div>
+<?php endif; ?>
+
 
 <div class="container py-3">
 

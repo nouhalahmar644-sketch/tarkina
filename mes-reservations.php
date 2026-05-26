@@ -15,7 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         $res_check = mysqli_query($conn, "SELECT statut FROM reservations WHERE id = $res_id AND user_id = $user_id LIMIT 1");
         $row_check = $res_check ? mysqli_fetch_assoc($res_check) : null;
 
-        if ($row_check && $row_check['statut'] === 'en_attente') {
+        if ($row_check && in_array($row_check['statut'], ['en_attente', 'confirmé', 'confirmée', 'confirmee'], true)) {
             if (mysqli_query($conn, "UPDATE reservations SET statut = 'annulée' WHERE id = $res_id")) {
                 $success_msg = 'La réservation a été annulée avec succès.';
             } else {
@@ -60,13 +60,16 @@ if ($result) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mes Réservations – Tarkina</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Lato:wght@400;600;700&display=swap" rel="stylesheet" />
+  <!-- Bootstrap 5.3 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
       --cream: #f5f2ee;
       --dark: #1c1c2e;
-      --navy: #1a2340;
+      --navy: #1B3A4B;
       --orange: #e8642c;
+      --coral: #E05A2B;
       --white: #ffffff;
       --border: #e0dbd4;
       --radius: 14px;
@@ -124,6 +127,59 @@ if ($result) {
     .empty-state h3 { font-family: 'Playfair Display', serif; font-size: 24px; margin-bottom: 12px; }
     
     footer { background: var(--navy); color: var(--white); padding: 48px 56px; text-align: center; margin-top: auto; }
+
+    /* ── Confirmation modal ──────────────────────────────────── */
+    #cancelModal .modal-content {
+      border-radius: 16px;
+      border: none;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.18);
+    }
+    #cancelModal .modal-header {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+    #cancelModal .modal-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--navy);
+    }
+    #cancelModal .modal-body {
+      font-size: 15px;
+      color: #444;
+      padding: 12px 24px 20px;
+      line-height: 1.6;
+    }
+    #cancelModal .modal-footer {
+      border-top: none;
+      padding-top: 0;
+      gap: 10px;
+      padding: 0 24px 24px;
+    }
+    #btnConfirmCancel {
+      background: #E05A2B;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 22px;
+      font-weight: 700;
+      font-size: 14px;
+      transition: background .2s;
+      flex: 1;
+    }
+    #btnConfirmCancel:hover { background: #c44e22; }
+    #btnKeepReservation {
+      background: #1B3A4B;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 22px;
+      font-weight: 700;
+      font-size: 14px;
+      transition: background .2s;
+      flex: 1;
+    }
+    #btnKeepReservation:hover { background: #132b39; }
   </style>
 </head>
 <body>
@@ -241,12 +297,12 @@ if ($result) {
         
         <div class="res-actions">
             <a href="<?= $url ?>" class="btn btn-outline">Voir détails</a>
-            <?php if ($r['statut'] === 'en_attente'): ?>
-                <form method="post" action="mes-reservations.php" style="flex:1; display:flex;" onsubmit="return confirm('Êtes-vous sûr de vouloir annuler cette réservation ?');">
-                    <input type="hidden" name="action" value="cancel">
-                    <input type="hidden" name="reservation_id" value="<?= $r['id'] ?>">
-                    <button type="submit" class="btn btn-danger" style="width:100%;">Annuler</button>
-                </form>
+            <?php if (in_array($r['statut'], ['en_attente', 'confirmé', 'confirmée', 'confirmee'], true)): ?>
+                <button type="button" class="btn btn-danger"
+                        onclick="openCancelModal(<?= (int)$r['id'] ?>)"
+                        style="flex:1;">
+                    Annuler
+                </button>
             <?php endif; ?>
             <?php if (in_array($r['statut'], ['terminé','terminée','termine'], true)): ?>
                 <a href="<?= htmlspecialchars($r['type_service']) ?>.php?id=<?= (int)$r['service_id'] ?>#avis" class="btn" style="flex:1;background:var(--orange);color:#fff;">Laisser un avis</a>
@@ -259,7 +315,45 @@ if ($result) {
 
 </div>
 
+<!-- ── Confirmation d'annulation (Bootstrap 5.3 modal) ──────── -->
+<div class="modal fade" id="cancelModal" tabindex="-1" aria-labelledby="cancelModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="cancelModalLabel">⚠️ Annuler la réservation</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+      </div>
+      <div class="modal-body">
+        Êtes-vous sûr de vouloir annuler cette réservation ?<br>
+        <strong>Cette action est irréversible.</strong>
+      </div>
+      <div class="modal-footer d-flex">
+        <button type="button" id="btnConfirmCancel">Oui, annuler</button>
+        <button type="button" id="btnKeepReservation" data-bs-dismiss="modal">Non, garder</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Hidden form submitted when the user confirms cancellation -->
+<form method="post" action="mes-reservations.php" id="cancelForm" style="display:none;">
+  <input type="hidden" name="action" value="cancel">
+  <input type="hidden" name="reservation_id" id="cancelReservationId" value="">
+</form>
+
 <?php include 'footer.php'; ?>
 
+<!-- Bootstrap 5.3 JS bundle -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+function openCancelModal(reservationId) {
+  document.getElementById('cancelReservationId').value = reservationId;
+  var modal = new bootstrap.Modal(document.getElementById('cancelModal'));
+  modal.show();
+}
+document.getElementById('btnConfirmCancel').addEventListener('click', function () {
+  document.getElementById('cancelForm').submit();
+});
+</script>
 </body>
 </html>

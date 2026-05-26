@@ -36,6 +36,9 @@ if (!isset($activePage)) {
     <a href="commandes.php" class="sidebar-link <?php echo $activePage === 'commandes' ? 'active' : ''; ?>">
       <i class="bi bi-receipt"></i> Commandes
     </a>
+    <a href="messages.php" class="sidebar-link <?php echo $activePage === 'messages' ? 'active' : ''; ?>">
+      <i class="bi bi-chat-left-text-fill"></i> Messages
+    </a>
     <a href="logout.php" class="sidebar-link" style="margin-top: auto;">
       <i class="bi bi-box-arrow-right"></i> Déconnexion
     </a>

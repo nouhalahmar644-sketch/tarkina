@@ -69,6 +69,7 @@ if(isset($conn) && $conn) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tarkina — Voyagez autrement en Tunisie</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
@@ -301,6 +302,36 @@ if(isset($conn) && $conn) {
         .footer-divider { border:none; border-top:1px solid rgba(255,255,255,.1); margin-bottom:24px; }
         .footer-bottom { display:flex; justify-content:space-between; font-size:.85rem; color:rgba(255,255,255,.4); }
         .footer-bottom a { color:rgba(255,255,255,.4); text-decoration:none; }
+
+        /* Statistics Bar Section */
+        .stats-bar-section {
+            background-color: #FAF8F5 !important;
+            padding: 60px 0;
+            border-top: 1px solid #e5e7eb;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 2.8rem;
+            font-weight: 800;
+            color: #E05A2B;
+            line-height: 1.1;
+            margin-bottom: 6px;
+            font-family: 'Outfit', 'Playfair Display', sans-serif;
+        }
+        .stat-label {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #1B3A4B;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-family: 'Outfit', sans-serif;
+        }
     </style>
 </head>
 <body>
@@ -523,6 +554,51 @@ if(isset($conn) && $conn) {
                 </div>
             </div>
 
+        </div>
+    </div>
+</section>
+
+<!-- STATISTICS BAR -->
+<section class="stats-bar-section">
+    <div class="container">
+        <div class="row g-4 text-center">
+            <div class="col-6 col-md-3">
+                <div class="stat-item">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="currentColor" class="bi bi-people" viewBox="0 0 16 16" style="color: #E05A2B; margin-bottom: 12px;">
+                        <path d="M15 14s1 0 1-1-1-4-5-4-5 3-5 4 1 1 1 1zm-7.978-1L7 12.996c.001-.264.167-1.03.76-1.72C8.312 10.629 9.282 10 11 10c1.717 0 2.687.63 3.24 1.276.593.69.758 1.457.76 1.72l-.008.002-.014.002zM11 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4m3-2a3 3 0 1 1-6 0 3 3 0 0 1 6 0M6.936 9.28a6 6 0 0 0-1.23-.247A7 7 0 0 0 5 9c-4 0-5 3-5 4q0 1 1 1h4.216A2.24 2.24 0 0 1 5 13c0-1.01.377-2.042 1.09-2.904.243-.294.526-.569.846-.816M4.92 10A5.5 5.5 0 0 0 4 13H1c0-.26.164-1.03.76-1.724C2.3 10.634 3.227 10 4.92 10M1.5 5.5a3 3 0 1 1 6 0 3 3 0 0 1-6 0m3-2a2 2 0 1 0 0 4 2 2 0 0 0 0-4"/>
+                    </svg>
+                    <div class="stat-number">1 200+</div>
+                    <div class="stat-label">Voyageurs</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="stat-item">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="currentColor" class="bi bi-compass" viewBox="0 0 16 16" style="color: #E05A2B; margin-bottom: 12px;">
+                        <path d="M8 16.016a8 8 0 1 1 0-16 8 8 0 0 1 0 16.016M8 1.406a6.594 6.594 0 1 0 0 13.188 6.594 6.594 0 0 0 0-13.188"/>
+                        <path d="M7.682 3.602a.5.5 0 0 1 .636 0l4.92 4.223a.5.5 0 0 1-.177.837l-5.148 1.716a.5.5 0 0 1-.63-.63L8.99 4.6l-1.308-1a.5.5 0 0 1 0-.798z"/>
+                    </svg>
+                    <div class="stat-number">8</div>
+                    <div class="stat-label">Régions découvertes</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="stat-item">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="currentColor" class="bi bi-house" viewBox="0 0 16 16" style="color: #E05A2B; margin-bottom: 12px;">
+                        <path d="M8.707 1.5a1 1 0 0 0-1.414 0L.646 8.146a.5.5 0 0 0 .708.708L2 8.207V13.5A1.5 1.5 0 0 0 3.5 15h9a1.5 1.5 0 0 0 1.5-1.5V8.207l.646.647a.5.5 0 0 0 .708-.708L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293zM13 7.207V13.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5V7.207l5-5z"/>
+                    </svg>
+                    <div class="stat-number">50+</div>
+                    <div class="stat-label">Hébergements</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="stat-item">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="currentColor" class="bi bi-star" viewBox="0 0 16 16" style="color: #E05A2B; margin-bottom: 12px;">
+                        <path d="M2.866 14.85c-.078.444.36.791.746.593l4.39-2.256 4.389 2.256c.386.198.824-.149.746-.592l-.83-4.73 3.522-3.356c.33-.314.16-.888-.282-.95l-4.898-.696L8.465.792a.513.513 0 0 0-.927 0L5.354 5.12l-4.898.696c-.441.062-.612.636-.283.95l3.523 3.356-.83 4.73zm4.905-2.767-3.686 1.894.694-3.957-2.88-2.748 4.013-.57 1.802-3.663 1.802 3.664 4.014.568-2.88 2.749.694 3.958-3.685-1.894z"/>
+                    </svg>
+                    <div class="stat-number">4.8/5</div>
+                    <div class="stat-label">Satisfaction moyenne</div>
+                </div>
+            </div>
         </div>
     </div>
 </section>

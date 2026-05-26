@@ -1,5 +1,6 @@
 <?php
 session_start();
+require_once __DIR__ . '/db.php';
 
 $success = '';
 $error = '';
@@ -9,10 +10,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email   = trim($_POST['email'] ?? '');
     $sujet   = trim($_POST['sujet'] ?? '');
     $message = trim($_POST['message'] ?? '');
-    if ($nom && $email && $sujet && $message) {
-        $success = "Votre message a été envoyé avec succès. Nous vous répondrons dans les plus brefs délais.";
-    } else {
+    
+    if ($nom === '' || $email === '' || $sujet === '' || $message === '') {
         $error = "Veuillez remplir tous les champs.";
+    } else {
+        // Ensure table exists
+        $createTableQuery = "CREATE TABLE IF NOT EXISTS `messages` (
+            `id` int(11) NOT NULL AUTO_INCREMENT,
+            `nom` varchar(255) NOT NULL,
+            `email` varchar(255) NOT NULL,
+            `sujet` varchar(255) NOT NULL,
+            `message` text NOT NULL,
+            `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (`id`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;";
+        mysqli_query($conn, $createTableQuery);
+
+        $insertQuery = "INSERT INTO `messages` (`nom`, `email`, `sujet`, `message`) VALUES (?, ?, ?, ?)";
+        $st = mysqli_prepare($conn, $insertQuery);
+        if ($st) {
+            mysqli_stmt_bind_param($st, 'ssss', $nom, $email, $sujet, $message);
+            if (mysqli_stmt_execute($st)) {
+                $success = "Votre message a bien été envoyé !";
+            } else {
+                $error = "Une erreur est survenue lors de l'envoi de votre message.";
+            }
+            mysqli_stmt_close($st);
+        } else {
+            $error = "Erreur lors de la préparation de l'envoi.";
+        }
     }
 }
 ?>
