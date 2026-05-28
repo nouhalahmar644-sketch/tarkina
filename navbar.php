@@ -13,9 +13,9 @@ if (isset($_GET['lang']) && in_array($_GET['lang'], ['fr', 'en', 'ar'])) {
 }
 $lang = $_SESSION['lang'] ?? 'fr';
 $t = [
-    'fr' => ['home'=>'Accueil', 'explore'=>'Explorer', 'blog'=>'Blog', 'about'=>'À propos', 'contact'=>'Contact', 'profile'=>'Mon Profil', 'logout'=>'Déconnexion', 'login'=>'Connexion', 'register'=>"S'inscrire"],
-    'en' => ['home'=>'Home', 'explore'=>'Explore', 'blog'=>'Blog', 'about'=>'About', 'contact'=>'Contact', 'profile'=>'My Profile', 'logout'=>'Logout', 'login'=>'Login', 'register'=>'Sign up'],
-    'ar' => ['home'=>'الرئيسية', 'explore'=>'استكشف', 'blog'=>'المدونة', 'about'=>'من نحن', 'contact'=>'اتصل بنا', 'profile'=>'ملفي', 'logout'=>'خروج', 'login'=>'دخول', 'register'=>'تسجيل']
+    'fr' => ['home'=>'Accueil', 'explore'=>'Explorer', 'blog'=>'Blog', 'about'=>'À propos', 'contact'=>'Contact', 'profile'=>'Mon Profil', 'logout'=>'Déconnexion', 'login'=>'Connexion', 'register'=>"S'inscrire", 'search_title'=>'Rechercher', 'search_placeholder'=>'Rechercher...', 'search_btn'=>'Chercher', 'profile_title'=>'Profil', 'dashboard'=>'Dashboard'],
+    'en' => ['home'=>'Home', 'explore'=>'Explore', 'blog'=>'Blog', 'about'=>'About', 'contact'=>'Contact', 'profile'=>'My Profile', 'logout'=>'Logout', 'login'=>'Login', 'register'=>'Sign up', 'search_title'=>'Search', 'search_placeholder'=>'Search...', 'search_btn'=>'Search', 'profile_title'=>'Profile', 'dashboard'=>'Dashboard'],
+    'ar' => ['home'=>'الرئيسية', 'explore'=>'استكشف', 'blog'=>'المدونة', 'about'=>'من نحن', 'contact'=>'اتصل بنا', 'profile'=>'ملفي', 'logout'=>'تسجيل الخروج', 'login'=>'تسجيل الدخول', 'register'=>'إنشاء حساب', 'search_title'=>'ابحث', 'search_placeholder'=>'ابحث...', 'search_btn'=>'بحث', 'profile_title'=>'الملف الشخصي', 'dashboard'=>'لوحة التحكم']
 ][$lang];
 $navDir = ($lang === 'ar') ? 'dir="rtl"' : '';
 
@@ -28,6 +28,7 @@ $tk_active = function (string $f) use ($__tkCur) {
 };
 ?>
 <link rel="stylesheet" href="assets/css/typography.css">
+<link rel="stylesheet" href="assets/css/rtl.css">
 <style>
 .tk-nav{position:fixed;top:0;left:0;right:0;z-index:1000;height:68px;display:flex;align-items:center;justify-content:space-between;padding:0 clamp(18px,5vw,60px);background:#fff;border-bottom:1px solid #ededed;box-shadow:0 1px 14px rgba(17,17,17,.05);transition:background .3s,box-shadow .3s,border-color .3s;font-family:'Lato','Segoe UI',system-ui,sans-serif;}
 .tk-nav__logo{display:flex;align-items:center;gap:8px;text-decoration:none;font-family:'Playfair Display',Georgia,serif;font-weight:800;font-size:1.45rem;color:#111111;letter-spacing:-.5px;}
@@ -51,7 +52,7 @@ $tk_active = function (string $f) use ($__tkCur) {
 .tk-icon-link{color:#111111;text-decoration:none;transition:color .2s;display:flex;align-items:center;padding:4px;}
 .tk-icon-link:hover{color:#1B6B45;}
 .lang-menu{display:none;position:absolute;top:100%;right:0;background:#fff;border:1px solid #ededed;border-radius:8px;padding:8px;flex-direction:column;gap:4px;box-shadow:0 4px 12px rgba(17,17,17,0.1);min-width:130px;z-index:100;margin-top:10px;}
-.lang-dropdown:hover .lang-menu{display:flex;}
+.lang-dropdown:hover .lang-menu, .lang-menu.show{display:flex;}
 .lang-menu a{color:#333;text-decoration:none;padding:6px 10px;border-radius:4px;font-size:0.9rem;}
 .lang-menu a:hover{background:#f5f5f5;}
 .search-menu{display:none;position:absolute;top:100%;right:0;background:#fff;border:1px solid #ededed;border-radius:8px;padding:12px;box-shadow:0 4px 12px rgba(17,17,17,0.1);min-width:280px;z-index:100;margin-top:10px;}
@@ -77,32 +78,32 @@ $tk_active = function (string $f) use ($__tkCur) {
     <div class="tk-nav-icons-auth">
       <div class="tk-nav-icons" style="display:flex; gap:12px; align-items:center; margin-right:20px; <?= $lang === 'ar' ? 'margin-right:0; margin-left:20px;' : '' ?>">
           <div class="search-dropdown" style="position:relative;">
-              <a href="#" id="searchIconLink" title="Rechercher" class="tk-icon-link" onclick="document.getElementById('searchMenu').classList.toggle('show'); return false;">
+              <a href="#" id="searchIconLink" title="<?= $t['search_title'] ?>" class="tk-icon-link" onclick="document.getElementById('searchMenu').classList.toggle('show'); return false;">
                   <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
               </a>
               <div id="searchMenu" class="search-menu">
                   <form action="search.php" method="GET" style="display:flex; gap:8px; margin:0;">
-                      <input type="text" name="q" placeholder="Rechercher..." style="padding:8px 12px; border:1px solid #ddd; border-radius:4px; outline:none; flex:1; font-size:0.9rem;">
-                      <button type="submit" style="background:#1B6B45; color:#fff; border:none; padding:8px 16px; border-radius:4px; cursor:pointer; font-weight:600; font-size:0.9rem;">Chercher</button>
+                      <input type="text" name="q" placeholder="<?= $t['search_placeholder'] ?>" style="padding:8px 12px; border:1px solid #ddd; border-radius:4px; outline:none; flex:1; font-size:0.9rem;">
+                      <button type="submit" style="background:#1B6B45; color:#fff; border:none; padding:8px 16px; border-radius:4px; cursor:pointer; font-weight:600; font-size:0.9rem;"><?= $t['search_btn'] ?></button>
                   </form>
               </div>
           </div>
           
           <div class="lang-dropdown" style="position:relative;">
-              <a href="#" class="tk-icon-link"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg></a>
-              <div class="lang-menu">
+              <a href="#" id="langIconLink" class="tk-icon-link" onclick="document.getElementById('langMenu').classList.toggle('show'); return false;"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg></a>
+              <div id="langMenu" class="lang-menu">
                   <a href="?lang=fr">🇫🇷 Français</a>
                   <a href="?lang=en">🇬🇧 English</a>
                   <a href="?lang=ar">🇹🇳 العربية</a>
               </div>
           </div>
 
-          <a href="profile.php" title="Profil" class="tk-icon-link"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></a>
+          <a href="profile.php" title="<?= $t['profile_title'] ?>" class="tk-icon-link"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></a>
       </div>
       <div class="tk-nav__auth">
         <?php if ($__tkLoggedIn): ?>
           <?php if ($__tkIsAdmin): ?>
-            <a href="admin/dashboard.php" class="tk-btn tk-btn--outline">Dashboard</a>
+            <a href="admin/dashboard.php" class="tk-btn tk-btn--outline"><?= $t['dashboard'] ?></a>
           <?php endif; ?>
           <a href="logout.php" class="tk-btn tk-btn--outline"><?= $t['logout'] ?></a>
         <?php else: ?>
@@ -124,6 +125,11 @@ $tk_active = function (string $f) use ($__tkCur) {
     var si = document.getElementById('searchIconLink');
     if (sm && sm.classList.contains('show') && !sm.contains(e.target) && (!si || !si.contains(e.target))) {
       sm.classList.remove('show');
+    }
+    var lm = document.getElementById('langMenu');
+    var li = document.getElementById('langIconLink');
+    if (lm && lm.classList.contains('show') && !lm.contains(e.target) && (!li || !li.contains(e.target))) {
+      lm.classList.remove('show');
     }
   });
 })();

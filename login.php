@@ -1,6 +1,59 @@
 <?php
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/includes/session_bootstrap.php';
+require_once __DIR__ . '/includes/i18n.php';
+
+$L_ALL = [
+    'fr' => [
+        'page_title' => 'Tarkina — Se connecter',
+        'tagline' => 'LA TUNISIE HORS DES SENTIERS BATTUS',
+        'quote_a' => 'Bienvenue', 'quote_b' => 'à nouveau.',
+        'auth_sub' => 'Retrouvez vos réservations, vos favoris et vos expériences authentiques en un clic.',
+        'h1' => 'Se connecter',
+        'lbl_email' => 'Email', 'ph_email' => 'Entrez votre adresse e-mail',
+        'lbl_pass' => 'Mot de passe', 'ph_pass' => 'Votre mot de passe',
+        'forgot' => 'Mot de passe oublié ?',
+        'btn' => 'Se connecter',
+        'footer_q' => 'Nouveau sur Tarkina ?', 'footer_a' => 'Créer un compte',
+        'err_empty' => 'Veuillez remplir tous les champs.',
+        'err_invalid' => 'E-mail invalide.',
+        'err_wrong' => 'E-mail ou mot de passe incorrect.',
+        'err_prep' => 'Erreur de préparation : ',
+    ],
+    'ar' => [
+        'page_title' => 'تاركينا — تسجيل الدخول',
+        'tagline' => 'تونس خارج المسارات المعتادة',
+        'quote_a' => 'مرحبًا بعودتك', 'quote_b' => 'من جديد.',
+        'auth_sub' => 'استعد حجوزاتك ومفضلاتك وتجاربك الأصيلة بنقرة واحدة.',
+        'h1' => 'تسجيل الدخول',
+        'lbl_email' => 'البريد الإلكتروني', 'ph_email' => 'أدخل عنوان بريدك الإلكتروني',
+        'lbl_pass' => 'كلمة المرور', 'ph_pass' => 'كلمة المرور الخاصة بك',
+        'forgot' => 'هل نسيت كلمة المرور؟',
+        'btn' => 'تسجيل الدخول',
+        'footer_q' => 'جديد في تاركينا؟', 'footer_a' => 'إنشاء حساب',
+        'err_empty' => 'يُرجى ملء جميع الحقول.',
+        'err_invalid' => 'بريد إلكتروني غير صالح.',
+        'err_wrong' => 'البريد الإلكتروني أو كلمة المرور غير صحيحين.',
+        'err_prep' => 'خطأ أثناء التحضير: ',
+    ],
+    'en' => [
+        'page_title' => 'Tarkina — Sign in',
+        'tagline' => 'TUNISIA OFF THE BEATEN PATH',
+        'quote_a' => 'Welcome', 'quote_b' => 'back.',
+        'auth_sub' => 'Find your bookings, favourites and authentic experiences in one click.',
+        'h1' => 'Sign in',
+        'lbl_email' => 'Email', 'ph_email' => 'Enter your email address',
+        'lbl_pass' => 'Password', 'ph_pass' => 'Your password',
+        'forgot' => 'Forgot your password?',
+        'btn' => 'Sign in',
+        'footer_q' => 'New to Tarkina?', 'footer_a' => 'Create an account',
+        'err_empty' => 'Please fill in all fields.',
+        'err_invalid' => 'Invalid email.',
+        'err_wrong' => 'Wrong email or password.',
+        'err_prep' => 'Preparation error: ',
+    ],
+];
+$L = $L_ALL[$lang] ?? $L_ALL['fr'];
 
 // Si déjà connecté, rediriger selon le rôle
 if (!empty($_SESSION['user_id'])) {
@@ -27,16 +80,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = isset($_POST['password']) ? $_POST['password'] : '';
 
     if ($email === '' || $password === '') {
-        $errors[] = 'Veuillez remplir tous les champs.';
+        $errors[] = $L['err_empty'];
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $errors[] = 'E-mail invalide.';
+        $errors[] = $L['err_invalid'];
     } else {
         // Requête préparée : récupérer l'utilisateur par e-mail
         $sql = 'SELECT id, nom, prenom, email, mot_de_passe, role FROM utilisateur WHERE email = ? LIMIT 1';
         $stmt = mysqli_prepare($conn, $sql);
 
         if ($stmt === false) {
-            $errors[] = 'Erreur de préparation : ' . mysqli_error($conn);
+            $errors[] = $L['err_prep'] . mysqli_error($conn);
         } else {
             mysqli_stmt_bind_param($stmt, 's', $email);
             mysqli_stmt_execute($stmt);
@@ -46,7 +99,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             mysqli_stmt_close($stmt);
 
             if (!$found || !password_verify($password, $hash_db)) {
-                $errors[] = 'E-mail ou mot de passe incorrect.';
+                $errors[] = $L['err_wrong'];
             } else {
                 // Évite le vol de session : nouvel identifiant de session après login
                 session_regenerate_id(true);
@@ -68,13 +121,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="<?= htmlspecialchars($lang) ?>" dir="<?= htmlspecialchars($dir) ?>">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Tarkina — Se connecter</title>
+<title><?= htmlspecialchars($L['page_title']) ?></title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/typography.css">
+<link rel="stylesheet" href="assets/css/rtl.css">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
  
@@ -372,16 +426,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <div class="auth-image">
     <div class="auth-image-content">
       <a href="index.php" class="auth-logo" style="text-decoration:none;display:inline-block;">Tarkina<span>.</span></a>
-      <div class="auth-tagline">LA TUNISIE HORS DES SENTIERS BATTUS</div>
-      <div class="auth-quote">Bienvenue <span>à nouveau.</span></div>
-      <div class="auth-sub">Retrouvez vos réservations, vos favoris et vos expériences authentiques en un clic.</div>
+      <div class="auth-tagline"><?= htmlspecialchars($L['tagline']) ?></div>
+      <div class="auth-quote"><?= htmlspecialchars($L['quote_a']) ?> <span><?= htmlspecialchars($L['quote_b']) ?></span></div>
+      <div class="auth-sub"><?= htmlspecialchars($L['auth_sub']) ?></div>
     </div>
   </div>
  
   <!-- RIGHT -->
   <div class="auth-form-panel">
     <div class="form-header">
-      <h1>Se connecter</h1>
+      <h1><?= htmlspecialchars($L['h1']) ?></h1>
       <p>Retrouvez vos réservations, vos favoris et vos expériences authentiques en un clic.</p>
       <?php if ($successMessage !== ''): ?>
         <p class="form-alert success"><?php echo htmlspecialchars($successMessage); ?></p>
@@ -397,24 +451,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
  
     <form method="post" action="login.php" novalidate>
       <div class="form-group">
-        <label>Email</label>
-        <input type="email" name="email" placeholder="Entrez votre adresse e-mail" value="<?php echo htmlspecialchars($email); ?>" required>
+        <label><?= htmlspecialchars($L['lbl_email']) ?></label>
+        <input type="email" name="email" placeholder="<?= htmlspecialchars($L['ph_email']) ?>" value="<?php echo htmlspecialchars($email); ?>" required>
       </div>
  
       <div class="form-group">
-        <label>Mot de passe</label>
+        <label><?= htmlspecialchars($L['lbl_pass']) ?></label>
         <div class="input-wrapper">
-          <input type="password" name="password" placeholder="Votre mot de passe" id="pass1" required>
+          <input type="password" name="password" placeholder="<?= htmlspecialchars($L['ph_pass']) ?>" id="pass1" required>
           <button type="button" class="toggle-pass" onclick="togglePass('pass1')">👁</button>
         </div>
-        <a href="forgot-password.php" class="forgot-link">Mot de passe oublié ?</a>
+        <a href="forgot-password.php" class="forgot-link"><?= htmlspecialchars($L['forgot']) ?></a>
       </div>
  
-      <button type="submit" class="btn-submit">Se connecter</button>
+      <button type="submit" class="btn-submit"><?= htmlspecialchars($L['btn']) ?></button>
     </form>
  
     <div class="form-footer">
-      Nouveau sur Tarkina ? <a href="register.php">Créer un compte</a>
+      <?= htmlspecialchars($L['footer_q']) ?> <a href="register.php"><?= htmlspecialchars($L['footer_a']) ?></a>
     </div>
  
     <div class="social-links">

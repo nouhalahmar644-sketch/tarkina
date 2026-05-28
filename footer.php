@@ -1,8 +1,72 @@
 <?php
 /**
  * Shared site footer (Tarkina).  Usage:  <?php include 'footer.php'; ?>
- * Self-contained scoped styles (tkf- prefix).
+ * Self-contained scoped styles (tkf- prefix).  Auto-translates FR/AR/EN.
  */
+if (session_status() === PHP_SESSION_NONE && !headers_sent()) { session_start(); }
+$__fLang = $_SESSION['lang'] ?? 'fr';
+$tf = [
+    'fr' => [
+        'brand_desc' => 'Découvrez la Tunisie cachée à travers ses habitants, ses saveurs et son artisanat.',
+        'col_explore' => 'Explorer',
+        'all_regions' => 'Toutes les régions',
+        'the_blog'    => 'Le Blog',
+        'accommodations' => 'Hébergements',
+        'meals' => 'Repas maison',
+        'guides' => 'Guides locaux',
+        'col_about' => 'À propos',
+        'who_we_are' => 'Qui sommes-nous',
+        'contact' => 'Contact',
+        'become_host' => 'Devenir hôte',
+        'crafts' => 'Artisanat',
+        'events' => 'Événements',
+        'col_contact' => 'Contact',
+        'contact_lines' => '📍 Tunis, Tunisie<br>✉️ hello@tarkina.tn<br>📞 +216 71 000 000',
+        'copyright' => '© 2026 Tarkina — Voyagez autrement en Tunisie.',
+        'legal' => 'Mentions légales',
+        'privacy' => 'Confidentialité',
+    ],
+    'en' => [
+        'brand_desc' => 'Discover the hidden Tunisia through its people, flavours and crafts.',
+        'col_explore' => 'Explore',
+        'all_regions' => 'All regions',
+        'the_blog'    => 'The Blog',
+        'accommodations' => 'Accommodations',
+        'meals' => 'Home meals',
+        'guides' => 'Local guides',
+        'col_about' => 'About',
+        'who_we_are' => 'Who we are',
+        'contact' => 'Contact',
+        'become_host' => 'Become a host',
+        'crafts' => 'Crafts',
+        'events' => 'Events',
+        'col_contact' => 'Contact',
+        'contact_lines' => '📍 Tunis, Tunisia<br>✉️ hello@tarkina.tn<br>📞 +216 71 000 000',
+        'copyright' => '© 2026 Tarkina — Travel Tunisia differently.',
+        'legal' => 'Legal notice',
+        'privacy' => 'Privacy',
+    ],
+    'ar' => [
+        'brand_desc' => 'اكتشف تونس الخفية من خلال أهلها، نكهاتها وحرفها التقليدية.',
+        'col_explore' => 'استكشف',
+        'all_regions' => 'كل الجهات',
+        'the_blog'    => 'المدونة',
+        'accommodations' => 'الإقامة',
+        'meals' => 'وجبات منزلية',
+        'guides' => 'مرشدون محليون',
+        'col_about' => 'عن تاركينا',
+        'who_we_are' => 'من نحن',
+        'contact' => 'اتصل بنا',
+        'become_host' => 'كن مضيفًا',
+        'crafts' => 'الحِرف التقليدية',
+        'events' => 'الفعاليات',
+        'col_contact' => 'تواصل',
+        'contact_lines' => '📍 تونس<br>✉️ hello@tarkina.tn<br>📞 +216 71 000 000',
+        'copyright' => '© 2026 تاركينا — سافر إلى تونس بطريقة مختلفة.',
+        'legal' => 'إشعار قانوني',
+        'privacy' => 'الخصوصية',
+    ],
+][$__fLang] ?? [];
 ?>
 <style>
 .tkf{background:#111111;color:#fff;padding:56px clamp(20px,5vw,60px) 26px;margin-top:60px;font-family:'Lato','Segoe UI',system-ui,sans-serif;}
@@ -26,7 +90,7 @@
   <div class="tkf__grid">
     <div>
       <div class="tkf__brand-name">Tarkina</div>
-      <p class="tkf__brand-desc">Découvrez la Tunisie cachée à travers ses habitants, ses saveurs et son artisanat.</p>
+      <p class="tkf__brand-desc"><?= $tf['brand_desc'] ?></p>
       <div class="tkf__socials">
         <a href="https://instagram.com" target="_blank" rel="noopener" title="Instagram">ig</a>
         <a href="https://facebook.com" target="_blank" rel="noopener" title="Facebook">fb</a>
@@ -34,33 +98,32 @@
       </div>
     </div>
     <div class="tkf__col">
-      <h4>Explorer</h4>
+      <h4><?= $tf['col_explore'] ?></h4>
       <ul>
-        <li><a href="explorer.php">Toutes les régions</a></li>
-        <li><a href="blogs.php">Le Blog</a></li>
-        <li><a href="search.php?type=hebergement">Hébergements</a></li>
-        <li><a href="search.php?type=repas">Repas maison</a></li>
-        <li><a href="search.php?type=guide">Guides locaux</a></li>
+        <li><a href="explorer.php"><?= $tf['all_regions'] ?></a></li>
+        <li><a href="blogs.php"><?= $tf['the_blog'] ?></a></li>
+        <li><a href="search.php?type=hebergement"><?= $tf['accommodations'] ?></a></li>
+        <li><a href="search.php?type=repas"><?= $tf['meals'] ?></a></li>
+        <li><a href="search.php?type=guide"><?= $tf['guides'] ?></a></li>
       </ul>
     </div>
     <div class="tkf__col">
-      <h4>À propos</h4>
+      <h4><?= $tf['col_about'] ?></h4>
       <ul>
-        <li><a href="about.php">Qui sommes-nous</a></li>
-        <li><a href="contact.php">Contact</a></li>
-        <li><a href="register.php">Devenir hôte</a></li>
-        <li><a href="search.php?type=artisanat">Artisanat</a></li>
-        <li><a href="search.php?type=evenement">Événements</a></li>
+        <li><a href="about.php"><?= $tf['who_we_are'] ?></a></li>
+        <li><a href="contact.php"><?= $tf['contact'] ?></a></li>
+        <li><a href="register.php"><?= $tf['become_host'] ?></a></li>
+        <li><a href="search.php?type=artisanat"><?= $tf['crafts'] ?></a></li>
+        <li><a href="search.php?type=evenement"><?= $tf['events'] ?></a></li>
       </ul>
     </div>
     <div class="tkf__col">
-      <h4>Contact</h4>
-      <p class="tkf__contact">📍 Tunis, Tunisie<br>✉️ hello@tarkina.tn<br>📞 +216 71 000 000</p>
+      <h4><?= $tf['col_contact'] ?></h4>
+      <p class="tkf__contact"><?= $tf['contact_lines'] ?></p>
     </div>
   </div>
   <div class="tkf__bottom">
-    <span>© 2026 Tarkina — Voyagez autrement en Tunisie.</span>
-    <span><a href="about.php">Mentions légales</a> · <a href="contact.php">Confidentialité</a></span>
+    <span><?= $tf['copyright'] ?></span>
+    <span><a href="about.php"><?= $tf['legal'] ?></a> · <a href="contact.php"><?= $tf['privacy'] ?></a></span>
   </div>
 </footer>
-

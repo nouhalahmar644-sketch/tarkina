@@ -1,8 +1,76 @@
 <?php
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/includes/session_bootstrap.php';
+require_once __DIR__ . '/includes/i18n.php';
 
-$page_title = 'Inscription';
+$L_ALL = [
+    'fr' => [
+        'page_title' => 'Tarkina — Créer un compte',
+        'tagline' => 'LA TUNISIE HORS DES SENTIERS BATTUS',
+        'quote_a' => 'Découvrez la', 'quote_b' => 'vraie', 'quote_c' => 'Tunisie.',
+        'sub' => 'Hébergement, repas maison, guides locaux, artisanat & événements dans les régions oubliées du pays.',
+        'h1' => 'Créer un compte',
+        'success_msg' => 'Inscription réussie. Vous pouvez maintenant vous connecter.',
+        'go_login' => 'Aller à la connexion',
+        'lbl_nom' => 'Nom', 'lbl_prenom' => 'Prénom', 'lbl_email' => 'Email',
+        'lbl_pass' => 'Mot de passe', 'lbl_adresse' => 'Adresse',
+        'btn' => 'Créer un compte',
+        'footer_q' => 'Vous avez déjà un compte ?', 'footer_a' => 'Se connecter',
+        'err_nom' => 'Le nom est obligatoire.',
+        'err_prenom' => 'Le prénom est obligatoire.',
+        'err_email_req' => "L'e-mail est obligatoire.",
+        'err_email_fmt' => "L'e-mail n'est pas au bon format.",
+        'err_pass_req' => 'Le mot de passe est obligatoire.',
+        'err_pass_len' => 'Le mot de passe doit contenir au moins 6 caractères.',
+        'err_adresse' => "L'adresse est obligatoire.",
+        'err_email_dup' => 'Cet e-mail est déjà utilisé.',
+    ],
+    'ar' => [
+        'page_title' => 'تاركينا — إنشاء حساب',
+        'tagline' => 'تونس خارج المسارات المعتادة',
+        'quote_a' => 'اكتشف', 'quote_b' => 'تونس', 'quote_c' => 'الحقيقية.',
+        'sub' => 'إقامة، وجبات منزلية، مرشدون محليون، حِرف وفعاليات في جهات تونس المنسيّة.',
+        'h1' => 'إنشاء حساب',
+        'success_msg' => 'تمّ التسجيل بنجاح. يمكنك الآن تسجيل الدخول.',
+        'go_login' => 'الانتقال إلى تسجيل الدخول',
+        'lbl_nom' => 'اللقب', 'lbl_prenom' => 'الاسم', 'lbl_email' => 'البريد الإلكتروني',
+        'lbl_pass' => 'كلمة المرور', 'lbl_adresse' => 'العنوان',
+        'btn' => 'إنشاء حساب',
+        'footer_q' => 'هل لديك حساب بالفعل؟', 'footer_a' => 'تسجيل الدخول',
+        'err_nom' => 'اللقب مطلوب.',
+        'err_prenom' => 'الاسم مطلوب.',
+        'err_email_req' => 'البريد الإلكتروني مطلوب.',
+        'err_email_fmt' => 'صيغة البريد الإلكتروني غير صحيحة.',
+        'err_pass_req' => 'كلمة المرور مطلوبة.',
+        'err_pass_len' => 'يجب أن تحتوي كلمة المرور على 6 أحرف على الأقل.',
+        'err_adresse' => 'العنوان مطلوب.',
+        'err_email_dup' => 'هذا البريد الإلكتروني مستخدم بالفعل.',
+    ],
+    'en' => [
+        'page_title' => 'Tarkina — Create an account',
+        'tagline' => 'TUNISIA OFF THE BEATEN PATH',
+        'quote_a' => 'Discover the', 'quote_b' => 'real', 'quote_c' => 'Tunisia.',
+        'sub' => 'Stays, home meals, local guides, crafts & events in the forgotten regions of the country.',
+        'h1' => 'Create an account',
+        'success_msg' => 'Sign-up successful. You can now log in.',
+        'go_login' => 'Go to sign in',
+        'lbl_nom' => 'Surname', 'lbl_prenom' => 'First name', 'lbl_email' => 'Email',
+        'lbl_pass' => 'Password', 'lbl_adresse' => 'Address',
+        'btn' => 'Create account',
+        'footer_q' => 'Already have an account?', 'footer_a' => 'Sign in',
+        'err_nom' => 'Surname is required.',
+        'err_prenom' => 'First name is required.',
+        'err_email_req' => 'Email is required.',
+        'err_email_fmt' => "Email format isn't valid.",
+        'err_pass_req' => 'Password is required.',
+        'err_pass_len' => 'Password must be at least 6 characters.',
+        'err_adresse' => 'Address is required.',
+        'err_email_dup' => 'This email is already used.',
+    ],
+];
+$L = $L_ALL[$lang] ?? $L_ALL['fr'];
+
+$page_title = $L['h1'];
 $success = false;
 
 $fieldErrors = [
@@ -26,23 +94,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $adresse = isset($_POST['adresse']) ? $_POST['adresse'] : '';
 
     if ($nom === '') {
-        $fieldErrors['nom'] = 'Le nom est obligatoire.';
+        $fieldErrors['nom'] = $L['err_nom'];
     }
     if ($prenom === '') {
-        $fieldErrors['prenom'] = 'Le prénom est obligatoire.';
+        $fieldErrors['prenom'] = $L['err_prenom'];
     }
     if ($email === '') {
-        $fieldErrors['email'] = 'L\'e-mail est obligatoire.';
+        $fieldErrors['email'] = $L['err_email_req'];
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $fieldErrors['email'] = 'L\'e-mail n\'est pas au bon format.';
+        $fieldErrors['email'] = $L['err_email_fmt'];
     }
     if ($password === '') {
-        $fieldErrors['password'] = 'Le mot de passe est obligatoire.';
+        $fieldErrors['password'] = $L['err_pass_req'];
     } elseif (strlen($password) < 6) {
-        $fieldErrors['password'] = 'Le mot de passe doit contenir au moins 6 caractères.';
+        $fieldErrors['password'] = $L['err_pass_len'];
     }
     if ($adresse === '') {
-        $fieldErrors['adresse'] = 'L\'adresse est obligatoire.';
+        $fieldErrors['adresse'] = $L['err_adresse'];
     }
 
     if (!array_filter($fieldErrors)) {
@@ -59,7 +127,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $success = true;
             } else {
                 if (mysqli_errno($conn) === 1062) {
-                    $fieldErrors['email'] = 'Cet e-mail est déjà utilisé.';
+                    $fieldErrors['email'] = $L['err_email_dup'];
                 }
             }
             mysqli_stmt_close($stmt);
@@ -68,13 +136,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="<?= htmlspecialchars($lang) ?>" dir="<?= htmlspecialchars($dir) ?>">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Tarkina — Créer un compte</title>
+<title><?= htmlspecialchars($L['page_title']) ?></title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/typography.css">
+<link rel="stylesheet" href="assets/css/rtl.css">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
  
@@ -420,26 +489,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <div class="auth-image">
     <div class="auth-image-content">
       <a href="index.php" class="auth-logo" style="text-decoration:none;display:inline-block;">Tarkina<span>.</span></a>
-      <div class="auth-tagline">LA TUNISIE HORS DES SENTIERS BATTUS</div>
-      <div class="auth-quote">Découvrez la <span>vraie</span> Tunisie.</div>
-      <div class="auth-sub">Hébergement, repas maison, guides locaux, artisanat & événements dans les régions oubliées du pays.</div>
+      <div class="auth-tagline"><?= htmlspecialchars($L['tagline']) ?></div>
+      <div class="auth-quote"><?= htmlspecialchars($L['quote_a']) ?> <span><?= htmlspecialchars($L['quote_b']) ?></span> <?= htmlspecialchars($L['quote_c']) ?></div>
+      <div class="auth-sub"><?= htmlspecialchars($L['sub']) ?></div>
     </div>
   </div>
  
   <div class="auth-form-panel">
     <div class="form-header">
-      <h1>Créer un compte</h1>
+      <h1><?= htmlspecialchars($L['h1']) ?></h1>
       <?php if ($success): ?>
-        <p class="form-alert success">Inscription réussie. Vous pouvez maintenant vous connecter.</p>
+        <p class="form-alert success"><?= htmlspecialchars($L['success_msg']) ?></p>
       <?php endif; ?>
     </div>
- 
+
     <?php if ($success): ?>
-      <a href="login.php" class="btn-submit" style="display:block; text-align:center; text-decoration:none;">Aller à la connexion</a>
+      <a href="login.php" class="btn-submit" style="display:block; text-align:center; text-decoration:none;"><?= htmlspecialchars($L['go_login']) ?></a>
     <?php else: ?>
     <form method="post" action="register.php" novalidate>
       <div class="form-group">
-        <label>Nom</label>
+        <label><?= htmlspecialchars($L['lbl_nom']) ?></label>
         <input type="text" name="nom" value="<?php echo htmlspecialchars($nom); ?>" class="<?php echo !empty($fieldErrors['nom']) ? 'input-error' : ''; ?>" required>
         <?php if (!empty($fieldErrors['nom'])): ?>
           <small class="error-text"><?php echo $fieldErrors['nom']; ?></small>
@@ -447,7 +516,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       </div>
 
       <div class="form-group">
-        <label>Prénom</label>
+        <label><?= htmlspecialchars($L['lbl_prenom']) ?></label>
         <input type="text" name="prenom" value="<?php echo htmlspecialchars($prenom); ?>" class="<?php echo !empty($fieldErrors['prenom']) ? 'input-error' : ''; ?>" required>
         <?php if (!empty($fieldErrors['prenom'])): ?>
           <small class="error-text"><?php echo $fieldErrors['prenom']; ?></small>
@@ -455,7 +524,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       </div>
 
       <div class="form-group">
-        <label>Email</label>
+        <label><?= htmlspecialchars($L['lbl_email']) ?></label>
         <input type="email" name="email" value="<?php echo htmlspecialchars($email); ?>" class="<?php echo !empty($fieldErrors['email']) ? 'input-error' : ''; ?>" required>
         <?php if (!empty($fieldErrors['email'])): ?>
           <small class="error-text"><?php echo $fieldErrors['email']; ?></small>
@@ -463,7 +532,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       </div>
  
       <div class="form-group">
-        <label>Mot de passe</label>
+        <label><?= htmlspecialchars($L['lbl_pass']) ?></label>
         <div class="input-wrapper">
           <input type="password" name="password" id="pass1" class="<?php echo !empty($fieldErrors['password']) ? 'input-error' : ''; ?>" required minlength="6">
           <?php if (!empty($fieldErrors['password'])): ?>
@@ -474,19 +543,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       </div>
 
       <div class="form-group">
-        <label>Adresse</label>
+        <label><?= htmlspecialchars($L['lbl_adresse']) ?></label>
         <input type="text" name="adresse" value="<?php echo htmlspecialchars($adresse); ?>" class="<?php echo !empty($fieldErrors['adresse']) ? 'input-error' : ''; ?>" required>
         <?php if (!empty($fieldErrors['adresse'])): ?>
           <small class="error-text"><?php echo $fieldErrors['adresse']; ?></small>
         <?php endif; ?>
       </div>
  
-      <button type="submit" class="btn-submit">Créer un compte</button>
+      <button type="submit" class="btn-submit"><?= htmlspecialchars($L['btn']) ?></button>
     </form>
     <?php endif; ?>
  
     <div class="form-footer">
-      Vous avez déjà un compte ? <a href="login.php">Se connecter</a>
+      <?= htmlspecialchars($L['footer_q']) ?> <a href="login.php"><?= htmlspecialchars($L['footer_a']) ?></a>
     </div>
  
     <div class="social-links">

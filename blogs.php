@@ -1,6 +1,44 @@
 <?php
 session_start();
 require_once __DIR__ . '/db.php';
+require_once __DIR__ . '/includes/i18n.php';
+
+$L_ALL = [
+    'fr' => [
+        'page_title'   => 'Blog — Tarkina',
+        'hero_a'       => 'Le ', 'hero_b' => 'Blog', 'hero_c' => ' des voyageurs',
+        'hero_sub'     => 'Récits, conseils et recommandations partagés par la communauté Tarkina. Inspirez-vous et racontez vos aventures en Tunisie.',
+        'all_regions'  => 'Toutes les régions',
+        'btn_write'    => 'Écrire un article',
+        'btn_login'    => 'Connectez-vous pour publier',
+        'empty_a'      => 'Aucun article pour le moment',
+        'empty_b'      => ' dans cette région',
+        'empty_c'      => '. Soyez le premier à partager votre voyage !',
+    ],
+    'ar' => [
+        'page_title'   => 'المدونة — تاركينا',
+        'hero_a'       => '', 'hero_b' => 'مدونة', 'hero_c' => ' المسافرين',
+        'hero_sub'     => 'حكايات ونصائح وتوصيات يتقاسمها مجتمع تاركينا. استلهم منها وشاركنا مغامراتك في تونس.',
+        'all_regions'  => 'جميع الجهات',
+        'btn_write'    => 'اكتب مقالًا',
+        'btn_login'    => 'سجّل الدخول لنشر مقال',
+        'empty_a'      => 'لا توجد مقالات حتى الآن',
+        'empty_b'      => ' في هذه الجهة',
+        'empty_c'      => '. كن أول من يشارك رحلته!',
+    ],
+    'en' => [
+        'page_title'   => 'Blog — Tarkina',
+        'hero_a'       => 'The travellers\' ', 'hero_b' => 'Blog', 'hero_c' => '',
+        'hero_sub'     => 'Stories, tips and recommendations shared by the Tarkina community. Get inspired and share your own adventures in Tunisia.',
+        'all_regions'  => 'All regions',
+        'btn_write'    => 'Write a post',
+        'btn_login'    => 'Log in to publish',
+        'empty_a'      => 'No posts yet',
+        'empty_b'      => ' in this region',
+        'empty_c'      => '. Be the first to share your trip!',
+    ],
+];
+$L = $L_ALL[$lang] ?? $L_ALL['fr'];
 
 $regionFilter = isset($_GET['region']) ? (int) $_GET['region'] : 0;
 
@@ -42,20 +80,28 @@ function blog_photo_src($photo, $fallback) {
     // Local upload path: normalise Windows backslashes to forward slashes
     return str_replace('\\', '/', $photo);
 }
-function blog_date_fr($datetime) {
+function blog_date_fr($datetime, $lang = 'fr') {
     $ts = strtotime((string) $datetime);
     if (!$ts) { return ''; }
-    $mois = [1=>'janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
-    return (int)date('j', $ts) . ' ' . $mois[(int)date('n', $ts)] . ' ' . date('Y', $ts);
+    $months_fr = [1=>'janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+    $months_ar = [1=>'جانفي','فيفري','مارس','أفريل','ماي','جوان','جويلية','أوت','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+    $months_en = [1=>'January','February','March','April','May','June','July','August','September','October','November','December'];
+    $d = (int)date('j', $ts);
+    $m = (int)date('n', $ts);
+    $y = date('Y', $ts);
+    if ($lang === 'ar') { return $d . ' ' . $months_ar[$m] . ' ' . $y; }
+    if ($lang === 'en') { return $months_en[$m] . ' ' . $d . ', ' . $y; }
+    return $d . ' ' . $months_fr[$m] . ' ' . $y;
 }
 ?>
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="<?= htmlspecialchars($lang) ?>" dir="<?= htmlspecialchars($dir) ?>">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Blog — Tarkina</title>
+  <title><?= htmlspecialchars($L['page_title']) ?></title>
   <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="assets/css/rtl.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <link rel="stylesheet" href="assets/css/blog.css">
 </head>
@@ -63,29 +109,29 @@ function blog_date_fr($datetime) {
 <?php include 'navbar.php'; ?>
 
 <section class="blog-hero">
-  <h1>Le <span style="color:#ffd9c9">Blog</span> des voyageurs</h1>
-  <p>Récits, conseils et recommandations partagés par la communauté Tarkina. Inspirez-vous et racontez vos aventures en Tunisie.</p>
+  <h1><?= htmlspecialchars($L['hero_a']) ?><span style="color:#ffd9c9"><?= htmlspecialchars($L['hero_b']) ?></span><?= htmlspecialchars($L['hero_c']) ?></h1>
+  <p><?= htmlspecialchars($L['hero_sub']) ?></p>
 </section>
 
 <div class="blog-wrap">
   <div class="blog-toolbar">
     <div class="region-filter">
-      <a href="blogs.php" class="region-chip <?= $regionFilter === 0 ? 'active' : '' ?>">Toutes les régions</a>
+      <a href="blogs.php" class="region-chip <?= $regionFilter === 0 ? 'active' : '' ?>"><?= htmlspecialchars($L['all_regions']) ?></a>
       <?php foreach ($regions as $r): ?>
         <a href="blogs.php?region=<?= (int)$r['id'] ?>" class="region-chip <?= $regionFilter === (int)$r['id'] ? 'active' : '' ?>"><?= htmlspecialchars($r['nom']) ?></a>
       <?php endforeach; ?>
     </div>
     <?php if (isset($_SESSION['user_id'])): ?>
-      <a href="blog-add.php" class="btn-create"><i class="bi bi-plus-lg"></i> Écrire un article</a>
+      <a href="blog-add.php" class="btn-create"><i class="bi bi-plus-lg"></i> <?= htmlspecialchars($L['btn_write']) ?></a>
     <?php else: ?>
-      <a href="login.php" class="btn-create"><i class="bi bi-pencil"></i> Connectez-vous pour publier</a>
+      <a href="login.php" class="btn-create"><i class="bi bi-pencil"></i> <?= htmlspecialchars($L['btn_login']) ?></a>
     <?php endif; ?>
   </div>
 
   <?php if (empty($posts)): ?>
     <div class="blog-empty">
       <i class="bi bi-journal-text" style="font-size:2.5rem;color:#ccc;"></i>
-      <p>Aucun article pour le moment<?= $regionFilter ? ' dans cette région' : '' ?>. Soyez le premier à partager votre voyage !</p>
+      <p><?= htmlspecialchars($L['empty_a']) ?><?= $regionFilter ? htmlspecialchars($L['empty_b']) : '' ?><?= htmlspecialchars($L['empty_c']) ?></p>
     </div>
   <?php else: ?>
     <div class="blog-grid">
@@ -100,7 +146,7 @@ function blog_date_fr($datetime) {
           </div>
           <div class="blog-card__body">
             <h3 class="blog-card__title"><?= htmlspecialchars($p['titre']) ?></h3>
-            <span class="blog-card__date"><i class="bi bi-calendar3"></i> <?= htmlspecialchars(blog_date_fr($p['created_at'])) ?></span>
+            <span class="blog-card__date"><i class="bi bi-calendar3"></i> <?= htmlspecialchars(blog_date_fr($p['created_at'], $lang)) ?></span>
             <p class="blog-card__excerpt"><?= htmlspecialchars(blog_excerpt($p['contenu'])) ?></p>
             <div class="blog-card__meta">
               <span class="blog-card__author"><span class="avatar"><?= htmlspecialchars(blog_initials($p['prenom'], $p['nom'])) ?></span><?= htmlspecialchars($p['prenom'].' '.$p['nom']) ?></span>
@@ -116,4 +162,3 @@ function blog_date_fr($datetime) {
 <?php include 'footer.php'; ?>
 </body>
 </html>
-

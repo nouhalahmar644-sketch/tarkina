@@ -2,12 +2,71 @@
 session_start();
 require_once __DIR__ . '/includes/auth_guard.php';
 require_once __DIR__ . '/db.php';
+require_once __DIR__ . '/includes/i18n.php';
+
+$L_ALL = [
+    'fr' => [
+        'page_title_cmd' => 'Merci pour votre commande !',
+        'page_title_res' => 'Merci pour votre réservation !',
+        'page_title_suffix' => '– Tarkina',
+        'err_invalid'    => 'Requête invalide.',
+        'err_cmd_notfound' => 'Commande introuvable.',
+        'err_res_notfound' => 'Réservation introuvable.',
+        'success_cmd'    => 'Votre commande a été enregistrée avec succès sous le numéro <strong>#%s</strong>. Elle sera expédiée prochainement.',
+        'success_res'    => 'Votre réservation a été enregistrée avec succès sous le numéro <strong>#%s</strong>. Le prestataire vous contactera bientôt.',
+        'default_user'   => 'Utilisateur',
+        'na'             => 'N/A',
+        'alt_service'    => 'Service',
+        'client'         => 'Client',
+        'dates'          => 'Date(s)',
+        'total_estime'   => 'Total estimé',
+        'currency'       => 'TND',
+        'btn_return'     => "Retour à l'accueil",
+    ],
+    'ar' => [
+        'page_title_cmd' => 'شكرًا على طلبك!',
+        'page_title_res' => 'شكرًا على حجزك!',
+        'page_title_suffix' => '– تاركينا',
+        'err_invalid'    => 'طلب غير صالح.',
+        'err_cmd_notfound' => 'الطلب غير موجود.',
+        'err_res_notfound' => 'الحجز غير موجود.',
+        'success_cmd'    => 'تمّ تسجيل طلبك بنجاح تحت الرقم <strong>#%s</strong>. سيتم شحنه قريبًا.',
+        'success_res'    => 'تمّ تسجيل حجزك بنجاح تحت الرقم <strong>#%s</strong>. سيتواصل معك مزوّد الخدمة قريبًا.',
+        'default_user'   => 'مستخدم',
+        'na'             => 'غير متاح',
+        'alt_service'    => 'خدمة',
+        'client'         => 'العميل',
+        'dates'          => 'التواريخ',
+        'total_estime'   => 'الإجمالي التقديري',
+        'currency'       => 'دينار تونسي',
+        'btn_return'     => 'العودة إلى الرئيسية',
+    ],
+    'en' => [
+        'page_title_cmd' => 'Thank you for your order!',
+        'page_title_res' => 'Thank you for your reservation!',
+        'page_title_suffix' => '– Tarkina',
+        'err_invalid'    => 'Invalid request.',
+        'err_cmd_notfound' => 'Order not found.',
+        'err_res_notfound' => 'Reservation not found.',
+        'success_cmd'    => 'Your order has been registered successfully with number <strong>#%s</strong>. It will be shipped soon.',
+        'success_res'    => 'Your reservation has been registered successfully with number <strong>#%s</strong>. The provider will contact you soon.',
+        'default_user'   => 'User',
+        'na'             => 'N/A',
+        'alt_service'    => 'Service',
+        'client'         => 'Customer',
+        'dates'          => 'Date(s)',
+        'total_estime'   => 'Estimated total',
+        'currency'       => 'TND',
+        'btn_return'     => 'Back to home',
+    ],
+];
+$L = $L_ALL[$lang] ?? $L_ALL['fr'];
 
 $commande_id = isset($_GET['commande_id']) ? (int)$_GET['commande_id'] : (isset($_GET['id']) ? (int)$_GET['id'] : 0);
 $reservation_id = isset($_GET['reservation_id']) ? (int)$_GET['reservation_id'] : 0;
 
 if ($commande_id <= 0 && $reservation_id <= 0) {
-    die('Requête invalide.');
+    die(htmlspecialchars($L['err_invalid']));
 }
 
 function formatImagePath($path, $type = '') {
@@ -22,7 +81,7 @@ $service_name = '';
 $dates = '';
 $total_price = 0;
 $img = '';
-$user_name = $_SESSION['user_name'] ?? 'Utilisateur';
+$user_name = $_SESSION['user_name'] ?? $L['default_user'];
 $success_msg = '';
 
 if ($commande_id > 0) {
@@ -36,13 +95,13 @@ if ($commande_id > 0) {
     mysqli_stmt_close($st);
 
     if (!$commande) {
-        die('Commande introuvable.');
+        die(htmlspecialchars($L['err_cmd_notfound']));
     }
 
-    $title = 'Merci pour votre commande !';
-    $success_msg = 'Votre commande a été enregistrée avec succès sous le numéro <strong>#' . $commande['id'] . '</strong>. Elle sera expédiée prochainement.';
+    $title = $L['page_title_cmd'];
+    $success_msg = sprintf($L['success_cmd'], (int)$commande['id']);
     $service_name = $commande['titre'] . ' (x' . $commande['quantite'] . ')';
-    $dates = 'N/A';
+    $dates = $L['na'];
     $total_price = $commande['total'];
     $img = formatImagePath($commande['photo_principale'], 'artisanat');
 
@@ -57,11 +116,11 @@ if ($commande_id > 0) {
     mysqli_stmt_close($st);
 
     if (!$reservation) {
-        die('Réservation introuvable.');
+        die(htmlspecialchars($L['err_res_notfound']));
     }
 
-    $title = 'Merci pour votre réservation !';
-    $success_msg = 'Votre réservation a été enregistrée avec succès sous le numéro <strong>#' . $reservation['id'] . '</strong>. Le prestataire vous contactera bientôt.';
+    $title = $L['page_title_res'];
+    $success_msg = sprintf($L['success_res'], (int)$reservation['id']);
     
     // Determine the type of service
     $service = null;
@@ -113,12 +172,13 @@ if ($commande_id > 0) {
 }
 ?>
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="<?= htmlspecialchars($lang) ?>" dir="<?= htmlspecialchars($dir) ?>">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title><?= $title ?> – Tarkina</title>
+  <title><?= htmlspecialchars($title) ?> <?= htmlspecialchars($L['page_title_suffix']) ?></title>
   <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="assets/css/rtl.css">
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Lato:wght@400;600;700&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -173,36 +233,36 @@ if ($commande_id > 0) {
       <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
     </div>
     
-    <h1><?= $title ?></h1>
+    <h1><?= htmlspecialchars($title) ?></h1>
     <p class="subtitle"><?= $success_msg ?></p>
 
     <div class="order-summary">
       <div class="product-info">
-        <img src="<?= htmlspecialchars($img) ?>" alt="Service">
+        <img src="<?= htmlspecialchars($img) ?>" alt="<?= htmlspecialchars($L['alt_service']) ?>">
         <div>
           <h3><?= htmlspecialchars($service_name) ?></h3>
         </div>
       </div>
-      
+
       <div class="summary-row">
-        <span>Client</span>
+        <span><?= htmlspecialchars($L['client']) ?></span>
         <span><?= htmlspecialchars($user_name) ?></span>
       </div>
-      
-      <?php if ($dates !== 'N/A'): ?>
+
+      <?php if ($dates !== $L['na']): ?>
       <div class="summary-row">
-        <span>Date(s)</span>
+        <span><?= htmlspecialchars($L['dates']) ?></span>
         <span><?= htmlspecialchars($dates) ?></span>
       </div>
       <?php endif; ?>
 
       <div class="summary-row total">
-        <span>Total estimé</span>
-        <span><?= number_format($total_price, 2, '.', ' ') ?> TND</span>
+        <span><?= htmlspecialchars($L['total_estime']) ?></span>
+        <span><?= number_format($total_price, 2, '.', ' ') ?> <?= htmlspecialchars($L['currency']) ?></span>
       </div>
     </div>
 
-    <a href="index.php" class="btn-return">Retour à l'accueil</a>
+    <a href="index.php" class="btn-return"><?= htmlspecialchars($L['btn_return']) ?></a>
   </div>
 </div>
 

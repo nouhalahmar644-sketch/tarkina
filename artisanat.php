@@ -2,9 +2,71 @@
 session_start();
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/includes/service_helpers.php';
+require_once __DIR__ . '/includes/i18n.php';
 
 mysqli_set_charset($conn, 'utf8mb4');
 service_ensure_reservations_table($conn);
+
+$L_ALL = [
+    'fr' => [
+        'back' => 'Retour',
+        'cat' => 'ARTISANAT',
+        'reviews' => 'avis',
+        'login_to_order' => 'Connectez-vous pour commander',
+        'login' => 'Connexion',
+        'create_account' => 'Créer un compte',
+        'quantity' => 'Quantité',
+        'name' => 'Nom',
+        'email' => 'Email',
+        'delivery_address' => 'Adresse de livraison',
+        'total' => 'Total',
+        'order' => 'Commander',
+        'customer_reviews' => 'Avis des clients',
+        'err_required' => 'Veuillez remplir tous les champs obligatoires.',
+        'ok_order' => 'Commande enregistrée avec succès !',
+        'err_order' => 'Erreur lors de la commande.',
+        'desc_default' => 'Produit artisanal authentique fabriqué à la main.',
+    ],
+    'ar' => [
+        'back' => 'رجوع',
+        'cat' => 'حِرف يدوية',
+        'reviews' => 'مراجعة',
+        'login_to_order' => 'سجّل دخولك لإتمام الطلب',
+        'login' => 'تسجيل الدخول',
+        'create_account' => 'إنشاء حساب',
+        'quantity' => 'الكمّية',
+        'name' => 'الاسم',
+        'email' => 'البريد الإلكتروني',
+        'delivery_address' => 'عنوان التسليم',
+        'total' => 'الإجمالي',
+        'order' => 'اطلب',
+        'customer_reviews' => 'تقييمات العملاء',
+        'err_required' => 'يُرجى ملء جميع الحقول المطلوبة.',
+        'ok_order' => 'تمّ تسجيل الطلب بنجاح!',
+        'err_order' => 'حدث خطأ أثناء الطلب.',
+        'desc_default' => 'منتج حرفي أصيل مصنوع يدويًا.',
+    ],
+    'en' => [
+        'back' => 'Back',
+        'cat' => 'CRAFTS',
+        'reviews' => 'reviews',
+        'login_to_order' => 'Log in to order',
+        'login' => 'Log in',
+        'create_account' => 'Create an account',
+        'quantity' => 'Quantity',
+        'name' => 'Name',
+        'email' => 'Email',
+        'delivery_address' => 'Delivery address',
+        'total' => 'Total',
+        'order' => 'Order',
+        'customer_reviews' => 'Customer reviews',
+        'err_required' => 'Please fill in all required fields.',
+        'ok_order' => 'Order saved successfully!',
+        'err_order' => 'An error occurred during the order.',
+        'desc_default' => 'Authentic handmade craft product.',
+    ],
+];
+$L = $L_ALL[$lang] ?? $L_ALL['fr'];
 
 $id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
 if ($id <= 0) { header('Location: explorer.php'); exit; }
@@ -31,7 +93,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $adresse = trim($_POST['adresse'] ?? '');
     $today = date('Y-m-d');
     if ($nom === '' || !filter_var($email, FILTER_VALIDATE_EMAIL) || $adresse === '') {
-        $errorMsg = 'Veuillez remplir tous les champs obligatoires.';
+        $errorMsg = $L['err_required'];
     } else {
         $total = $qty * $prix;
         $msg = 'Adresse: ' . $adresse;
@@ -42,24 +104,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'nb_voyageurs' => $qty, 'nom' => $nom, 'email' => $email, 'message' => $msg,
             'prix_total' => $total,
         ]);
-        $successMsg = $ok ? 'Commande enregistrée avec succès !' : 'Erreur lors de la commande.';
+        $successMsg = $ok ? $L['ok_order'] : $L['err_order'];
     }
 }
-$desc = trim((string) ($item['description'] ?? 'Produit artisanal authentique fabriqué à la main.'));
+$desc = trim((string) ($item['description'] ?? $L['desc_default']));
 ?>
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="<?= htmlspecialchars($lang) ?>" dir="<?= htmlspecialchars($dir) ?>">
 <head>
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title><?= htmlspecialchars($item['titre']) ?> — Tarkina</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Lato:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/service-page.css">
+  <link rel="stylesheet" href="assets/css/rtl.css">
 </head>
 <body class="service-page">
 <?php include __DIR__ . '/navbar.php'; ?>
 
-<button onclick="history.back()" style="display:inline-flex;align-items:center;gap:8px;margin:14px 0 0 24px;background:#fff;border:1.5px solid #e2ddd8;border-radius:50px;padding:8px 18px;color:#111111;cursor:pointer;font-weight:600;font-size:.9rem;font-family:inherit;transition:all .2s;" onmouseover="this.style.borderColor='#1B6B45';this.style.color='#1B6B45'" onmouseout="this.style.borderColor='#e2ddd8';this.style.color='#111111'">&#8592; Retour</button>
+<button onclick="history.back()" style="display:inline-flex;align-items:center;gap:8px;margin:14px 0 0 24px;background:#fff;border:1.5px solid #e2ddd8;border-radius:50px;padding:8px 18px;color:#111111;cursor:pointer;font-weight:600;font-size:.9rem;font-family:inherit;transition:all .2s;" onmouseover="this.style.borderColor='#1B6B45';this.style.color='#1B6B45'" onmouseout="this.style.borderColor='#e2ddd8';this.style.color='#111111'">&#8592; <?= htmlspecialchars($L['back']) ?></button>
 
 <div class="container py-4">
 
@@ -75,10 +138,10 @@ $desc = trim((string) ($item['description'] ?? 'Produit artisanal authentique fa
     </div>
 
     <div class="col-lg-6">
-      <div class="service-cat">ARTISANAT · <?= htmlspecialchars($regionNomDisplay) ?></div>
+      <div class="service-cat"><?= htmlspecialchars($L['cat']) ?> · <?= htmlspecialchars($regionNomDisplay) ?></div>
       <h1 class="service-title"><?= htmlspecialchars($item['titre']) ?></h1>
       <div class="service-meta">
-        <span>⭐ <?= $__sum['count'] > 0 ? number_format($__sum['avg'], 1) : '—' ?> · <?= (int) $__sum['count'] ?> avis</span>
+        <span>⭐ <?= $__sum['count'] > 0 ? number_format($__sum['avg'], 1) : '—' ?> · <?= (int) $__sum['count'] ?> <?= htmlspecialchars($L['reviews']) ?></span>
         <span>📍 <?= htmlspecialchars(service_localisation($item)) ?></span>
       </div>
       <div class="booking-price" style="margin:16px 0;"><?= number_format($prix, 0) ?> TND</div>
@@ -88,10 +151,10 @@ $desc = trim((string) ($item['description'] ?? 'Produit artisanal authentique fa
       <?php if ($errorMsg): ?><div class="flash-err"><?= htmlspecialchars($errorMsg) ?></div><?php endif; ?>
 
       <?php if (empty($_SESSION['user_id'])): ?>
-        <div class="login-prompt order-box"><p>Connectez-vous pour commander</p><a href="login.php">Connexion</a> · <a href="register.php">Créer un compte</a></div>
+        <div class="login-prompt order-box"><p><?= htmlspecialchars($L['login_to_order']) ?></p><a href="login.php"><?= htmlspecialchars($L['login']) ?></a> · <a href="register.php"><?= htmlspecialchars($L['create_account']) ?></a></div>
       <?php else: ?>
       <form method="post" class="order-box">
-        <label class="form-label small fw-bold">Quantité</label>
+        <label class="form-label small fw-bold"><?= htmlspecialchars($L['quantity']) ?></label>
         <div class="qty-wrap">
           <button type="button" class="qty-btn" id="qtyMinus">−</button>
           <span class="qty-val" id="qtyVal">1</span>
@@ -99,20 +162,20 @@ $desc = trim((string) ($item['description'] ?? 'Produit artisanal authentique fa
           <button type="button" class="qty-btn" id="qtyPlus">+</button>
         </div>
         <div class="row g-2 mb-3">
-          <div class="col-6"><label class="form-label small fw-bold">Nom</label><input type="text" name="nom" class="form-control" value="<?= htmlspecialchars($_SESSION['user_name'] ?? '') ?>" required></div>
-          <div class="col-6"><label class="form-label small fw-bold">Email</label><input type="email" name="email" class="form-control" required></div>
+          <div class="col-6"><label class="form-label small fw-bold"><?= htmlspecialchars($L['name']) ?></label><input type="text" name="nom" class="form-control" value="<?= htmlspecialchars($_SESSION['user_name'] ?? '') ?>" required></div>
+          <div class="col-6"><label class="form-label small fw-bold"><?= htmlspecialchars($L['email']) ?></label><input type="email" name="email" class="form-control" required></div>
         </div>
-        <div class="mb-3"><label class="form-label small fw-bold">Adresse de livraison</label><input type="text" name="adresse" class="form-control" required></div>
+        <div class="mb-3"><label class="form-label small fw-bold"><?= htmlspecialchars($L['delivery_address']) ?></label><input type="text" name="adresse" class="form-control" required></div>
         <hr class="booking-sep">
-        <div class="booking-total-row"><span>Total</span><span id="totalDisplay"><?= number_format($prix, 0) ?> TND</span></div>
-        <button type="submit" class="btn-book">Commander</button>
+        <div class="booking-total-row"><span><?= htmlspecialchars($L['total']) ?></span><span id="totalDisplay"><?= number_format($prix, 0) ?> TND</span></div>
+        <button type="submit" class="btn-book"><?= htmlspecialchars($L['order']) ?></button>
       </form>
       <?php endif; ?>
     </div>
   </div>
 
   <div class="service-section" style="margin-top:24px;">
-    <h3>Avis des clients</h3>
+    <h3><?= htmlspecialchars($L['customer_reviews']) ?></h3>
     <?php $serviceType = 'artisanat'; $serviceId = $id; include __DIR__ . '/includes/avis_section.php'; ?>
   </div>
 </div>

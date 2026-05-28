@@ -1,7 +1,45 @@
 <?php
 session_start();
 require 'db.php';
+require_once __DIR__ . '/includes/i18n.php';
 mysqli_set_charset($conn, 'utf8mb4');
+
+$L_ALL = [
+    'fr' => [
+        'page_title'    => 'Découvrir la Tunisie — Tarkina',
+        'meta_desc'     => 'Découvrez les régions authentiques de la Tunisie : carte interactive, histoire, hébergements et expériences locales.',
+        'hero_tag'      => 'Tunisie authentique',
+        'hero_h1'       => 'Découvrir la Tunisie',
+        'hero_sub'      => 'Explorez les régions de Tunisie sur la carte, plongez dans leur histoire et trouvez votre prochaine escapade authentique.',
+        'section_title' => 'Nos régions',
+        'section_sub'   => 'Chaque région a son histoire, ses paysages et ses trésors à découvrir.',
+        'discover'      => 'Découvrir →',
+        'osm_attr'      => '© contributeurs d\'OpenStreetMap',
+    ],
+    'ar' => [
+        'page_title'    => 'اكتشف تونس — تاركينا',
+        'meta_desc'     => 'اكتشف جهات تونس الأصيلة: خريطة تفاعلية، تاريخ، إقامات وتجارب محلية.',
+        'hero_tag'      => 'تونس الأصيلة',
+        'hero_h1'       => 'اكتشف تونس',
+        'hero_sub'      => 'استكشف جهات تونس على الخريطة، انغمس في تاريخها واعثر على وجهتك الأصيلة القادمة.',
+        'section_title' => 'جهاتنا',
+        'section_sub'   => 'لكلّ جهة قصّتها ومناظرها وكنوزها التي تستحقّ الاكتشاف.',
+        'discover'      => 'اكتشف ←',
+        'osm_attr'      => '© مساهمو OpenStreetMap',
+    ],
+    'en' => [
+        'page_title'    => 'Discover Tunisia — Tarkina',
+        'meta_desc'     => 'Discover the authentic regions of Tunisia: interactive map, history, accommodations and local experiences.',
+        'hero_tag'      => 'Authentic Tunisia',
+        'hero_h1'       => 'Discover Tunisia',
+        'hero_sub'      => 'Explore the regions of Tunisia on the map, dive into their history and find your next authentic getaway.',
+        'section_title' => 'Our regions',
+        'section_sub'   => 'Each region has its own history, landscapes and treasures to discover.',
+        'discover'      => 'Discover →',
+        'osm_attr'      => '© OpenStreetMap contributors',
+    ],
+];
+$L = $L_ALL[$lang] ?? $L_ALL['fr'];
 
 // --- Read regions (read-only) ---
 $regions_query = mysqli_query($conn, "SELECT id, nom, description, photo_principale, photo FROM region ORDER BY nom");
@@ -105,12 +143,12 @@ foreach ($regions as $r) {
 }
 ?>
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="<?= htmlspecialchars($lang) ?>" dir="<?= htmlspecialchars($dir) ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Découvrir la Tunisie — Tarkina</title>
-    <meta name="description" content="Découvrez les régions authentiques de la Tunisie : carte interactive, histoire, hébergements et expériences locales.">
+    <title><?= htmlspecialchars($L['page_title']) ?></title>
+    <meta name="description" content="<?= htmlspecialchars($L['meta_desc']) ?>">
 
     <!-- Bootstrap 5.3 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -118,6 +156,7 @@ foreach ($regions as $r) {
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Lato:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/rtl.css">
 
     <style>
         :root {
@@ -240,9 +279,9 @@ foreach ($regions as $r) {
 
 <!-- PAGE HEADER -->
 <header class="discover-hero">
-    <span class="tag">Tunisie authentique</span>
-    <h1>Découvrir la Tunisie</h1>
-    <p>Explorez les régions de Tunisie sur la carte, plongez dans leur histoire et trouvez votre prochaine escapade authentique.</p>
+    <span class="tag"><?= htmlspecialchars($L['hero_tag']) ?></span>
+    <h1><?= htmlspecialchars($L['hero_h1']) ?></h1>
+    <p><?= htmlspecialchars($L['hero_sub']) ?></p>
 </header>
 
 <!-- INTERACTIVE MAP -->
@@ -252,8 +291,8 @@ foreach ($regions as $r) {
 
 <!-- REGION CARDS -->
 <section class="regions-section">
-    <h2 class="section-title">Nos régions</h2>
-    <p class="section-sub">Chaque région a son histoire, ses paysages et ses trésors à découvrir.</p>
+    <h2 class="section-title"><?= htmlspecialchars($L['section_title']) ?></h2>
+    <p class="section-sub"><?= htmlspecialchars($L['section_sub']) ?></p>
 
     <div class="row g-4">
         <?php foreach ($regions as $r):
@@ -272,7 +311,7 @@ foreach ($regions as $r) {
                 <div class="card-content">
                     <h3><?= htmlspecialchars($name) ?></h3>
                     <p><?= htmlspecialchars($desc) ?></p>
-                    <a href="region.php?id=<?= (int)$r['id'] ?>" class="btn-discover">Découvrir →</a>
+                    <a href="region.php?id=<?= (int)$r['id'] ?>" class="btn-discover"><?= htmlspecialchars($L['discover']) ?></a>
                 </div>
             </article>
         </div>
@@ -294,7 +333,7 @@ foreach ($regions as $r) {
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 18,
-        attribution: '© contributeurs d\'OpenStreetMap'
+        attribution: <?= json_encode($L['osm_attr'], JSON_UNESCAPED_UNICODE) ?>
     }).addTo(map);
 
     const coralIcon = L.divIcon({
@@ -310,7 +349,7 @@ foreach ($regions as $r) {
             .addTo(map)
             .bindPopup(
                 '<strong>' + p.nom + '</strong><br>' +
-                '<a class="popup-link" href="region.php?id=' + p.id + '">Découvrir →</a>'
+                '<a class="popup-link" href="region.php?id=' + p.id + '"><?= htmlspecialchars($L['discover'], ENT_QUOTES) ?></a>'
             );
     });
 

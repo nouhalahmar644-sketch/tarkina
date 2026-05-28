@@ -1,0 +1,46 @@
+/* RTL adjustments — loaded only when $lang === 'ar' */
+html[dir="rtl"] body { direction: rtl; text-align: right; font-family: 'Cairo','Tajawal','Segoe UI',Tahoma,sans-serif; }
+
+/* Lists: bullets on the right */
+html[dir="rtl"] ul, html[dir="rtl"] ol { padding-right: 24px; padding-left: 0; }
+
+/* Generic alignment helpers */
+html[dir="rtl"] .text-left  { text-align: right !important; }
+html[dir="rtl"] .text-right { text-align: left  !important; }
+
+/* Navbar (tk-nav…) */
+html[dir="rtl"] .tk-nav-link.active::after { left: 0; right: 0; }
+html[dir="rtl"] .lang-menu, html[dir="rtl"] .search-menu { right: auto; left: 0; }
+
+/* Footer (tkf…) */
+html[dir="rtl"] .tkf__col ul { padding: 0; }
+html[dir="rtl"] .tkf__brand-desc { max-width: 100%; }
+html[dir="rtl"] .tkf__bottom { flex-direction: row-reverse; }
+
+/* Booking bar dividers flip */
+html[dir="rtl"] .booking-field { border-right: none; border-left: 1px solid #eee; }
+html[dir="rtl"] .booking-field:last-of-type { border-left: none; }
+html[dir="rtl"] .booking-caret { right: auto; left: 0; }
+
+/* Search button arrow flips */
+html[dir="rtl"] .booking-btn svg,
+html[dir="rtl"] .btn-search svg,
+html[dir="rtl"] .back-btn { transform: scaleX(-1); }
+
+/* Search page filter sidebar */
+html[dir="rtl"] .filter-sidebar { /* sticky still works */ }
+html[dir="rtl"] .card-badge { left: auto; right: 14px; }
+
+/* Service cards / popular grids — flex/grid auto-mirror, no override needed */
+
+/* Forms — labels stay aligned to start */
+html[dir="rtl"] .form-label, html[dir="rtl"] .form-field label { text-align: right; }
+
+/* Hero text */
+html[dir="rtl"] .hero-title { letter-spacing: 0; }
+
+/* Profile, reservations, blog cards — keep flex auto-mirror */
+html[dir="rtl"] .res-card-body, html[dir="rtl"] .card-body { text-align: right; }
+
+/* Back button arrow flip (most pages use ← arrow) */
+html[dir="rtl"] button[onclick*="history.back"] { direction: ltr; }

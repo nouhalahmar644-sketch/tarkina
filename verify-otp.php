@@ -1,6 +1,92 @@
 <?php
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/includes/session_bootstrap.php';
+require_once __DIR__ . '/includes/i18n.php';
+
+$L_ALL = [
+    'fr' => [
+        'page_title'       => 'Tarkina — Vérifier OTP',
+        'tagline'          => 'LA TUNISIE HORS DES SENTIERS BATTUS',
+        'quote'            => 'Confirmez votre code et créez un nouveau mot de passe.',
+        'sub'              => 'Le code OTP reste valide pendant 10 minutes pour sécuriser votre compte.',
+        'heading'          => 'Vérifier le code OTP',
+        'subheading'       => 'Saisissez le code reçu par e-mail puis choisissez un nouveau mot de passe.',
+        'lbl_email'        => 'Email',
+        'lbl_otp'          => 'Code OTP',
+        'ph_otp'           => 'Entrez le code à 6 chiffres',
+        'lbl_new_pass'     => 'Nouveau mot de passe',
+        'ph_new_pass'      => 'Nouveau mot de passe',
+        'btn_submit'       => 'Mettre à jour le mot de passe',
+        'back_link'        => 'Retour à la connexion',
+        'err_email_missing'   => 'E-mail manquant.',
+        'err_email_invalid'   => 'E-mail invalide.',
+        'err_otp_required'    => 'Le code OTP est obligatoire.',
+        'err_otp_format'      => 'Le code OTP doit contenir 6 chiffres.',
+        'err_pass_required'   => 'Le nouveau mot de passe est obligatoire.',
+        'err_pass_short'      => 'Le mot de passe doit contenir au moins 6 caractères.',
+        'err_server'          => 'Erreur serveur. Veuillez réessayer.',
+        'err_otp_invalid'     => 'Code OTP invalide.',
+        'err_otp_expired'     => 'Code OTP expiré. Veuillez demander un nouveau code.',
+        'err_update_prep'     => 'Impossible de mettre à jour le mot de passe.',
+        'err_update_failed'   => 'Erreur lors de la mise à jour du mot de passe.',
+        'success_reset'       => 'Mot de passe réinitialisé avec succès. Vous pouvez vous connecter.',
+    ],
+    'ar' => [
+        'page_title'       => 'تاركينا — التحقق من رمز OTP',
+        'tagline'          => 'تونس بعيدًا عن الطرق المعتادة',
+        'quote'            => 'أكّد رمزك وأنشئ كلمة مرور جديدة.',
+        'sub'              => 'يبقى رمز OTP صالحًا لمدة 10 دقائق لتأمين حسابك.',
+        'heading'          => 'التحقق من رمز OTP',
+        'subheading'       => 'أدخل الرمز الذي وصلك عبر البريد الإلكتروني ثم اختر كلمة مرور جديدة.',
+        'lbl_email'        => 'البريد الإلكتروني',
+        'lbl_otp'          => 'رمز OTP',
+        'ph_otp'           => 'أدخل الرمز المكوّن من 6 أرقام',
+        'lbl_new_pass'     => 'كلمة المرور الجديدة',
+        'ph_new_pass'      => 'كلمة المرور الجديدة',
+        'btn_submit'       => 'تحديث كلمة المرور',
+        'back_link'        => 'العودة إلى تسجيل الدخول',
+        'err_email_missing'   => 'البريد الإلكتروني مفقود.',
+        'err_email_invalid'   => 'البريد الإلكتروني غير صالح.',
+        'err_otp_required'    => 'رمز OTP مطلوب.',
+        'err_otp_format'      => 'يجب أن يتكوّن رمز OTP من 6 أرقام.',
+        'err_pass_required'   => 'كلمة المرور الجديدة مطلوبة.',
+        'err_pass_short'      => 'يجب أن تتكوّن كلمة المرور من 6 أحرف على الأقل.',
+        'err_server'          => 'خطأ في الخادم. يُرجى المحاولة مجددًا.',
+        'err_otp_invalid'     => 'رمز OTP غير صالح.',
+        'err_otp_expired'     => 'انتهت صلاحية رمز OTP. يُرجى طلب رمز جديد.',
+        'err_update_prep'     => 'تعذّر تحديث كلمة المرور.',
+        'err_update_failed'   => 'حدث خطأ أثناء تحديث كلمة المرور.',
+        'success_reset'       => 'تمّت إعادة تعيين كلمة المرور بنجاح. يمكنك الآن تسجيل الدخول.',
+    ],
+    'en' => [
+        'page_title'       => 'Tarkina — Verify OTP',
+        'tagline'          => 'TUNISIA OFF THE BEATEN PATH',
+        'quote'            => 'Confirm your code and create a new password.',
+        'sub'              => 'The OTP code remains valid for 10 minutes to keep your account secure.',
+        'heading'          => 'Verify the OTP code',
+        'subheading'       => 'Enter the code received by email then choose a new password.',
+        'lbl_email'        => 'Email',
+        'lbl_otp'          => 'OTP code',
+        'ph_otp'           => 'Enter the 6-digit code',
+        'lbl_new_pass'     => 'New password',
+        'ph_new_pass'      => 'New password',
+        'btn_submit'       => 'Update password',
+        'back_link'        => 'Back to login',
+        'err_email_missing'   => 'Email is missing.',
+        'err_email_invalid'   => 'Invalid email.',
+        'err_otp_required'    => 'The OTP code is required.',
+        'err_otp_format'      => 'The OTP code must contain 6 digits.',
+        'err_pass_required'   => 'The new password is required.',
+        'err_pass_short'      => 'The password must contain at least 6 characters.',
+        'err_server'          => 'Server error. Please try again.',
+        'err_otp_invalid'     => 'Invalid OTP code.',
+        'err_otp_expired'     => 'OTP code expired. Please request a new code.',
+        'err_update_prep'     => 'Unable to update the password.',
+        'err_update_failed'   => 'Error while updating the password.',
+        'success_reset'       => 'Password reset successfully. You can now log in.',
+    ],
+];
+$L = $L_ALL[$lang] ?? $L_ALL['fr'];
 
 $errors = [];
 $success = '';
@@ -18,21 +104,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $newPassword = isset($_POST['new_password']) ? $_POST['new_password'] : '';
 
     if ($email === '') {
-        $errors['email'] = 'E-mail manquant.';
+        $errors['email'] = $L['err_email_missing'];
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $errors['email'] = 'E-mail invalide.';
+        $errors['email'] = $L['err_email_invalid'];
     }
 
     if ($otp === '') {
-        $errors['otp'] = 'Le code OTP est obligatoire.';
+        $errors['otp'] = $L['err_otp_required'];
     } elseif (!preg_match('/^\d{6}$/', $otp)) {
-        $errors['otp'] = 'Le code OTP doit contenir 6 chiffres.';
+        $errors['otp'] = $L['err_otp_format'];
     }
 
     if ($newPassword === '') {
-        $errors['new_password'] = 'Le nouveau mot de passe est obligatoire.';
+        $errors['new_password'] = $L['err_pass_required'];
     } elseif (strlen($newPassword) < 6) {
-        $errors['new_password'] = 'Le mot de passe doit contenir au moins 6 caractères.';
+        $errors['new_password'] = $L['err_pass_short'];
     }
 
     if (empty($errors)) {
@@ -42,7 +128,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         );
 
         if ($stmt === false) {
-            $errors['general'] = 'Erreur serveur. Veuillez réessayer.';
+            $errors['general'] = $L['err_server'];
         } else {
             mysqli_stmt_bind_param($stmt, 'ss', $email, $otp);
             mysqli_stmt_execute($stmt);
@@ -51,9 +137,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             mysqli_stmt_close($stmt);
 
             if (!$found) {
-                $errors['otp'] = 'Code OTP invalide.';
+                $errors['otp'] = $L['err_otp_invalid'];
             } elseif (strtotime((string) $expiresAt) < time()) {
-                $errors['otp'] = 'Code OTP expiré. Veuillez demander un nouveau code.';
+                $errors['otp'] = $L['err_otp_expired'];
             } else {
                 $passwordHash = password_hash($newPassword, PASSWORD_DEFAULT);
 
@@ -63,14 +149,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 );
 
                 if ($updateStmt === false) {
-                    $errors['general'] = 'Impossible de mettre à jour le mot de passe.';
+                    $errors['general'] = $L['err_update_prep'];
                 } else {
                     mysqli_stmt_bind_param($updateStmt, 'ss', $passwordHash, $email);
                     $updated = mysqli_stmt_execute($updateStmt);
                     mysqli_stmt_close($updateStmt);
 
                     if (!$updated) {
-                        $errors['general'] = 'Erreur lors de la mise à jour du mot de passe.';
+                        $errors['general'] = $L['err_update_failed'];
                     } else {
                         $deleteStmt = mysqli_prepare($conn, 'DELETE FROM password_resets WHERE email = ?');
                         if ($deleteStmt) {
@@ -79,7 +165,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             mysqli_stmt_close($deleteStmt);
                         }
 
-                        $_SESSION['auth_success'] = 'Mot de passe réinitialisé avec succès. Vous pouvez vous connecter.';
+                        $_SESSION['auth_success'] = $L['success_reset'];
                         header('Location: login.php');
                         exit;
                     }
@@ -90,11 +176,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="<?= htmlspecialchars($lang) ?>" dir="<?= htmlspecialchars($dir) ?>">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Tarkina — Vérifier OTP</title>
+<title><?= htmlspecialchars($L['page_title']) ?></title>
+<link rel="stylesheet" href="assets/css/rtl.css">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -337,16 +424,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <div class="auth-image">
     <div class="auth-image-content">
       <div class="auth-logo">Tarkina<span>.</span></div>
-      <div class="auth-tagline">LA TUNISIE HORS DES SENTIERS BATTUS</div>
-      <div class="auth-quote">Confirmez votre code et créez un nouveau mot de passe.</div>
-      <div class="auth-sub">Le code OTP reste valide pendant 10 minutes pour sécuriser votre compte.</div>
+      <div class="auth-tagline"><?= htmlspecialchars($L['tagline']) ?></div>
+      <div class="auth-quote"><?= htmlspecialchars($L['quote']) ?></div>
+      <div class="auth-sub"><?= htmlspecialchars($L['sub']) ?></div>
     </div>
   </div>
 
   <div class="auth-form-panel">
     <div class="form-header">
-      <h1>Vérifier le code OTP</h1>
-      <p>Saisissez le code reçu par e-mail puis choisissez un nouveau mot de passe.</p>
+      <h1><?= htmlspecialchars($L['heading']) ?></h1>
+      <p><?= htmlspecialchars($L['subheading']) ?></p>
       <?php if ($otpNotice !== ''): ?>
         <p class="form-alert success"><?php echo htmlspecialchars($otpNotice); ?></p>
       <?php endif; ?>
@@ -359,7 +446,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <input type="hidden" name="email" value="<?php echo htmlspecialchars($email); ?>">
 
       <div class="form-group">
-        <label>Email</label>
+        <label><?= htmlspecialchars($L['lbl_email']) ?></label>
         <input
           type="email"
           value="<?php echo htmlspecialchars($email); ?>"
@@ -372,12 +459,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       </div>
 
       <div class="form-group">
-        <label>Code OTP</label>
+        <label><?= htmlspecialchars($L['lbl_otp']) ?></label>
         <input
           type="text"
           name="otp"
           maxlength="6"
-          placeholder="Entrez le code à 6 chiffres"
+          placeholder="<?= htmlspecialchars($L['ph_otp']) ?>"
           value="<?php echo isset($_POST['otp']) ? htmlspecialchars((string) $_POST['otp']) : ''; ?>"
           class="<?php echo isset($errors['otp']) ? 'is-invalid' : ''; ?>"
           required
@@ -388,14 +475,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       </div>
 
       <div class="form-group">
-        <label>Nouveau mot de passe</label>
+        <label><?= htmlspecialchars($L['lbl_new_pass']) ?></label>
         <div class="input-wrapper">
           <input
             type="password"
             name="new_password"
             id="new_password"
             minlength="6"
-            placeholder="Nouveau mot de passe"
+            placeholder="<?= htmlspecialchars($L['ph_new_pass']) ?>"
             class="<?php echo isset($errors['new_password']) ? 'is-invalid' : ''; ?>"
             required
           >
@@ -406,11 +493,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php endif; ?>
       </div>
 
-      <button type="submit" class="btn-submit">Mettre à jour le mot de passe</button>
+      <button type="submit" class="btn-submit"><?= htmlspecialchars($L['btn_submit']) ?></button>
     </form>
 
     <div class="form-footer">
-      <a href="login.php">Retour à la connexion</a>
+      <a href="login.php"><?= htmlspecialchars($L['back_link']) ?></a>
     </div>
   </div>
 </div>

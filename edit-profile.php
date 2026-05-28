@@ -1,11 +1,79 @@
 <?php
 session_start();
 require 'db.php';
+require_once __DIR__ . '/includes/i18n.php';
 
 if (!isset($_SESSION['user_id'])) {
     header('Location: login.php');
     exit;
 }
+
+$L_ALL = [
+    'fr' => [
+        'page_title'   => 'Modifier mon profil — Tarkina',
+        'heading'      => 'Modifier mon profil',
+        'photo_alt'    => 'Photo de profil',
+        'change_photo' => 'Changer la photo',
+        'photo_hint'   => 'JPG, PNG ou WEBP · max 3 Mo',
+        'prenom'       => 'Prénom',
+        'nom'          => 'Nom',
+        'telephone'    => 'Téléphone',
+        'ph_phone'     => '+216 XX XXX XXX',
+        'ville'        => 'Ville',
+        'ph_city'      => 'Tunis, Sfax…',
+        'bio'          => 'Bio',
+        'ph_bio'       => 'Parlez-nous de vous…',
+        'save'         => 'Enregistrer les modifications',
+        'err_format'   => 'Format non supporté. Utilisez JPG, PNG ou WEBP.',
+        'err_size'     => "L'image ne doit pas dépasser 3 Mo.",
+        'err_upload'   => 'Erreur upload code: ',
+        'err_move'     => 'move_uploaded_file failed. Check folder permissions on uploads/profils/',
+        'ok_save'      => 'Profil mis à jour avec succès !',
+    ],
+    'ar' => [
+        'page_title'   => 'تعديل ملفي الشخصي — تاركينا',
+        'heading'      => 'تعديل ملفي الشخصي',
+        'photo_alt'    => 'صورة الملف الشخصي',
+        'change_photo' => 'تغيير الصورة',
+        'photo_hint'   => 'JPG أو PNG أو WEBP · الحد الأقصى 3 ميغابايت',
+        'prenom'       => 'اللقب',
+        'nom'          => 'الاسم',
+        'telephone'    => 'الهاتف',
+        'ph_phone'     => '+216 XX XXX XXX',
+        'ville'        => 'المدينة',
+        'ph_city'      => 'تونس، صفاقس…',
+        'bio'          => 'نبذة',
+        'ph_bio'       => 'حدّثنا عن نفسك…',
+        'save'         => 'حفظ التعديلات',
+        'err_format'   => 'تنسيق غير مدعوم. استخدم JPG أو PNG أو WEBP.',
+        'err_size'     => 'يجب ألاّ تتجاوز الصورة 3 ميغابايت.',
+        'err_upload'   => 'خطأ في الرفع، رمز: ',
+        'err_move'     => 'فشل نقل الملف. تحقّق من صلاحيات المجلد uploads/profils/',
+        'ok_save'      => 'تمّ تحديث الملف الشخصي بنجاح!',
+    ],
+    'en' => [
+        'page_title'   => 'Edit my profile — Tarkina',
+        'heading'      => 'Edit my profile',
+        'photo_alt'    => 'Profile photo',
+        'change_photo' => 'Change photo',
+        'photo_hint'   => 'JPG, PNG or WEBP · max 3 MB',
+        'prenom'       => 'First name',
+        'nom'          => 'Last name',
+        'telephone'    => 'Phone',
+        'ph_phone'     => '+216 XX XXX XXX',
+        'ville'        => 'City',
+        'ph_city'      => 'Tunis, Sfax…',
+        'bio'          => 'Bio',
+        'ph_bio'       => 'Tell us about yourself…',
+        'save'         => 'Save changes',
+        'err_format'   => 'Unsupported format. Use JPG, PNG or WEBP.',
+        'err_size'     => 'The image must not exceed 3 MB.',
+        'err_upload'   => 'Upload error code: ',
+        'err_move'     => 'move_uploaded_file failed. Check folder permissions on uploads/profils/',
+        'ok_save'      => 'Profile updated successfully!',
+    ],
+];
+$L = $L_ALL[$lang] ?? $L_ALL['fr'];
 
 $user_id = $_SESSION['user_id'];
 $success = '';
@@ -34,29 +102,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $allowed = ['jpg', 'jpeg', 'png', 'webp'];
 
         if (!in_array($ext, $allowed)) {
-            $error = "Format non supporté. Utilisez JPG, PNG ou WEBP.";
+            $error = $L['err_format'];
         } elseif ($_FILES['photo']['size'] > 3 * 1024 * 1024) {
-            $error = "L'image ne doit pas dépasser 3 Mo.";
+            $error = $L['err_size'];
         } elseif ($_FILES['photo']['error'] !== UPLOAD_ERR_OK) {
-            $error = "Erreur upload code: " . $_FILES['photo']['error'];
+            $error = $L['err_upload'] . $_FILES['photo']['error'];
         } else {
             $filename = 'profil_' . $user_id . '_' . time() . '.' . $ext;
             $full_path = $upload_dir . $filename;
             if (move_uploaded_file($_FILES['photo']['tmp_name'], $full_path)) {
                 $photo_profil = mysqli_real_escape_string($conn, 'uploads/profils/' . $filename);
             } else {
-                $error = "move_uploaded_file failed. Check folder permissions on uploads/profils/";
+                $error = $L['err_move'];
             }
         }
     }
 
     if (!$error) {
-        $sql = "UPDATE utilisateur 
-                SET nom='$nom', prenom='$prenom', telephone='$telephone', 
+        $sql = "UPDATE utilisateur
+                SET nom='$nom', prenom='$prenom', telephone='$telephone',
                     ville='$ville', bio='$bio', photo_profil='$photo_profil'
                 WHERE id=$user_id";
         mysqli_query($conn, $sql);
-        $success = "Profil mis à jour avec succès !";
+        $success = $L['ok_save'];
 
         // Refresh user data
         $result = mysqli_query($conn, "SELECT * FROM utilisateur WHERE id = $user_id");
@@ -65,11 +133,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="<?= htmlspecialchars($lang) ?>" dir="<?= htmlspecialchars($dir) ?>">
 <head>
     <meta charset="UTF-8">
-    <title>Modifier mon profil — Tarkina</title>
+    <title><?= htmlspecialchars($L['page_title']) ?></title>
     <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/rtl.css">
     <style>
         :root { --primary: #1B6B45; --navy: #111111; --light-bg: #FFFFFF; --text-dark: #1a1a1a; --text-muted: #6b7280; --border: #e5e7eb; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -222,7 +291,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <div class="edit-profile-wrap">
     <div class="edit-card">
-        <h1>Modifier mon profil</h1>
+        <h1><?= htmlspecialchars($L['heading']) ?></h1>
 
         <?php if ($success): ?>
             <div class="alert-success">✅ <?= htmlspecialchars($success) ?></div>
@@ -236,47 +305,47 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <!-- Avatar -->
             <div class="avatar-upload">
                 <?php if (!empty($user['photo_profil'])): ?>
-                    <img src="<?= htmlspecialchars($user['photo_profil']) ?>" alt="Photo de profil">
+                    <img src="<?= htmlspecialchars($user['photo_profil']) ?>" alt="<?= htmlspecialchars($L['photo_alt']) ?>">
                 <?php else: ?>
                     <div class="avatar-placeholder">👤</div>
                 <?php endif; ?>
                 <div>
-                    <label class="upload-btn" for="photo">📷 Changer la photo</label>
+                    <label class="upload-btn" for="photo">📷 <?= htmlspecialchars($L['change_photo']) ?></label>
                     <input type="file" id="photo" name="photo" accept="image/jpeg,image/png,image/webp">
-                    <div style="font-size:0.78rem;color:#999;margin-top:5px;">JPG, PNG ou WEBP · max 3 Mo</div>
+                    <div style="font-size:0.78rem;color:#999;margin-top:5px;"><?= htmlspecialchars($L['photo_hint']) ?></div>
                 </div>
             </div>
 
             <div class="form-row">
                 <div class="form-group">
-                    <label>Prénom</label>
+                    <label><?= htmlspecialchars($L['prenom']) ?></label>
                     <input type="text" name="prenom" value="<?= htmlspecialchars($user['prenom'] ?? '') ?>">
                 </div>
                 <div class="form-group">
-                    <label>Nom</label>
+                    <label><?= htmlspecialchars($L['nom']) ?></label>
                     <input type="text" name="nom" value="<?= htmlspecialchars($user['nom'] ?? '') ?>">
                 </div>
             </div>
 
             <div class="form-row">
                 <div class="form-group">
-                    <label>Téléphone</label>
-                    <input type="tel" name="telephone" placeholder="+216 XX XXX XXX"
+                    <label><?= htmlspecialchars($L['telephone']) ?></label>
+                    <input type="tel" name="telephone" placeholder="<?= htmlspecialchars($L['ph_phone']) ?>"
                            value="<?= htmlspecialchars($user['telephone'] ?? '') ?>">
                 </div>
                 <div class="form-group">
-                    <label>Ville</label>
-                    <input type="text" name="ville" placeholder="Tunis, Sfax…"
+                    <label><?= htmlspecialchars($L['ville']) ?></label>
+                    <input type="text" name="ville" placeholder="<?= htmlspecialchars($L['ph_city']) ?>"
                            value="<?= htmlspecialchars($user['ville'] ?? '') ?>">
                 </div>
             </div>
 
             <div class="form-group">
-                <label>Bio</label>
-                <textarea name="bio" placeholder="Parlez-nous de vous…"><?= htmlspecialchars($user['bio'] ?? '') ?></textarea>
+                <label><?= htmlspecialchars($L['bio']) ?></label>
+                <textarea name="bio" placeholder="<?= htmlspecialchars($L['ph_bio']) ?>"><?= htmlspecialchars($user['bio'] ?? '') ?></textarea>
             </div>
 
-            <button type="submit" class="btn-save">Enregistrer les modifications</button>
+            <button type="submit" class="btn-save"><?= htmlspecialchars($L['save']) ?></button>
         </form>
     </div>
 </div>

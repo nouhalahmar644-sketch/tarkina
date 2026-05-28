@@ -1,6 +1,86 @@
 <?php
 session_start();
 require_once __DIR__ . '/db.php';
+require_once __DIR__ . '/includes/i18n.php';
+
+$L_ALL = [
+    'fr' => [
+        'page_title'    => 'Résultats de recherche – Tarkina',
+        'back'          => '← Retour',
+        'header_for'    => 'Résultats pour',
+        'all_tunisia'   => 'Toute la Tunisie',
+        'svc_found'     => 'service(s) trouvé(s)',
+        'from'          => 'du',
+        'to'            => 'au',
+        'filters'       => 'Filtres',
+        'search'        => 'Recherche',
+        'ph_search'     => 'Ville, mot-clé...',
+        'categories'    => 'Catégories',
+        'region'        => 'Région',
+        'all_regions'   => 'Toutes les régions',
+        'price_max'     => 'Prix maximum',
+        'travelers'     => 'Voyageurs',
+        'apply'         => 'Appliquer les filtres',
+        'reset'         => 'Réinitialiser les filtres',
+        'reset_short'   => 'Réinitialiser',
+        'results'       => 'résultat(s)',
+        'no_results'    => 'Aucun résultat trouvé',
+        'no_results_p'  => "Essayez d'élargir vos filtres ou de changer de destination.",
+        't_hebergement' => 'Hébergement', 't_repas' => 'Repas maison', 't_guide' => 'Guide local', 't_evenement' => 'Événement', 't_artisanat' => 'Artisanat',
+        'u_nuit'        => 'nuit',  'u_pers'  => 'pers.', 'u_piece' => 'pièce',
+    ],
+    'ar' => [
+        'page_title'    => 'نتائج البحث – تاركينا',
+        'back'          => '← رجوع',
+        'header_for'    => 'النتائج لـ',
+        'all_tunisia'   => 'كامل تونس',
+        'svc_found'     => 'خدمة/خدمات تمّ العثور عليها',
+        'from'          => 'من',
+        'to'            => 'إلى',
+        'filters'       => 'الفلاتر',
+        'search'        => 'بحث',
+        'ph_search'     => 'مدينة، كلمة مفتاحية...',
+        'categories'    => 'الفئات',
+        'region'        => 'الجهة',
+        'all_regions'   => 'كلّ الجهات',
+        'price_max'     => 'السعر الأقصى',
+        'travelers'     => 'المسافرون',
+        'apply'         => 'تطبيق الفلاتر',
+        'reset'         => 'إعادة تعيين الفلاتر',
+        'reset_short'   => 'إعادة تعيين',
+        'results'       => 'نتيجة/نتائج',
+        'no_results'    => 'لا توجد نتائج',
+        'no_results_p'  => 'جرّب توسيع الفلاتر أو تغيير الوجهة.',
+        't_hebergement' => 'إقامة', 't_repas' => 'وجبة منزلية', 't_guide' => 'مرشد محلي', 't_evenement' => 'فعالية', 't_artisanat' => 'حِرف يدوية',
+        'u_nuit'        => 'ليلة', 'u_pers' => 'للشخص', 'u_piece' => 'قطعة',
+    ],
+    'en' => [
+        'page_title'    => 'Search results – Tarkina',
+        'back'          => '← Back',
+        'header_for'    => 'Results for',
+        'all_tunisia'   => 'All of Tunisia',
+        'svc_found'     => 'service(s) found',
+        'from'          => 'from',
+        'to'            => 'to',
+        'filters'       => 'Filters',
+        'search'        => 'Search',
+        'ph_search'     => 'City, keyword...',
+        'categories'    => 'Categories',
+        'region'        => 'Region',
+        'all_regions'   => 'All regions',
+        'price_max'     => 'Maximum price',
+        'travelers'     => 'Travelers',
+        'apply'         => 'Apply filters',
+        'reset'         => 'Reset filters',
+        'reset_short'   => 'Reset',
+        'results'       => 'result(s)',
+        'no_results'    => 'No results found',
+        'no_results_p'  => 'Try widening your filters or changing destination.',
+        't_hebergement' => 'Accommodation', 't_repas' => 'Home meal', 't_guide' => 'Local guide', 't_evenement' => 'Event', 't_artisanat' => 'Crafts',
+        'u_nuit'        => 'night', 'u_pers' => 'pers.', 'u_piece' => 'piece',
+    ],
+];
+$L = $L_ALL[$lang] ?? $L_ALL['fr'];
 
 // ---------- Read filters ----------
 $destination = isset($_GET['destination']) ? trim($_GET['destination']) : (isset($_GET['q']) ? trim($_GET['q']) : '');
@@ -12,11 +92,11 @@ $prixMax     = (isset($_GET['prix_max']) && $_GET['prix_max'] !== '') ? (float) 
 
 $allTypes = ['hebergement', 'repas', 'guide', 'evenement', 'artisanat'];
 $typeMeta = [
-    'hebergement' => ['cap' => 'capacite', 'label' => 'Hébergement', 'unit' => 'nuit'],
-    'repas'       => ['cap' => 'capacite', 'label' => 'Repas maison', 'unit' => 'pers.'],
-    'guide'       => ['cap' => 'capacite', 'label' => 'Guide local', 'unit' => 'pers.'],
-    'evenement'   => ['cap' => 'capacite', 'label' => 'Événement', 'unit' => 'pers.'],
-    'artisanat'   => ['cap' => 'stock', 'label' => 'Artisanat', 'unit' => 'pièce'],
+    'hebergement' => ['cap' => 'capacite', 'label' => $L['t_hebergement'], 'unit' => $L['u_nuit']],
+    'repas'       => ['cap' => 'capacite', 'label' => $L['t_repas'],       'unit' => $L['u_pers']],
+    'guide'       => ['cap' => 'capacite', 'label' => $L['t_guide'],       'unit' => $L['u_pers']],
+    'evenement'   => ['cap' => 'capacite', 'label' => $L['t_evenement'],   'unit' => $L['u_pers']],
+    'artisanat'   => ['cap' => 'stock',    'label' => $L['t_artisanat'],   'unit' => $L['u_piece']],
 ];
 
 // Which categories did the user explicitly choose? (?type=repas or ?type[]=...)
@@ -77,15 +157,16 @@ function formatImagePath($path, $type) {
     return 'uploads/' . $type . '/' . ltrim($path, '/');
 }
 
-$page_title = 'Résultats de recherche – Tarkina';
+$page_title = $L['page_title'];
 ?>
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="<?= htmlspecialchars($lang) ?>" dir="<?= htmlspecialchars($dir) ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= $page_title ?></title>
+    <title><?= htmlspecialchars($page_title) ?></title>
     <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/rtl.css">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Lato:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         *, *::before, *::after { box-sizing: border-box; }
@@ -146,11 +227,11 @@ $page_title = 'Résultats de recherche – Tarkina';
 
 <?php include 'navbar.php'; ?>
 
-<button onclick="history.back()" class="back-btn">&#8592; Retour</button>
+<button onclick="history.back()" class="back-btn"><?= htmlspecialchars($L['back']) ?></button>
 
 <div class="search-header">
-    <h1>Résultats pour "<?= htmlspecialchars($destination ?: 'Toute la Tunisie') ?>"</h1>
-    <p class="search-summary"><?= count($services) ?> service(s) trouvé(s) <?= $date_debut ? "du " . date('d/m/Y', strtotime($date_debut)) : "" ?> <?= $date_fin ? "au " . date('d/m/Y', strtotime($date_fin)) : "" ?></p>
+    <h1><?= htmlspecialchars($L['header_for']) ?> "<?= htmlspecialchars($destination ?: $L['all_tunisia']) ?>"</h1>
+    <p class="search-summary"><?= count($services) ?> <?= htmlspecialchars($L['svc_found']) ?> <?= $date_debut ? htmlspecialchars($L['from']) . " " . date('d/m/Y', strtotime($date_debut)) : "" ?> <?= $date_fin ? htmlspecialchars($L['to']) . " " . date('d/m/Y', strtotime($date_fin)) : "" ?></p>
 </div>
 
 <div class="search-layout">
@@ -160,16 +241,16 @@ $page_title = 'Résultats de recherche – Tarkina';
         <form method="get" action="search.php">
             <h3>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1B6B45" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
-                Filtres
+                <?= htmlspecialchars($L['filters']) ?>
             </h3>
 
             <div class="filter-group">
-                <h4>Recherche</h4>
-                <input type="text" name="destination" class="filter-field" placeholder="Ville, mot-clé..." value="<?= htmlspecialchars($destination) ?>">
+                <h4><?= htmlspecialchars($L['search']) ?></h4>
+                <input type="text" name="destination" class="filter-field" placeholder="<?= htmlspecialchars($L['ph_search']) ?>" value="<?= htmlspecialchars($destination) ?>">
             </div>
 
             <div class="filter-group">
-                <h4>Catégories</h4>
+                <h4><?= htmlspecialchars($L['categories']) ?></h4>
                 <?php foreach ($typeMeta as $tk => $tm):
                     $checked = (empty($typesActive) || in_array($tk, $typesActive, true)) ? 'checked' : ''; ?>
                     <label class="filter-check">
@@ -180,9 +261,9 @@ $page_title = 'Résultats de recherche – Tarkina';
             </div>
 
             <div class="filter-group">
-                <h4>Région</h4>
+                <h4><?= htmlspecialchars($L['region']) ?></h4>
                 <select name="region" class="filter-field">
-                    <option value="">Toutes les régions</option>
+                    <option value=""><?= htmlspecialchars($L['all_regions']) ?></option>
                     <?php foreach ($regionsList as $rg): ?>
                         <option value="<?= (int) $rg['id'] ?>" <?= $regionId === (int) $rg['id'] ? 'selected' : '' ?>><?= htmlspecialchars($rg['nom']) ?></option>
                     <?php endforeach; ?>
@@ -190,32 +271,32 @@ $page_title = 'Résultats de recherche – Tarkina';
             </div>
 
             <div class="filter-group">
-                <h4>Prix maximum : <span class="filter-range-val" id="prixVal"><?= $prixMax > 0 ? (int) $prixMax : 1000 ?> TND</span></h4>
+                <h4><?= htmlspecialchars($L['price_max']) ?> : <span class="filter-range-val" id="prixVal"><?= $prixMax > 0 ? (int) $prixMax : 1000 ?> TND</span></h4>
                 <input type="range" name="prix_max" min="0" max="1000" step="10" value="<?= $prixMax > 0 ? (int) $prixMax : 1000 ?>" class="filter-field" id="prixRange" oninput="document.getElementById('prixVal').textContent=this.value+' TND'">
             </div>
 
             <div class="filter-group">
-                <h4>Voyageurs</h4>
+                <h4><?= htmlspecialchars($L['travelers']) ?></h4>
                 <input type="number" name="personnes" class="filter-field" min="1" max="50" value="<?= (int) $personnes ?>">
             </div>
 
             <?php if ($date_debut !== ''): ?><input type="hidden" name="date_debut" value="<?= htmlspecialchars($date_debut) ?>"><?php endif; ?>
             <?php if ($date_fin !== ''): ?><input type="hidden" name="date_fin" value="<?= htmlspecialchars($date_fin) ?>"><?php endif; ?>
 
-            <button type="submit" class="btn-filter">Appliquer les filtres</button>
-            <a href="search.php" class="btn-reset">Réinitialiser les filtres</a>
+            <button type="submit" class="btn-filter"><?= htmlspecialchars($L['apply']) ?></button>
+            <a href="search.php" class="btn-reset"><?= htmlspecialchars($L['reset']) ?></a>
         </form>
     </aside>
 
     <!-- RESULTS -->
     <div class="results-area">
-        <p class="results-count"><strong><?= count($services) ?></strong> résultat(s)</p>
+        <p class="results-count"><strong><?= count($services) ?></strong> <?= htmlspecialchars($L['results']) ?></p>
         <div class="results-grid">
             <?php if (empty($services)): ?>
                 <div class="no-results" style="grid-column:1/-1;">
-                    <h2>Aucun résultat trouvé</h2>
-                    <p style="margin-bottom:24px; color:var(--muted);">Essayez d'élargir vos filtres ou de changer de destination.</p>
-                    <a href="search.php" class="btn-filter" style="display:inline-block; width:auto; padding:12px 28px; text-decoration:none;">Réinitialiser</a>
+                    <h2><?= htmlspecialchars($L['no_results']) ?></h2>
+                    <p style="margin-bottom:24px; color:var(--muted);"><?= htmlspecialchars($L['no_results_p']) ?></p>
+                    <a href="search.php" class="btn-filter" style="display:inline-block; width:auto; padding:12px 28px; text-decoration:none;"><?= htmlspecialchars($L['reset_short']) ?></a>
                 </div>
             <?php else: ?>
                 <?php foreach ($services as $srv):

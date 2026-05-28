@@ -2,11 +2,94 @@
 session_start();
 
 require_once 'db.php';
+require_once __DIR__ . '/includes/i18n.php';
 
 if (!isset($_SESSION['user_id'])) {
     header('Location: login.php');
     exit;
 }
+
+$L_ALL = [
+    'fr' => [
+        'page_title'      => 'Mon Profil — Tarkina',
+        'back'            => 'Retour',
+        'profile_label'   => 'Profil voyageur',
+        'member_since'    => 'Membre depuis',
+        'edit_profile'    => 'Modifier le profil',
+        'information'     => 'Informations',
+        'verified'        => 'Compte vérifié',
+        'preferences'     => 'Préférences',
+        'pref_1'          => 'Villages berbères',
+        'pref_2'          => 'Cuisine maison',
+        'pref_3'          => 'Artisanat',
+        'pref_4'          => 'Randonnées',
+        'about'           => 'À propos',
+        'history'         => 'Historique',
+        'last_res'        => 'Dernières réservations',
+        'see_all'         => 'Tout voir',
+        'no_res'          => 'Aucune réservation pour le moment.',
+        'explore_regions' => 'Explorer les régions →',
+        'tunisie'         => 'Tunisie',
+        'service'         => 'Service',
+        'saved_fav'       => 'Favoris enregistrés',
+        'view_all'        => 'Voir tout',
+        'fav_singular'    => 'expérience sauvegardée pour votre prochain voyage.',
+        'fav_plural'      => 'expériences sauvegardées pour votre prochain voyage.',
+    ],
+    'ar' => [
+        'page_title'      => 'ملفي الشخصي — تاركينا',
+        'back'            => 'عودة',
+        'profile_label'   => 'ملف المسافر',
+        'member_since'    => 'عضو منذ',
+        'edit_profile'    => 'تعديل الملف الشخصي',
+        'information'     => 'المعلومات',
+        'verified'        => 'حساب موثّق',
+        'preferences'     => 'التفضيلات',
+        'pref_1'          => 'القرى الأمازيغية',
+        'pref_2'          => 'المطبخ البيتي',
+        'pref_3'          => 'الحِرف اليدوية',
+        'pref_4'          => 'المشي في الطبيعة',
+        'about'           => 'نبذة',
+        'history'         => 'السجلّ',
+        'last_res'        => 'آخر الحجوزات',
+        'see_all'         => 'عرض الكل',
+        'no_res'          => 'لا توجد حجوزات حتى الآن.',
+        'explore_regions' => 'استكشف الجهات →',
+        'tunisie'         => 'تونس',
+        'service'         => 'خدمة',
+        'saved_fav'       => 'المفضلات المحفوظة',
+        'view_all'        => 'عرض الكل',
+        'fav_singular'    => 'تجربة محفوظة لرحلتك القادمة.',
+        'fav_plural'      => 'تجارب محفوظة لرحلتك القادمة.',
+    ],
+    'en' => [
+        'page_title'      => 'My Profile — Tarkina',
+        'back'            => 'Back',
+        'profile_label'   => 'Traveler profile',
+        'member_since'    => 'Member since',
+        'edit_profile'    => 'Edit profile',
+        'information'     => 'Information',
+        'verified'        => 'Verified account',
+        'preferences'     => 'Preferences',
+        'pref_1'          => 'Berber villages',
+        'pref_2'          => 'Home cooking',
+        'pref_3'          => 'Handicrafts',
+        'pref_4'          => 'Hiking',
+        'about'           => 'About',
+        'history'         => 'History',
+        'last_res'        => 'Recent reservations',
+        'see_all'         => 'See all',
+        'no_res'          => 'No reservations yet.',
+        'explore_regions' => 'Explore the regions →',
+        'tunisie'         => 'Tunisia',
+        'service'         => 'Service',
+        'saved_fav'       => 'Saved favorites',
+        'view_all'        => 'View all',
+        'fav_singular'    => 'experience saved for your next trip.',
+        'fav_plural'      => 'experiences saved for your next trip.',
+    ],
+];
+$L = $L_ALL[$lang] ?? $L_ALL['fr'];
 
 $user_id = $_SESSION['user_id'];
 
@@ -57,12 +140,13 @@ if ($res3) {
 }
 ?>
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="<?= htmlspecialchars($lang) ?>" dir="<?= htmlspecialchars($dir) ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mon Profil — Tarkina</title>
+    <title><?= htmlspecialchars($L['page_title']) ?></title>
     <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/rtl.css">
     <style>
         :root { --primary: #1B6B45; --navy: #111111; --light-bg: #FFFFFF; --text-dark: #1a1a1a; --text-muted: #6b7280; --border: #e5e7eb; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -147,17 +231,17 @@ if ($res3) {
         <div class="profile-banner-left">
             <div class="profile-avatar"><?= $initiales ?></div>
             <div>
-                <p class="profile-label">Profil voyageur</p>
+                <p class="profile-label"><?= htmlspecialchars($L['profile_label']) ?></p>
                 <h1 class="profile-name"><?= $nom_complet ?></h1>
                 <div class="profile-meta">
                     <?php if(!empty($user['ville'])): ?>
                     <div class="profile-meta-item">📍 <?= htmlspecialchars($user['ville']) ?></div>
                     <?php endif; ?>
-                    <div class="profile-meta-item">📅 Membre depuis <?= date('F Y', strtotime($user['created_at'] ?? 'now')) ?></div>
+                    <div class="profile-meta-item">📅 <?= htmlspecialchars($L['member_since']) ?> <?= date('F Y', strtotime($user['created_at'] ?? 'now')) ?></div>
                 </div>
             </div>
         </div>
-        <a href="edit-profile.php" class="btn-edit">✏ Modifier le profil</a>
+        <a href="edit-profile.php" class="btn-edit">✏ <?= htmlspecialchars($L['edit_profile']) ?></a>
     </div>
 </div>
 
@@ -167,7 +251,7 @@ if ($res3) {
     <!-- SIDEBAR -->
     <div class="profile-sidebar">
         <div class="sidebar-card">
-            <h3>Informations</h3>
+            <h3><?= htmlspecialchars($L['information']) ?></h3>
             <div class="sidebar-info-item">
                 <svg fill="none" viewBox="0 0 24 24" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"/></svg>
                 <?= htmlspecialchars($user['email']) ?>
@@ -178,14 +262,14 @@ if ($res3) {
                 <?= htmlspecialchars($user['telephone']) ?>
             </div>
             <?php endif; ?>
-            <div class="verified-badge">✓ Compte vérifié</div>
+            <div class="verified-badge">✓ <?= htmlspecialchars($L['verified']) ?></div>
         </div>
         <div class="sidebar-card">
-            <h3>Préférences</h3>
-            <span class="pref-pill">Villages berbères</span>
-            <span class="pref-pill">Cuisine maison</span>
-            <span class="pref-pill">Artisanat</span>
-            <span class="pref-pill">Randonnées</span>
+            <h3><?= htmlspecialchars($L['preferences']) ?></h3>
+            <span class="pref-pill"><?= htmlspecialchars($L['pref_1']) ?></span>
+            <span class="pref-pill"><?= htmlspecialchars($L['pref_2']) ?></span>
+            <span class="pref-pill"><?= htmlspecialchars($L['pref_3']) ?></span>
+            <span class="pref-pill"><?= htmlspecialchars($L['pref_4']) ?></span>
         </div>
     </div>
 
@@ -197,7 +281,7 @@ if ($res3) {
         <div class="profile-card">
             <div class="profile-card-title">
                 <svg fill="none" viewBox="0 0 24 24" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/></svg>
-                À propos
+                <?= htmlspecialchars($L['about']) ?>
             </div>
             <p class="about-text"><?= htmlspecialchars($user['bio']) ?></p>
         </div>
@@ -207,10 +291,10 @@ if ($res3) {
         <div class="profile-card">
             <div class="profile-card-header">
                 <div>
-                    <p class="section-label-small">Historique</p>
-                    <p class="profile-card-title">Dernières réservations</p>
+                    <p class="section-label-small"><?= htmlspecialchars($L['history']) ?></p>
+                    <p class="profile-card-title"><?= htmlspecialchars($L['last_res']) ?></p>
                 </div>
-                <a href="mes-reservations.php" class="link-all">Tout voir</a>
+                <a href="mes-reservations.php" class="link-all"><?= htmlspecialchars($L['see_all']) ?></a>
             </div>
             <?php if(count($reservations) > 0): ?>
             <div class="reservation-cards">
@@ -223,8 +307,8 @@ if ($res3) {
                     ?>
                     <img src="<?= htmlspecialchars($img) ?>" alt="<?= htmlspecialchars($res['service_titre'] ?? '') ?>">
                     <div class="res-card-body">
-                        <p class="res-card-region"><?= htmlspecialchars($res['service_region'] ?? 'Tunisie') ?></p>
-                        <p class="res-card-title"><?= htmlspecialchars($res['service_titre'] ?? 'Service') ?></p>
+                        <p class="res-card-region"><?= htmlspecialchars($res['service_region'] ?? $L['tunisie']) ?></p>
+                        <p class="res-card-title"><?= htmlspecialchars($res['service_titre'] ?? $L['service']) ?></p>
                         <div class="res-card-rating">
                             <span class="star">★</span> 4.8
                         </div>
@@ -233,7 +317,7 @@ if ($res3) {
                 <?php endforeach; ?>
             </div>
             <?php else: ?>
-            <p style="color:var(--text-muted);font-size:0.92rem;">Aucune réservation pour le moment. <a href="explorer.php" style="color:var(--primary);">Explorer les régions →</a></p>
+            <p style="color:var(--text-muted);font-size:0.92rem;"><?= htmlspecialchars($L['no_res']) ?> <a href="explorer.php" style="color:var(--primary);"><?= htmlspecialchars($L['explore_regions']) ?></a></p>
             <?php endif; ?>
         </div>
 
@@ -242,13 +326,13 @@ if ($res3) {
             <div class="profile-card-header">
                 <p class="profile-card-title">
                     <svg fill="none" viewBox="0 0 24 24" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"/></svg>
-                    Favoris enregistrés
+                    <?= htmlspecialchars($L['saved_fav']) ?>
                 </p>
-                <a href="mes-favoris.php" class="link-all">Voir tout</a>
+                <a href="mes-favoris.php" class="link-all"><?= htmlspecialchars($L['view_all']) ?></a>
             </div>
             <div class="fav-empty">
                 <svg fill="none" viewBox="0 0 24 24" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"/></svg>
-                <?= $favoris_count ?> expérience<?= $favoris_count != 1 ? 's' : '' ?> sauvegardée<?= $favoris_count != 1 ? 's' : '' ?> pour votre prochain voyage.
+                <?= $favoris_count ?> <?= htmlspecialchars($favoris_count == 1 ? $L['fav_singular'] : $L['fav_plural']) ?>
             </div>
         </div>
 

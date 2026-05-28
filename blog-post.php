@@ -1,6 +1,53 @@
 <?php
 session_start();
 require_once __DIR__ . '/db.php';
+require_once __DIR__ . '/includes/i18n.php';
+
+$L_ALL = [
+    'fr' => [
+        'page_suffix'    => ' — Tarkina Blog',
+        'back'           => 'Retour au blog',
+        'reco_label_a'   => 'La recommandation de ',
+        'like'           => "J'aime",
+        'confirm_delete' => 'Supprimer cet article ?',
+        'delete'         => 'Supprimer',
+        'comments'       => 'Commentaires',
+        'no_comments'    => "Aucun commentaire pour l'instant. Lancez la discussion !",
+        'ph_comment'     => 'Partagez votre avis ou posez une question...',
+        'submit_comment' => 'Commenter',
+        'login_link'     => 'Connectez-vous',
+        'login_suffix'   => ' pour laisser un commentaire.',
+    ],
+    'ar' => [
+        'page_suffix'    => ' — مدونة تاركينا',
+        'back'           => 'العودة إلى المدونة',
+        'reco_label_a'   => 'توصية ',
+        'like'           => 'إعجاب',
+        'confirm_delete' => 'هل تريد حذف هذا المقال؟',
+        'delete'         => 'حذف',
+        'comments'       => 'التعليقات',
+        'no_comments'    => 'لا توجد تعليقات حتى الآن. كن أول من يبدأ النقاش!',
+        'ph_comment'     => 'شارك رأيك أو اطرح سؤالًا...',
+        'submit_comment' => 'علّق',
+        'login_link'     => 'سجّل الدخول',
+        'login_suffix'   => ' لإضافة تعليق.',
+    ],
+    'en' => [
+        'page_suffix'    => ' — Tarkina Blog',
+        'back'           => 'Back to blog',
+        'reco_label_a'   => 'Recommendation from ',
+        'like'           => 'Like',
+        'confirm_delete' => 'Delete this post?',
+        'delete'         => 'Delete',
+        'comments'       => 'Comments',
+        'no_comments'    => 'No comments yet. Start the conversation!',
+        'ph_comment'     => 'Share your thoughts or ask a question...',
+        'submit_comment' => 'Comment',
+        'login_link'     => 'Log in',
+        'login_suffix'   => ' to leave a comment.',
+    ],
+];
+$L = $L_ALL[$lang] ?? $L_ALL['fr'];
 
 $id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
 if ($id <= 0) { header('Location: blogs.php'); exit; }
@@ -37,21 +84,29 @@ function post_photo_src($photo, $fallback) {
     if (preg_match('~^https?://~i', $photo)) { return $photo; }
     return str_replace('\\', '/', $photo);
 }
-function post_date_fr($datetime) {
+function post_date_fr($datetime, $lang = 'fr') {
     $ts = strtotime((string) $datetime);
     if (!$ts) { return ''; }
-    $mois = [1=>'janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
-    return (int)date('j', $ts) . ' ' . $mois[(int)date('n', $ts)] . ' ' . date('Y', $ts);
+    $months_fr = [1=>'janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+    $months_ar = [1=>'جانفي','فيفري','مارس','أفريل','ماي','جوان','جويلية','أوت','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+    $months_en = [1=>'January','February','March','April','May','June','July','August','September','October','November','December'];
+    $d = (int)date('j', $ts);
+    $m = (int)date('n', $ts);
+    $y = date('Y', $ts);
+    if ($lang === 'ar') { return $d . ' ' . $months_ar[$m] . ' ' . $y; }
+    if ($lang === 'en') { return $months_en[$m] . ' ' . $d . ', ' . $y; }
+    return $d . ' ' . $months_fr[$m] . ' ' . $y;
 }
 $cover = post_photo_src($post['photo'] ?? '', 'https://images.unsplash.com/photo-1539650116574-75c0c6d73f6e?w=1100&q=80');
 ?>
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="<?= htmlspecialchars($lang) ?>" dir="<?= htmlspecialchars($dir) ?>">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title><?= htmlspecialchars($post['titre']) ?> — Tarkina Blog</title>
+  <title><?= htmlspecialchars($post['titre']) ?><?= htmlspecialchars($L['page_suffix']) ?></title>
   <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="assets/css/rtl.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <link rel="stylesheet" href="assets/css/blog.css">
 </head>
@@ -59,7 +114,7 @@ $cover = post_photo_src($post['photo'] ?? '', 'https://images.unsplash.com/photo
 <?php include 'navbar.php'; ?>
 
 <div class="post-wrap">
-  <a href="blogs.php" class="post-back"><i class="bi bi-arrow-left"></i> Retour au blog</a>
+  <a href="blogs.php" class="post-back"><i class="bi bi-arrow-left"></i> <?= htmlspecialchars($L['back']) ?></a>
 
   <article class="post-card">
     <img class="post-cover" loading="lazy" src="<?= htmlspecialchars($cover) ?>" alt="<?= htmlspecialchars($post['titre']) ?>">
@@ -70,7 +125,7 @@ $cover = post_photo_src($post['photo'] ?? '', 'https://images.unsplash.com/photo
         <span class="avatar"><?= htmlspecialchars(bi2($post['prenom'],$post['nom'])) ?></span>
         <div>
           <div class="who"><?= htmlspecialchars($post['prenom'].' '.$post['nom']) ?></div>
-          <div class="when"><i class="bi bi-calendar3"></i> <?= htmlspecialchars(post_date_fr($post['created_at'])) ?></div>
+          <div class="when"><i class="bi bi-calendar3"></i> <?= htmlspecialchars(post_date_fr($post['created_at'], $lang)) ?></div>
         </div>
       </div>
 
@@ -78,19 +133,19 @@ $cover = post_photo_src($post['photo'] ?? '', 'https://images.unsplash.com/photo
 
       <?php if (!empty(trim((string)$post['recommandation']))): ?>
         <div class="reco-box">
-          <h4><i class="bi bi-lightbulb-fill"></i> La recommandation de <?= htmlspecialchars($post['prenom']) ?></h4>
+          <h4><i class="bi bi-lightbulb-fill"></i> <?= htmlspecialchars($L['reco_label_a']) ?><?= htmlspecialchars($post['prenom']) ?></h4>
           <p><?= nl2br(htmlspecialchars($post['recommandation'])) ?></p>
         </div>
       <?php endif; ?>
 
       <div class="post-actions">
         <button type="button" class="btn-like" id="likeBtn" data-id="<?= (int)$post['id'] ?>">
-          <i class="bi bi-heart-fill"></i> <span id="likeCount"><?= (int)$post['likes'] ?></span> J'aime
+          <i class="bi bi-heart-fill"></i> <span id="likeCount"><?= (int)$post['likes'] ?></span> <?= htmlspecialchars($L['like']) ?>
         </button>
         <?php if ($isOwner): ?>
-          <form method="post" action="blog-delete.php" onsubmit="return confirm('Supprimer cet article ?');" style="margin:0;">
+          <form method="post" action="blog-delete.php" onsubmit="return confirm('<?= htmlspecialchars($L['confirm_delete'], ENT_QUOTES) ?>');" style="margin:0;">
             <input type="hidden" name="id" value="<?= (int)$post['id'] ?>">
-            <button type="submit" class="btn-del"><i class="bi bi-trash"></i> Supprimer</button>
+            <button type="submit" class="btn-del"><i class="bi bi-trash"></i> <?= htmlspecialchars($L['delete']) ?></button>
           </form>
         <?php endif; ?>
       </div>
@@ -99,30 +154,30 @@ $cover = post_photo_src($post['photo'] ?? '', 'https://images.unsplash.com/photo
 </div>
 
 <section class="comments">
-  <h3><i class="bi bi-chat-dots"></i> Commentaires (<?= count($comments) ?>)</h3>
+  <h3><i class="bi bi-chat-dots"></i> <?= htmlspecialchars($L['comments']) ?> (<?= count($comments) ?>)</h3>
 
   <?php foreach ($comments as $c): ?>
     <div class="comment">
       <div class="c-head">
         <span class="avatar"><?= htmlspecialchars(bi2($c['prenom'],$c['nom'])) ?></span>
         <span class="c-who"><?= htmlspecialchars($c['prenom'].' '.$c['nom']) ?></span>
-        <span class="c-when">· <?= htmlspecialchars(post_date_fr($c['created_at'])) ?></span>
+        <span class="c-when">· <?= htmlspecialchars(post_date_fr($c['created_at'], $lang)) ?></span>
       </div>
       <div class="c-text"><?= nl2br(htmlspecialchars($c['contenu'])) ?></div>
     </div>
   <?php endforeach; ?>
   <?php if (empty($comments)): ?>
-    <p style="color:var(--b-muted);">Aucun commentaire pour l'instant. Lancez la discussion !</p>
+    <p style="color:var(--b-muted);"><?= htmlspecialchars($L['no_comments']) ?></p>
   <?php endif; ?>
 
   <?php if (isset($_SESSION['user_id'])): ?>
     <form class="comment-form" method="post" action="blog-comment.php">
       <input type="hidden" name="blog_id" value="<?= (int)$post['id'] ?>">
-      <textarea name="contenu" required placeholder="Partagez votre avis ou posez une question..."></textarea>
-      <button type="submit" class="bf-submit" style="margin-top:12px;width:auto;padding:11px 24px;"><i class="bi bi-send"></i> Commenter</button>
+      <textarea name="contenu" required placeholder="<?= htmlspecialchars($L['ph_comment']) ?>"></textarea>
+      <button type="submit" class="bf-submit" style="margin-top:12px;width:auto;padding:11px 24px;"><i class="bi bi-send"></i> <?= htmlspecialchars($L['submit_comment']) ?></button>
     </form>
   <?php else: ?>
-    <div class="comment-login"><a href="login.php">Connectez-vous</a> pour laisser un commentaire.</div>
+    <div class="comment-login"><a href="login.php"><?= htmlspecialchars($L['login_link']) ?></a><?= htmlspecialchars($L['login_suffix']) ?></div>
   <?php endif; ?>
 </section>
 
@@ -140,4 +195,3 @@ $cover = post_photo_src($post['photo'] ?? '', 'https://images.unsplash.com/photo
 </script>
 </body>
 </html>
-

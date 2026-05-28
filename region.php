@@ -3,10 +3,123 @@ session_start();
 mb_internal_encoding('UTF-8');
 header('Content-Type: text/html; charset=utf-8');
 require 'db.php';
+require_once __DIR__ . '/includes/i18n.php';
 mysqli_set_charset($conn, 'utf8mb4');
 
+$L_ALL = [
+    'fr' => [
+        'err_invalid'    => 'Région invalide.',
+        'err_notfound'   => 'Région introuvable.',
+        'lbl_destination'=> 'Destination',
+        'lbl_arrival'    => 'Arrivée',
+        'lbl_departure'  => 'Départ',
+        'lbl_travelers'  => 'Voyageurs',
+        'btn_search'     => 'Rechercher',
+        'filters'        => 'Filtres',
+        'category'       => 'Catégorie',
+        'price_max'      => 'Prix max',
+        'up_to'          => "Jusqu'à",
+        'reset'          => 'Réinitialiser',
+        'experience'     => 'expérience',
+        'experiences'    => 'expériences',
+        'available'      => 'disponible',
+        'availables'     => 'disponibles',
+        'traveler'       => 'voyageur',
+        'travelers_word' => 'voyageurs',
+        'for_prefix'     => 'Pour',
+        'sort_default'   => 'Recommandés ▾',
+        'sort_asc'       => 'Prix croissant',
+        'sort_desc'      => 'Prix décroissant',
+        'none_in_region' => 'Aucun service disponible dans cette région pour le moment.',
+        'reserve'        => 'Réserver',
+        'c_hebergement'  => '🏠 Hébergement',
+        'c_repas'        => '🍽️ Repas maison',
+        'c_guide'        => '🧭 Guide local',
+        'c_artisanat'    => '💎 Produits artisanaux',
+        'c_evenement'    => '🎉 Événements',
+        'b_hebergement'  => 'Hébergement',
+        'b_repas'        => 'Repas maison',
+        'b_guide'        => 'Guide local',
+        'b_artisanat'    => 'Artisanat',
+        'b_evenement'    => 'Événement',
+    ],
+    'ar' => [
+        'err_invalid'    => 'الجهة غير صالحة.',
+        'err_notfound'   => 'الجهة غير موجودة.',
+        'lbl_destination'=> 'الوجهة',
+        'lbl_arrival'    => 'الوصول',
+        'lbl_departure'  => 'المغادرة',
+        'lbl_travelers'  => 'المسافرون',
+        'btn_search'     => 'ابحث',
+        'filters'        => 'الفلاتر',
+        'category'       => 'الفئة',
+        'price_max'      => 'السعر الأقصى',
+        'up_to'          => 'حتى',
+        'reset'          => 'إعادة تعيين',
+        'experience'     => 'تجربة',
+        'experiences'    => 'تجارب',
+        'available'      => 'متاحة',
+        'availables'     => 'متاحة',
+        'traveler'       => 'مسافر',
+        'travelers_word' => 'مسافرين',
+        'for_prefix'     => 'لـ',
+        'sort_default'   => 'الموصى به ▾',
+        'sort_asc'       => 'السعر تصاعدياً',
+        'sort_desc'      => 'السعر تنازلياً',
+        'none_in_region' => 'لا توجد خدمات متاحة في هذه الجهة حالياً.',
+        'reserve'        => 'احجز',
+        'c_hebergement'  => '🏠 إقامة',
+        'c_repas'        => '🍽️ وجبة منزلية',
+        'c_guide'        => '🧭 مرشد محلي',
+        'c_artisanat'    => '💎 منتجات حرفية',
+        'c_evenement'    => '🎉 فعاليات',
+        'b_hebergement'  => 'إقامة',
+        'b_repas'        => 'وجبة منزلية',
+        'b_guide'        => 'مرشد محلي',
+        'b_artisanat'    => 'حِرف يدوية',
+        'b_evenement'    => 'فعالية',
+    ],
+    'en' => [
+        'err_invalid'    => 'Invalid region.',
+        'err_notfound'   => 'Region not found.',
+        'lbl_destination'=> 'Destination',
+        'lbl_arrival'    => 'Arrival',
+        'lbl_departure'  => 'Departure',
+        'lbl_travelers'  => 'Travelers',
+        'btn_search'     => 'Search',
+        'filters'        => 'Filters',
+        'category'       => 'Category',
+        'price_max'      => 'Max price',
+        'up_to'          => 'Up to',
+        'reset'          => 'Reset',
+        'experience'     => 'experience',
+        'experiences'    => 'experiences',
+        'available'      => 'available',
+        'availables'     => 'available',
+        'traveler'       => 'traveler',
+        'travelers_word' => 'travelers',
+        'for_prefix'     => 'For',
+        'sort_default'   => 'Recommended ▾',
+        'sort_asc'       => 'Price ascending',
+        'sort_desc'      => 'Price descending',
+        'none_in_region' => 'No services available in this region at the moment.',
+        'reserve'        => 'Book',
+        'c_hebergement'  => '🏠 Accommodation',
+        'c_repas'        => '🍽️ Home meal',
+        'c_guide'        => '🧭 Local guide',
+        'c_artisanat'    => '💎 Crafts',
+        'c_evenement'    => '🎉 Events',
+        'b_hebergement'  => 'Accommodation',
+        'b_repas'        => 'Home meal',
+        'b_guide'        => 'Local guide',
+        'b_artisanat'    => 'Crafts',
+        'b_evenement'    => 'Event',
+    ],
+];
+$L = $L_ALL[$lang] ?? $L_ALL['fr'];
+
 $region_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
-if ($region_id <= 0) die('Région invalide.');
+if ($region_id <= 0) die(htmlspecialchars($L['err_invalid']));
 
 $st = mysqli_prepare($conn, "SELECT * FROM region WHERE id = ? LIMIT 1");
 mysqli_stmt_bind_param($st, 'i', $region_id);
@@ -14,7 +127,7 @@ mysqli_stmt_execute($st);
 $res = mysqli_stmt_get_result($st);
 $region = mysqli_fetch_assoc($res);
 mysqli_stmt_close($st);
-if (!$region) die('Région introuvable.');
+if (!$region) die(htmlspecialchars($L['err_notfound']));
 
 $nom = $region['nom'];
 $reqDebut = isset($_GET['date_debut']) ? trim($_GET['date_debut']) : '';
@@ -47,13 +160,14 @@ $all_items = array_merge(
 $total = count($all_items);
 ?>
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="<?= htmlspecialchars($lang) ?>" dir="<?= htmlspecialchars($dir) ?>">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title><?= htmlspecialchars($nom, ENT_QUOTES, 'UTF-8') ?> — Tarkina</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Lato:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/rtl.css">
 <style>
 *,*::before,*::after{box-sizing:border-box;}
 :root{--navy:#111111;--coral:#1B6B45;--cream:#FFFFFF;--border:#E5E7EB;--muted:#6B7280;}
@@ -139,22 +253,22 @@ footer{background:var(--navy);color:#fff;padding:48px 40px 28px;margin-top:60px;
   <form class="search-form" method="GET" action="region.php">
     <input type="hidden" name="id" value="<?= $region_id ?>">
     <div class="sf-field">
-      <span class="sf-label">Destination</span>
+      <span class="sf-label"><?= htmlspecialchars($L['lbl_destination']) ?></span>
       <input type="text" name="destination" value="<?= htmlspecialchars($nom, ENT_QUOTES, 'UTF-8') ?>" readonly>
     </div>
     <div class="sf-field">
-      <span class="sf-label">Arrivée</span>
+      <span class="sf-label"><?= htmlspecialchars($L['lbl_arrival']) ?></span>
       <input type="date" name="date_debut" value="<?= $reqDebut ?>">
     </div>
     <div class="sf-field">
-      <span class="sf-label">Départ</span>
+      <span class="sf-label"><?= htmlspecialchars($L['lbl_departure']) ?></span>
       <input type="date" name="date_fin" value="<?= $reqFin ?>">
     </div>
     <div class="sf-field" style="flex:0.6;">
-      <span class="sf-label">Voyageurs</span>
+      <span class="sf-label"><?= htmlspecialchars($L['lbl_travelers']) ?></span>
       <input type="number" name="personnes" value="<?= $reqPers ?>" min="1" max="20">
     </div>
-    <button type="submit" class="sf-btn">Rechercher</button>
+    <button type="submit" class="sf-btn"><?= htmlspecialchars($L['btn_search']) ?></button>
   </form>
 </div>
 
@@ -167,60 +281,60 @@ footer{background:var(--navy);color:#fff;padding:48px 40px 28px;margin-top:60px;
 
     <div class="col-lg-3">
       <div class="sidebar-box">
-        <span class="filter-label-main">Filtres</span>
+        <span class="filter-label-main"><?= htmlspecialchars($L['filters']) ?></span>
 
-        <span class="filter-label-sub">Catégorie</span>
+        <span class="filter-label-sub"><?= htmlspecialchars($L['category']) ?></span>
         <?php
         $catLabels = [
-            'hebergement' => '🏠 Hébergement',
-            'repas'       => '🍽️ Repas maison',
-            'guide'       => '🧭 Guide local',
-            'artisanat'   => '💎 Produits artisanaux',
-            'evenement'   => '🎉 Événements',
+            'hebergement' => $L['c_hebergement'],
+            'repas'       => $L['c_repas'],
+            'guide'       => $L['c_guide'],
+            'artisanat'   => $L['c_artisanat'],
+            'evenement'   => $L['c_evenement'],
         ];
         foreach ($catLabels as $val => $label): ?>
         <label class="filter-check-item">
           <input type="checkbox" class="cat-filter" value="<?= $val ?>" checked>
-          <?= $label ?>
+          <?= htmlspecialchars($label) ?>
         </label>
         <?php endforeach; ?>
 
-        <span class="filter-label-sub" style="margin-top:16px;">Prix max</span>
+        <span class="filter-label-sub" style="margin-top:16px;"><?= htmlspecialchars($L['price_max']) ?></span>
         <div class="price-display">
-          <span>Jusqu'à</span>
+          <span><?= htmlspecialchars($L['up_to']) ?></span>
           <strong id="priceLabel">1000 TND</strong>
         </div>
         <input type="range" id="priceSlider" min="0" max="1000" value="1000" step="10" style="width:100%;accent-color:#1B6B45;">
-        <button class="btn-reset" id="resetBtn">Réinitialiser</button>
+        <button class="btn-reset" id="resetBtn"><?= htmlspecialchars($L['reset']) ?></button>
       </div>
     </div>
 
     <div class="col-lg-9">
       <div class="results-header">
         <div>
-          <h1 id="resultCount"><?= $total ?> expérience<?= $total > 1 ? 's' : '' ?> disponible<?= $total > 1 ? 's' : '' ?></h1>
-          <p>Pour <?= $reqPers ?> voyageur<?= $reqPers > 1 ? 's' : '' ?> · <?= htmlspecialchars($nom, ENT_QUOTES, 'UTF-8') ?></p>
+          <h1 id="resultCount"><?= $total ?> <?= htmlspecialchars($total > 1 ? $L['experiences'] : $L['experience']) ?> <?= htmlspecialchars($total > 1 ? $L['availables'] : $L['available']) ?></h1>
+          <p><?= htmlspecialchars($L['for_prefix']) ?> <?= $reqPers ?> <?= htmlspecialchars($reqPers > 1 ? $L['travelers_word'] : $L['traveler']) ?> · <?= htmlspecialchars($nom, ENT_QUOTES, 'UTF-8') ?></p>
         </div>
         <select id="sortSelect" class="sort-sel">
-          <option value="default">Recommandés ▾</option>
-          <option value="price_asc">Prix croissant</option>
-          <option value="price_desc">Prix décroissant</option>
+          <option value="default"><?= htmlspecialchars($L['sort_default']) ?></option>
+          <option value="price_asc"><?= htmlspecialchars($L['sort_asc']) ?></option>
+          <option value="price_desc"><?= htmlspecialchars($L['sort_desc']) ?></option>
         </select>
       </div>
 
       <div class="row g-3" id="cardsGrid">
         <?php if ($total === 0): ?>
           <div class="col-12" style="text-align:center;padding:60px 0;color:#aaa;">
-            <p>Aucun service disponible dans cette région pour le moment.</p>
+            <p><?= htmlspecialchars($L['none_in_region']) ?></p>
           </div>
         <?php else: ?>
           <?php
           $badges = [
-            'hebergement' => ['🏠', 'Hébergement', '#e8f4fd', '#1a6fa8'],
-            'repas'       => ['🍽️', 'Repas maison', '#fff3e0', '#e65100'],
-            'guide'       => ['🧭', 'Guide local',  '#e8f5e9', '#2e7d32'],
-            'artisanat'   => ['💎', 'Artisanat',    '#f3e5f5', '#6a1b9a'],
-            'evenement'   => ['🎉', 'Événement',    '#fce4ec', '#c62828'],
+            'hebergement' => ['🏠', $L['b_hebergement'], '#e8f4fd', '#1a6fa8'],
+            'repas'       => ['🍽️', $L['b_repas'],       '#fff3e0', '#e65100'],
+            'guide'       => ['🧭', $L['b_guide'],       '#e8f5e9', '#2e7d32'],
+            'artisanat'   => ['💎', $L['b_artisanat'],   '#f3e5f5', '#6a1b9a'],
+            'evenement'   => ['🎉', $L['b_evenement'],   '#fce4ec', '#c62828'],
           ];
           foreach ($all_items as $item):
             $type = $item['_type'];
@@ -245,7 +359,7 @@ footer{background:var(--navy);color:#fff;padding:48px 40px 28px;margin-top:60px;
                 <p class="card-desc"><?= $desc ?></p>
                 <div class="card-footer-inner">
                   <span class="card-price"><?= number_format($item['prix'], 0) ?> <small>TND</small></span>
-                  <a href="<?= $type ?>.php?id=<?= $item['id'] ?>" class="btn-reserver">Réserver</a>
+                  <a href="<?= $type ?>.php?id=<?= $item['id'] ?>" class="btn-reserver"><?= htmlspecialchars($L['reserve']) ?></a>
                 </div>
               </div>
             </div>
@@ -267,6 +381,11 @@ const label  = document.getElementById('priceLabel');
 const cards  = document.querySelectorAll('.svc-card-wrap');
 const countEl= document.getElementById('resultCount');
 
+const I18N_EXP_SINGULAR = <?= json_encode($L['experience'], JSON_UNESCAPED_UNICODE) ?>;
+const I18N_EXP_PLURAL   = <?= json_encode($L['experiences'], JSON_UNESCAPED_UNICODE) ?>;
+const I18N_AVAIL_SING   = <?= json_encode($L['available'], JSON_UNESCAPED_UNICODE) ?>;
+const I18N_AVAIL_PLUR   = <?= json_encode($L['availables'], JSON_UNESCAPED_UNICODE) ?>;
+
 function updateCards() {
   const maxPrice  = parseInt(slider.value);
   const activeCats= [...document.querySelectorAll('.cat-filter:checked')].map(c=>c.value);
@@ -276,7 +395,9 @@ function updateCards() {
     card.style.display = show ? '' : 'none';
     if (show) visible++;
   });
-  countEl.textContent = visible + ' expérience' + (visible>1?'s':'') + ' disponible' + (visible>1?'s':'');
+  const expWord   = visible > 1 ? I18N_EXP_PLURAL : I18N_EXP_SINGULAR;
+  const availWord = visible > 1 ? I18N_AVAIL_PLUR : I18N_AVAIL_SING;
+  countEl.textContent = visible + ' ' + expWord + ' ' + availWord;
   label.textContent   = maxPrice + ' TND';
 }
 
