@@ -121,9 +121,9 @@ foreach ($regions as $r) {
 
     <style>
         :root {
-            --navy: #1B3A4B;
-            --coral: #E05A2B;
-            --cream: #FAF8F5;
+            --navy: #111111;
+            --coral: #1B6B45;
+            --cream: #FFFFFF;
             --border: #E5E7EB;
             --muted: #6B7280;
         }
@@ -139,9 +139,9 @@ foreach ($regions as $r) {
         }
         .discover-hero .tag {
             display: inline-block;
-            background: rgba(224, 90, 43, 0.18);
+            background: rgba(27, 107, 69, 0.18);
             color: #ffd9c9;
-            border: 1px solid rgba(224, 90, 43, 0.4);
+            border: 1px solid rgba(27, 107, 69, 0.4);
             padding: 6px 16px;
             border-radius: 50px;
             font-size: 0.8rem;
@@ -169,7 +169,7 @@ foreach ($regions as $r) {
             height: 460px;
             width: 100%;
             border-radius: 18px;
-            box-shadow: 0 18px 50px rgba(27, 58, 75, 0.18);
+            box-shadow: 0 18px 50px rgba(17, 17, 17, 0.18);
             border: 4px solid #fff;
         }
         .leaflet-popup-content { font-family: 'Lato', sans-serif; }
@@ -204,13 +204,13 @@ foreach ($regions as $r) {
             flex-direction: column;
             transition: transform .25s ease, box-shadow .25s ease;
         }
-        .region-card:hover { transform: translateY(-6px); box-shadow: 0 16px 40px rgba(27, 58, 75, 0.15); }
+        .region-card:hover { transform: translateY(-6px); box-shadow: 0 16px 40px rgba(17, 17, 17, 0.15); }
         .region-card .photo-wrap { position: relative; aspect-ratio: 16 / 10; overflow: hidden; }
         .region-card .photo-wrap img { width: 100%; height: 100%; object-fit: cover; transition: transform .4s ease; }
         .region-card:hover .photo-wrap img { transform: scale(1.06); }
         .region-card .badge-name {
             position: absolute; left: 12px; bottom: 12px;
-            background: rgba(27, 58, 75, 0.85);
+            background: rgba(17, 17, 17, 0.85);
             color: #fff; padding: 5px 14px; border-radius: 50px;
             font-size: 0.8rem; font-weight: 700;
         }
@@ -229,6 +229,8 @@ foreach ($regions as $r) {
             align-self: flex-start;
         }
         .btn-discover:hover { background: #c64a1f; color: #fff; }
+        .fade-in-up { opacity: 0; transform: translateY(30px); transition: opacity 0.6s ease, transform 0.6s ease; }
+        .fade-in-up.visible { opacity: 1; transform: translateY(0); }
     </style>
 </head>
 <body>
@@ -260,7 +262,7 @@ foreach ($regions as $r) {
             $photo = region_photo($r, $fallback_by_name, $fallback_default);
         ?>
         <div class="col-12 col-sm-6 col-lg-4">
-            <article class="region-card">
+            <article class="region-card fade-in-up">
                 <div class="photo-wrap">
                     <img src="<?= htmlspecialchars($photo) ?>" alt="<?= htmlspecialchars($name) ?>"
                          loading="lazy"
@@ -297,7 +299,7 @@ foreach ($regions as $r) {
 
     const coralIcon = L.divIcon({
         className: '',
-        html: '<div style="background:#E05A2B;width:16px;height:16px;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.35)"></div>',
+        html: '<div style="background:#1B6B45;width:16px;height:16px;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.35)"></div>',
         iconSize: [22, 22],
         iconAnchor: [11, 11],
         popupAnchor: [0, -12]
@@ -317,5 +319,12 @@ foreach ($regions as $r) {
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if(e.isIntersecting) { e.target.classList.add('visible'); } });
+}, { threshold: 0.1 });
+document.querySelectorAll('.fade-in-up').forEach(el => observer.observe(el));
+</script>
 </body>
 </html>
+

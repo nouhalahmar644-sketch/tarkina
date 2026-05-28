@@ -19,14 +19,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     $newStatus = isset($_POST['statut']) ? trim((string) $_POST['statut']) : '';
     $redirectUrl = 'commandes.php';
 
-    $allowedStatus = ['en_attente', 'expédiée', 'livrée', 'annulée'];
+    $allowedStatus = ['en_attente', 'confirmé', 'terminé', 'annulée'];
     if ($targetId <= 0 || !in_array($newStatus, $allowedStatus)) {
         $_SESSION['admin_flash_error'] = 'Action invalide.';
         header('Location: ' . $redirectUrl);
         exit;
     }
 
-    $updateSql = 'UPDATE commandes SET statut = ? WHERE id = ? LIMIT 1';
+    $updateSql = 'UPDATE reservations SET statut = ? WHERE id = ? LIMIT 1';
     $updateStmt = mysqli_prepare($conn, $updateSql);
     if ($updateStmt === false) {
         $_SESSION['admin_flash_error'] = 'Modification impossible pour le moment.';
@@ -52,7 +52,7 @@ $page = max(1, $page);
 $perPage = 15;
 $offset = ($page - 1) * $perPage;
 
-$countSql = 'SELECT COUNT(*) FROM commandes';
+$countSql = "SELECT COUNT(*) FROM reservations WHERE type_service IN ('artisanat', 'repas')";
 $countRes = mysqli_query($conn, $countSql);
 $totalCommandes = 0;
 if ($countRes) {
@@ -68,13 +68,19 @@ if ($totalPages > 0 && $page > $totalPages) {
 
 // Fetch list with joins
 $listSql = "
-    SELECT c.*,
+    SELECT r.*,
            u.nom AS user_nom, u.prenom AS user_prenom,
-           a.titre AS produit_nom
-    FROM commandes c
-    LEFT JOIN utilisateur u ON c.utilisateur_id = u.id
-    LEFT JOIN artisanat a ON c.artisanat_id = a.id
-    ORDER BY c.created_at DESC
+           CASE r.type_service
+               WHEN 'artisanat' THEN a.titre
+               WHEN 'repas'     THEN rp.titre
+               ELSE NULL
+           END AS produit_nom
+    FROM reservations r
+    LEFT JOIN utilisateur u ON r.user_id = u.id
+    LEFT JOIN artisanat a  ON r.type_service = 'artisanat' AND r.service_id = a.id
+    LEFT JOIN repas rp     ON r.type_service = 'repas'     AND r.service_id = rp.id
+    WHERE r.type_service IN ('artisanat', 'repas')
+    ORDER BY r.created_at DESC
     LIMIT ? OFFSET ?
 ";
 $listStmt = mysqli_prepare($conn, $listSql);
@@ -90,7 +96,7 @@ if ($listStmt !== false) {
 }
 
 $pageTitle = 'Gestion des Commandes';
-$pageHeading = 'Gestion des Commandes Artisanat';
+$pageHeading = 'Commandes Artisanat & Repas';
 $activePage = 'commandes';
 
 require_once __DIR__ . '/includes/header.php';
@@ -135,26 +141,42 @@ require_once __DIR__ . '/includes/sidebar.php';
                 <td colspan="8">Aucune commande trouvée.</td>
               </tr>
             <?php else: ?>
-              <?php foreach ($commandes as $c): 
-                  $userName = trim(($c['user_prenom'] ?? '') . ' ' . ($c['user_nom'] ?? 'Utilisateur inconnu'));
+              <?php foreach ($commandes as $c):
+                  $userName = trim(($c['user_prenom'] ?? '') . ' ' . ($c['user_nom'] ?? ''));
+                  if ($userName === '') $userName = 'Utilisateur #' . (int)$c['user_id'];
+                  $typeLabel = $c['type_service'] === 'artisanat' ? 'Artisanat' : 'Repas';
+                  $sc = $c['statut'];
+                  $pill_colors = [
+                      'en_attente' => 'background:#fff3e0;color:#e65100;',
+                      'confirmé'   => 'background:#e8f5e9;color:#2e7d32;',
+                      'terminé'    => 'background:#eeeeee;color:#555;',
+                      'annulée'    => 'background:#fce4ec;color:#c62828;',
+                  ];
+                  $pill_style = $pill_colors[$sc] ?? 'background:var(--cream);color:var(--charcoal);';
               ?>
                 <tr>
                   <td><?php echo (int) $c['id']; ?></td>
                   <td><?php echo htmlspecialchars($userName); ?></td>
-                  <td><?php echo htmlspecialchars($c['produit_nom'] ?? 'Produit supprimé'); ?></td>
-                  <td><?php echo (int) $c['quantite']; ?></td>
-                  <td><small><?php echo nl2br(htmlspecialchars($c['adresse_livraison'])); ?></small></td>
-                  <td><strong><?php echo number_format($c['total'], 2, '.', ' '); ?> TND</strong></td>
-                  <td><?php echo date('d/m/Y H:i', strtotime($c['created_at'])); ?></td>
                   <td>
-                      <form method="post" action="commandes.php" style="display:flex; gap:8px; align-items:center;">
+                      <strong><?php echo htmlspecialchars($c['produit_nom'] ?? 'Produit supprimé'); ?></strong><br>
+                      <small style="color:#888;"><?php echo htmlspecialchars($typeLabel); ?></small>
+                  </td>
+                  <td><?php echo (int)($c['nb_voyageurs'] ?? 0); ?></td>
+                  <td><small><?php echo nl2br(htmlspecialchars($c['message'] ?? '')); ?></small></td>
+                  <td><strong><?php echo number_format((float)($c['prix_total'] ?? 0), 2, '.', ' '); ?> TND</strong></td>
+                  <td><?php echo !empty($c['created_at']) ? date('d/m/Y H:i', strtotime($c['created_at'])) : '-'; ?></td>
+                  <td>
+                      <span class="role-pill" style="<?php echo $pill_style; ?>">
+                          <?php echo htmlspecialchars(ucfirst($sc)); ?>
+                      </span><br>
+                      <form method="post" action="commandes.php" style="margin-top:6px;">
                           <input type="hidden" name="action" value="change_status">
                           <input type="hidden" name="commande_id" value="<?php echo (int) $c['id']; ?>">
-                          <select name="statut" class="search-input" style="padding: 6px; width: 130px; font-size: 13px;" onchange="this.form.submit()">
-                              <option value="en_attente" <?php if ($c['statut'] === 'en_attente') echo 'selected'; ?>>En attente</option>
-                              <option value="expédiée" <?php if ($c['statut'] === 'expédiée') echo 'selected'; ?>>Expédiée</option>
-                              <option value="livrée" <?php if ($c['statut'] === 'livrée') echo 'selected'; ?>>Livrée</option>
-                              <option value="annulée" <?php if ($c['statut'] === 'annulée') echo 'selected'; ?>>Annulée</option>
+                          <select name="statut" class="search-input" style="padding:5px; width:120px; font-size:12px;" onchange="this.form.submit()">
+                              <option value="en_attente" <?php if ($sc === 'en_attente') echo 'selected'; ?>>En attente</option>
+                              <option value="confirmé"   <?php if (in_array($sc, ['confirmé','confirmée'])) echo 'selected'; ?>>Confirmé</option>
+                              <option value="terminé"    <?php if (in_array($sc, ['terminé','terminée'])) echo 'selected'; ?>>Terminé</option>
+                              <option value="annulée"    <?php if (in_array($sc, ['annulée','annulee'])) echo 'selected'; ?>>Annulée</option>
                           </select>
                       </form>
                   </td>
@@ -178,3 +200,4 @@ require_once __DIR__ . '/includes/sidebar.php';
   </div>
 </main>
 <?php require_once __DIR__ . '/includes/footer.php'; ?>
+

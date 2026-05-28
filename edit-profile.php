@@ -71,7 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <title>Modifier mon profil — Tarkina</title>
     <link rel="stylesheet" href="assets/css/style.css">
     <style>
-        :root { --primary: #E05A2B; --navy: #1B3A4B; --light-bg: #FAF8F5; --text-dark: #1a1a1a; --text-muted: #6b7280; --border: #e5e7eb; }
+        :root { --primary: #1B6B45; --navy: #111111; --light-bg: #FFFFFF; --text-dark: #1a1a1a; --text-muted: #6b7280; --border: #e5e7eb; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--light-bg); color: var(--text-dark); }
         .navbar { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background: #fff; border-bottom: 1px solid var(--border); padding: 0 60px; height: 70px; display: flex; align-items: center; justify-content: space-between; }
@@ -105,7 +105,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             background: #fff;
             border-radius: 18px;
             padding: 40px;
-            box-shadow: 0 4px 24px rgba(27,58,75,0.09);
+            box-shadow: 0 4px 24px rgba(17, 17, 17,0.09);
         }
         .edit-card h1 {
             color: var(--navy);
@@ -129,7 +129,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             width: 80px;
             height: 80px;
             border-radius: 50%;
-            background: #fdeee8;
+            background: #e8f5ef;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -190,7 +190,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             margin-top: 8px;
             transition: background 0.2s;
         }
-        .btn-save:hover { background: #c44d22; }
+        .btn-save:hover { background: #155a38; }
         .alert-success {
             background: #e8f5e9;
             color: #2e7d32;
@@ -200,8 +200,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             font-size: 0.9rem;
         }
         .alert-error {
-            background: #fdeee8;
-            color: #c44d22;
+            background: #e8f5ef;
+            color: #155a38;
             border-radius: 10px;
             padding: 12px 16px;
             margin-bottom: 20px;
@@ -214,9 +214,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <button onclick="history.back()" 
   style="background:none;border:none;cursor:pointer;font-size:1.3rem;
-  color:#1B3A4B;padding:14px 0 0 24px;display:flex;align-items:center;gap:6px;"
-  onmouseover="this.style.color='#E05A2B'" 
-  onmouseout="this.style.color='#1B3A4B'">
+  color:#111111;padding:14px 0 0 24px;display:flex;align-items:center;gap:6px;"
+  onmouseover="this.style.color='#1B6B45'" 
+  onmouseout="this.style.color='#111111'">
   &#8592;
 </button>
 

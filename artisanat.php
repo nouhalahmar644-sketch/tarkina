@@ -10,6 +10,7 @@ $id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
 if ($id <= 0) { header('Location: explorer.php'); exit; }
 $item = service_fetch_item($conn, 'artisanat', $id);
 if (!$item) { header('Location: explorer.php'); exit; }
+$row = $item;
 
 service_resolve_region($conn, $item);
 $regionId = (int) ($item['region_id'] ?? 0);
@@ -58,17 +59,17 @@ $desc = trim((string) ($item['description'] ?? 'Produit artisanal authentique fa
 <body class="service-page">
 <?php include __DIR__ . '/navbar.php'; ?>
 
-<button onclick="history.back()" style="display:inline-flex;align-items:center;gap:8px;margin:14px 0 0 24px;background:#fff;border:1.5px solid #e2ddd8;border-radius:50px;padding:8px 18px;color:#1B3A4B;cursor:pointer;font-weight:600;font-size:.9rem;font-family:inherit;transition:all .2s;" onmouseover="this.style.borderColor='#E05A2B';this.style.color='#E05A2B'" onmouseout="this.style.borderColor='#e2ddd8';this.style.color='#1B3A4B'">&#8592; Retour</button>
+<button onclick="history.back()" style="display:inline-flex;align-items:center;gap:8px;margin:14px 0 0 24px;background:#fff;border:1.5px solid #e2ddd8;border-radius:50px;padding:8px 18px;color:#111111;cursor:pointer;font-weight:600;font-size:.9rem;font-family:inherit;transition:all .2s;" onmouseover="this.style.borderColor='#1B6B45';this.style.color='#1B6B45'" onmouseout="this.style.borderColor='#e2ddd8';this.style.color='#111111'">&#8592; Retour</button>
 
 <div class="container py-4">
 
 
   <div class="row g-4">
     <div class="col-lg-6">
-      <img id="mainProductImg" class="artisanat-main-img" src="<?= htmlspecialchars($mainPhoto) ?>" alt="<?= htmlspecialchars($item['titre']) ?>">
+      <img id="mainProductImg" class="artisanat-main-img" src="<?= htmlspecialchars($row['image'] ?? $row['photo'] ?? $row['photo_principale'] ?? '') ?>" alt="<?= htmlspecialchars($item['titre']) ?>" onerror="this.src='images/placeholder.jpg'">
       <div class="artisanat-thumbs">
         <?php foreach ($thumbs as $i => $th): ?>
-          <img src="<?= htmlspecialchars($th) ?>" alt="" class="thumb-img <?= $i === 0 ? 'active' : '' ?>" data-src="<?= htmlspecialchars($th) ?>">
+          <img src="<?= htmlspecialchars($th) ?>" alt="" class="thumb-img <?= $i === 0 ? 'active' : '' ?>" data-src="<?= htmlspecialchars($th) ?>" onerror="this.src='images/placeholder.jpg'">
         <?php endforeach; ?>
       </div>
     </div>
@@ -136,3 +137,4 @@ document.querySelectorAll('.thumb-img').forEach(img=>{
 </script>
 </body>
 </html>
+

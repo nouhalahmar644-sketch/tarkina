@@ -9,7 +9,7 @@ session_start();
     <title>À propos — Tarkina</title>
     <link rel="stylesheet" href="assets/css/style.css">
     <style>
-        :root { --primary: #E05A2B; --navy: #1B3A4B; --light-bg: #FAF8F5; --text-dark: #1a1a1a; --text-muted: #6b7280; --border: #e5e7eb; }
+        :root { --primary: #1B6B45; --navy: #111111; --light-bg: #FFFFFF; --text-dark: #1a1a1a; --text-muted: #6b7280; --border: #e5e7eb; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', system-ui, sans-serif; background: #fff; color: var(--text-dark); }
         .navbar { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background: #fff; border-bottom: 1px solid var(--border); padding: 0 60px; height: 70px; display: flex; align-items: center; justify-content: space-between; }
@@ -22,14 +22,14 @@ session_start();
         .btn-nav-outline { padding: 8px 20px; border: 1.5px solid var(--navy); border-radius: 50px; color: var(--navy); text-decoration: none; font-size: 0.9rem; font-weight: 600; transition: all .2s; }
         .btn-nav-outline:hover { background: var(--navy); color: #fff; }
         .btn-nav-primary { padding: 8px 20px; background: var(--primary); border-radius: 50px; color: #fff; text-decoration: none; font-size: 0.9rem; font-weight: 600; transition: background .2s; }
-        .btn-nav-primary:hover { background: #c44d22; }
+        .btn-nav-primary:hover { background: #155a38; }
         .about-hero { padding: 130px 60px 80px; display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; max-width: 1200px; margin: 0 auto; }
         .about-label { font-size: 0.78rem; font-weight: 700; letter-spacing: 2px; color: var(--primary); text-transform: uppercase; margin-bottom: 20px; }
         .about-heading { font-size: 2.8rem; font-weight: 800; line-height: 1.2; color: var(--text-dark); margin-bottom: 20px; font-family: Georgia, 'Times New Roman', serif; }
         .about-desc { font-size: 1rem; color: var(--text-muted); line-height: 1.75; margin-bottom: 36px; }
         .about-buttons { display: flex; gap: 16px; flex-wrap: wrap; }
         .btn-primary-solid { padding: 13px 28px; background: var(--primary); color: #fff; border-radius: 50px; text-decoration: none; font-weight: 700; font-size: 0.95rem; transition: background .2s; display: inline-flex; align-items: center; gap: 8px; }
-        .btn-primary-solid:hover { background: #c44d22; }
+        .btn-primary-solid:hover { background: #155a38; }
         .btn-outline-dark { padding: 13px 28px; border: 2px solid var(--text-dark); color: var(--text-dark); border-radius: 50px; text-decoration: none; font-weight: 700; font-size: 0.95rem; transition: all .2s; }
         .btn-outline-dark:hover { background: var(--text-dark); color: #fff; }
         .about-images { position: relative; height: 420px; }
@@ -157,3 +157,4 @@ session_start();
 <?php include 'footer.php'; ?>
 </body>
 </html>
+

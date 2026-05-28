@@ -258,7 +258,7 @@ function service_insert_reservation($conn, array $data, &$errorMessage = null)
 
     mysqli_stmt_bind_param(
         $stmt,
-        'isisissdsss',
+        'isissidssss',
         $userId,
         $typeService,
         $serviceId,

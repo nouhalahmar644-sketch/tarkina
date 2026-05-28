@@ -56,7 +56,7 @@ $total = count($all_items);
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Lato:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;}
-:root{--navy:#1B3A4B;--coral:#E05A2B;--cream:#FAF8F5;--border:#E5E7EB;--muted:#6B7280;}
+:root{--navy:#111111;--coral:#1B6B45;--cream:#FFFFFF;--border:#E5E7EB;--muted:#6B7280;}
 body{font-family:'Lato',sans-serif;background:var(--cream);}
 
 nav.top-nav{background:#fff;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 40px;height:62px;position:sticky;top:0;z-index:200;}
@@ -75,7 +75,7 @@ nav.top-nav{background:#fff;border-bottom:1px solid var(--border);display:flex;a
 .sf-label{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);}
 .sf-field input{border:none;outline:none;font-size:13px;background:transparent;width:100%;font-family:'Lato',sans-serif;}
 .sf-btn{background:var(--coral);color:#fff;border:none;padding:0 24px;font-size:14px;font-weight:700;cursor:pointer;white-space:nowrap;border-radius:0 12px 12px 0;font-family:'Lato',sans-serif;}
-.sf-btn:hover{background:#c44d22;}
+.sf-btn:hover{background:#155a38;}
 
 .breadcrumb-bar{padding:12px 40px;font-size:13px;color:var(--muted);}
 .breadcrumb-bar a{color:var(--navy);text-decoration:none;font-weight:600;}
@@ -97,7 +97,7 @@ nav.top-nav{background:#fff;border-bottom:1px solid var(--border);display:flex;a
 .sort-sel{border:1.5px solid var(--border);border-radius:10px;padding:8px 14px;font-size:13px;color:var(--navy);background:#fff;font-family:'Lato',sans-serif;cursor:pointer;}
 
 .service-card{background:#fff;border-radius:16px;overflow:hidden;border:1px solid var(--border);height:100%;transition:transform .2s,box-shadow .2s;}
-.service-card:hover{transform:translateY(-4px);box-shadow:0 12px 32px rgba(27,58,75,.12);}
+.service-card:hover{transform:translateY(-4px);box-shadow:0 12px 32px rgba(17, 17, 17,.12);}
 .service-card img{width:100%;height:200px;object-fit:cover;display:block;}
 .card-badge{position:absolute;top:10px;left:10px;border-radius:999px;padding:4px 12px;font-size:12px;font-weight:600;}
 .card-body-inner{padding:16px;}
@@ -119,6 +119,8 @@ footer{background:var(--navy);color:#fff;padding:48px 40px 28px;margin-top:60px;
 .footer-col ul li a{color:rgba(255,255,255,.7);text-decoration:none;font-size:13px;}
 .footer-col ul li a:hover{color:#fff;}
 .footer-bottom{border-top:1px solid rgba(255,255,255,.1);padding-top:20px;text-align:center;font-size:13px;color:rgba(255,255,255,.35);max-width:1200px;margin:0 auto}
+.fade-in-up { opacity: 0; transform: translateY(30px); transition: opacity 0.6s ease, transform 0.6s ease; }
+.fade-in-up.visible { opacity: 1; transform: translateY(0); }
 </style>
 </head>
 <body>
@@ -127,9 +129,9 @@ footer{background:var(--navy);color:#fff;padding:48px 40px 28px;margin-top:60px;
 
 <button onclick="history.back()" 
   style="background:none;border:none;cursor:pointer;font-size:1.3rem;
-  color:#1B3A4B;padding:14px 0 0 24px;display:flex;align-items:center;gap:6px;"
-  onmouseover="this.style.color='#E05A2B'" 
-  onmouseout="this.style.color='#1B3A4B'">
+  color:#111111;padding:14px 0 0 24px;display:flex;align-items:center;gap:6px;"
+  onmouseover="this.style.color='#1B6B45'" 
+  onmouseout="this.style.color='#111111'">
   &#8592;
 </button>
 
@@ -188,7 +190,7 @@ footer{background:var(--navy);color:#fff;padding:48px 40px 28px;margin-top:60px;
           <span>Jusqu'à</span>
           <strong id="priceLabel">1000 TND</strong>
         </div>
-        <input type="range" id="priceSlider" min="0" max="1000" value="1000" step="10" style="width:100%;accent-color:#E05A2B;">
+        <input type="range" id="priceSlider" min="0" max="1000" value="1000" step="10" style="width:100%;accent-color:#1B6B45;">
         <button class="btn-reset" id="resetBtn">Réinitialiser</button>
       </div>
     </div>
@@ -229,7 +231,7 @@ footer{background:var(--navy);color:#fff;padding:48px 40px 28px;margin-top:60px;
             $desc = !empty($item['description']) ? mb_substr($item['description'], 0, 90, 'UTF-8') . '...' : '';
           ?>
           <div class="col-sm-6 col-xl-4 svc-card-wrap" data-type="<?= $type ?>" data-price="<?= $item['prix'] ?>">
-            <div class="service-card">
+            <div class="service-card fade-in-up">
               <div style="position:relative;">
                 <img src="<?= $photo ?>" alt="<?= htmlspecialchars($titre, ENT_QUOTES, 'UTF-8') ?>"
                      onerror="this.src='assets/img/placeholder.jpg'">
@@ -292,6 +294,11 @@ document.getElementById('sortSelect').addEventListener('change', function() {
   if (this.value === 'price_desc') items.sort((a,b) => parseFloat(b.dataset.price) - parseFloat(a.dataset.price));
   items.forEach(el => grid.appendChild(el));
 });
+
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if(e.isIntersecting) { e.target.classList.add('visible'); } });
+}, { threshold: 0.1 });
+document.querySelectorAll('.fade-in-up').forEach(el => observer.observe(el));
 </script>
 </body>
 </html>

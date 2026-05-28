@@ -64,7 +64,7 @@ if ($res3) {
     <title>Mon Profil — Tarkina</title>
     <link rel="stylesheet" href="assets/css/style.css">
     <style>
-        :root { --primary: #E05A2B; --navy: #1B3A4B; --light-bg: #FAF8F5; --text-dark: #1a1a1a; --text-muted: #6b7280; --border: #e5e7eb; }
+        :root { --primary: #1B6B45; --navy: #111111; --light-bg: #FFFFFF; --text-dark: #1a1a1a; --text-muted: #6b7280; --border: #e5e7eb; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--light-bg); color: var(--text-dark); }
         .navbar { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background: #fff; border-bottom: 1px solid var(--border); padding: 0 60px; height: 70px; display: flex; align-items: center; justify-content: space-between; }
@@ -86,7 +86,7 @@ if ($res3) {
         .profile-meta { display: flex; align-items: center; gap: 20px; }
         .profile-meta-item { display: flex; align-items: center; gap: 6px; color: rgba(255,255,255,0.6); font-size: 0.88rem; }
         .btn-edit { display: flex; align-items: center; gap: 8px; padding: 10px 22px; background: var(--primary); border-radius: 50px; color: #fff; text-decoration: none; font-size: 0.9rem; font-weight: 700; transition: background .2s; }
-        .btn-edit:hover { background: #c44d22; }
+        .btn-edit:hover { background: #155a38; }
         .profile-body { max-width: 1100px; margin: 32px auto; padding: 0 60px; display: grid; grid-template-columns: 260px 1fr; gap: 28px; }
         .profile-sidebar { display: flex; flex-direction: column; gap: 20px; }
         .sidebar-card { background: #fff; border: 1px solid var(--border); border-radius: 16px; padding: 24px; }
@@ -135,9 +135,9 @@ if ($res3) {
 
 <button onclick="history.back()" 
   style="background:none;border:none;cursor:pointer;font-size:1.3rem;
-  color:#1B3A4B;padding:14px 0 0 24px;display:flex;align-items:center;gap:6px;"
-  onmouseover="this.style.color='#E05A2B'" 
-  onmouseout="this.style.color='#1B3A4B'">
+  color:#111111;padding:14px 0 0 24px;display:flex;align-items:center;gap:6px;"
+  onmouseover="this.style.color='#1B6B45'" 
+  onmouseout="this.style.color='#111111'">
   &#8592;
 </button>
 
@@ -260,3 +260,4 @@ if ($res3) {
 
 </body>
 </html>
+

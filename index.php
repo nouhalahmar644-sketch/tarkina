@@ -75,54 +75,38 @@ if(isset($conn) && $conn) {
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/fr.js"></script>
     <style>
-        :root { --primary:#E05A2B; --navy:#1B3A4B; --light-bg:#FAF8F5; --text-dark:#1a1a1a; --text-muted:#6b7280; --border:#e5e7eb; }
+        :root { --primary:#1B6B45; --navy:#111111; --light-bg:#FFFFFF; --text-dark:#1a1a1a; --text-muted:#6b7280; --border:#e5e7eb; }
         * { margin:0; padding:0; box-sizing:border-box; }
         body { font-family:'Segoe UI',system-ui,sans-serif; background:#fff; color:var(--text-dark); }
 
-        /* ── NAVBAR ── */
-        .navbar { position:absolute; top:0; left:0; right:0; z-index:100; background:transparent !important; border-bottom:none !important; padding:0 60px; height:70px; display:flex; align-items:center; justify-content:space-between; transition:background .3s,box-shadow .3s; }
-        .navbar .nav-logo-text, .navbar .nav-links a { color:#fff !important; }
-        .navbar .nav-links a:hover { opacity:0.8; }
-        .navbar.scrolled { position:fixed; background:#fff !important; box-shadow:0 2px 20px rgba(0,0,0,.08); }
-        .navbar.scrolled .nav-logo-text, .navbar.scrolled .nav-links a { color:var(--text-dark) !important; }
-        .navbar.scrolled .nav-links a:hover { color:var(--primary) !important; opacity:1; }
-        .navbar.scrolled .btn-nav-outline { border-color:var(--navy); color:var(--navy); }
-        .nav-logo img { height:36px; }
-        .nav-logo-text { font-size:1.4rem; font-weight:800; text-decoration:none; letter-spacing:-1px; }
-        .nav-links { display:flex; gap:36px; list-style:none; }
-        .nav-links a { text-decoration:none; font-size:.95rem; font-weight:500; transition:color .2s; }
-        .nav-auth { display:flex; gap:12px; align-items:center; }
-        .btn-nav-outline { padding:8px 20px; border:1.5px solid rgba(255,255,255,.8); border-radius:50px; color:#fff; text-decoration:none; font-size:.9rem; font-weight:600; transition:all .2s; }
-        .btn-nav-outline:hover { background:#fff; color:var(--navy); }
-        .btn-nav-primary { padding:8px 20px; background:var(--primary); border-radius:50px; color:#fff; text-decoration:none; font-size:.9rem; font-weight:600; transition:background .2s; }
-        .btn-nav-primary:hover { background:#c44d22; }
+
 
         /* ── HERO ── */
-        .hero { min-height:100vh; background-image: url('https://images.unsplash.com/photo-1548013146-72479768bada?w=1600&q=80'); background-size: cover; background-position: center; position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:80px 40px 0 40px; }
+        .hero { min-height:85vh; background-image: url('images/hero-tunisia.jpg'); background-size: cover; background-position: center; position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:80px 40px 0 40px; }
         .hero > *:not(.hero-overlay) { position:relative; z-index:1; }
-        .hero-title { font-size:clamp(2.5rem,6vw,5rem); font-weight:900; color:#fff; line-height:1.05; letter-spacing:-1px; margin-bottom:40px; font-family:Georgia,'Times New Roman',serif; text-shadow:0 2px 20px rgba(0,0,0,.3); }
+        .hero-title { font-size:clamp(2rem,5vw,4rem); font-weight:900; color:#fff; line-height:1.05; letter-spacing:-1px; margin-bottom:40px; font-family:Georgia,'Times New Roman',serif; text-shadow:0 2px 20px rgba(0,0,0,.3); }
         .hero-search { background:#fff; border-radius:50px; display:flex; align-items:center; padding:6px 6px 6px 20px; width:100%; max-width:600px; box-shadow:0 8px 30px rgba(0,0,0,.2); margin-bottom:24px; }
         .hero-search input { flex:1; border:none; outline:none; font-size:1rem; color:var(--text-dark); background:transparent; }
         .hero-search input::placeholder { color:#9ca3af; }
         .btn-search { padding:0; width:46px; height:46px; flex-shrink:0; background:var(--primary); color:#fff; border:none; border-radius:50%; cursor:pointer; transition:background .2s; display:flex; align-items:center; justify-content:center; }
         .btn-search svg { width:20px; height:20px; }
-        .btn-search:hover { background:#c44d22; }
-        .hero-pills { display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin-bottom:28px; }
-        .hero-pill { padding:8px 18px; border:1.5px solid rgba(255,255,255,.6); border-radius:50px; color:#fff; text-decoration:none; font-size:.85rem; font-weight:600; display:flex; align-items:center; gap:6px; transition:all .2s; backdrop-filter:blur(4px); background:rgba(255,255,255,.1); }
-        .hero-pill:hover, .hero-pill.active { background:#fff; color:var(--navy); border-color:#fff; }
+        .btn-search:hover { background:#155a38; }
+        .hero-pills { display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin-bottom:28px; margin-top:24px; }
+        .hero-pill { padding:8px 18px; border:1px solid #ddd; border-radius:50px; color:#111111; text-decoration:none; font-size:.85rem; font-weight:600; display:flex; align-items:center; gap:6px; transition:all .2s; background:#f5f5f5; }
+        .hero-pill:hover, .hero-pill.active { background:#fff; color:var(--primary); border-color:var(--primary); }
         .booking-bar { background:#fff; border-radius:18px; display:flex; align-items:stretch; width:100%; max-width:940px; box-shadow:0 14px 44px rgba(0,0,0,.22); overflow:hidden; }
         .booking-field { flex:1; padding:13px 22px; border-right:1px solid #eee; display:flex; flex-direction:column; justify-content:center; cursor:pointer; transition:background .15s; min-width:0; text-align:left; }
-        .booking-field:hover { background:#faf8f5; }
+        .booking-field:hover { background:#FFFFFF; }
         .booking-field.dest { flex:1.4; }
         .booking-field label { display:block; font-size:.66rem; font-weight:800; letter-spacing:1.2px; text-transform:uppercase; color:#9aa3ab; margin-bottom:4px; pointer-events:none; }
         .bf-control { display:flex; align-items:center; gap:8px; position:relative; }
         .bf-ico { width:15px; height:15px; flex-shrink:0; pointer-events:none; }
         .booking-field.dest select { padding-right:18px; }
-        .booking-field input, .booking-field select { width:100%; border:none; outline:none; background:transparent; font-size:.93rem; color:#1B3A4B; font-family:inherit; font-weight:600; cursor:pointer; padding:0; appearance:none; -webkit-appearance:none; -moz-appearance:none; text-overflow:ellipsis; }
+        .booking-field input, .booking-field select { width:100%; border:none; outline:none; background:transparent; font-size:.93rem; color:#111111; font-family:inherit; font-weight:600; cursor:pointer; padding:0; appearance:none; -webkit-appearance:none; -moz-appearance:none; text-overflow:ellipsis; }
         .booking-field input::placeholder { color:#aab1b8; font-weight:500; }
         .booking-caret { width:13px; height:13px; position:absolute; right:0; top:50%; transform:translateY(-50%); pointer-events:none; }
         .booking-btn { flex-shrink:0; width:62px; background:var(--primary); display:flex; align-items:center; justify-content:center; border:none; cursor:pointer; transition:background .2s; }
-        .booking-btn:hover { background:#c44d22; }
+        .booking-btn:hover { background:#155a38; }
         .booking-btn svg { width:22px; height:22px; stroke:#fff; }
         @media(max-width:760px){ .booking-bar{ flex-direction:column; max-width:420px; } .booking-field{ border-right:none; border-bottom:1px solid #eee; } .booking-btn{ width:100%; height:52px; } }
 
@@ -182,7 +166,7 @@ if(isset($conn) && $conn) {
         .forfait-includes li { display:flex; align-items:center; gap:8px; font-size:.88rem; color:var(--text-muted); margin-bottom:8px; }
         .forfait-includes li::before { content:'✓'; color:#059669; font-weight:700; flex-shrink:0; }
         .btn-forfait { display:block; width:100%; padding:13px; background:var(--primary); color:#fff; border:none; border-radius:10px; font-size:.95rem; font-weight:700; cursor:pointer; text-align:center; text-decoration:none; transition:background .2s; }
-        .btn-forfait:hover { background:#c44d22; }
+        .btn-forfait:hover { background:#155a38; }
 
         /* ── GALLERY ── */
         .gallery-section { padding:80px 60px; background:#fff; }
@@ -197,11 +181,11 @@ if(isset($conn) && $conn) {
         .btn-gallery:hover { background:var(--primary); color:#fff; }
 
         /* ── EXPERIENCES ── */
-        .experiences-section { padding:80px 60px; background:var(--light-bg); }
+        .experiences-section { padding:80px 60px; background:#F7F7F7; }
         .experiences-inner { max-width:1200px; margin:0 auto; }
         .exp-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:16px; }
         .exp-card { background:#fff; border:1px solid var(--border); border-radius:16px; padding:24px 20px; text-decoration:none; color:inherit; display:flex; flex-direction:column; gap:10px; transition:all .2s; position:relative; }
-        .exp-card:hover { border-color:var(--primary); box-shadow:0 8px 30px rgba(224,90,43,.1); transform:translateY(-3px); }
+        .exp-card:hover { border-color:var(--primary); box-shadow:0 8px 30px rgba(27, 107, 69,.1); transform:translateY(-3px); }
         .exp-icon { font-size:1.8rem; }
         .exp-adj { font-size:.72rem; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:var(--primary); }
         .exp-text strong { display:block; font-size:.95rem; font-weight:700; margin:2px 0; }
@@ -225,7 +209,7 @@ if(isset($conn) && $conn) {
         .btn-see-all:hover { background:var(--primary); color:#fff; }
 
         /* ── POURQUOI TARKINA ── */
-        .pourquoi-section { padding:80px 60px; background:var(--light-bg); }
+        .pourquoi-section { padding:80px 60px; background:#F7F7F7; }
         .pourquoi-inner { max-width:1200px; margin:0 auto; text-align:center; }
         .pourquoi-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:24px; margin-top:48px; }
         .pourquoi-card { background:#fff; border-radius:16px; padding:32px 24px; text-align:center; border:1px solid var(--border); transition:box-shadow .2s,transform .2s; }
@@ -242,7 +226,7 @@ if(isset($conn) && $conn) {
         .temo-heading { font-size:2rem; font-weight:800; color:#fff; margin-bottom:48px; letter-spacing:1px; }
         .temo-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:24px; }
         .temo-card { position:relative; background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.12); border-radius:16px; padding:28px 24px; text-align:left; cursor:pointer; transition:transform .2s,border-color .2s; }
-        .temo-card:hover { transform:translateY(-4px); border-color:rgba(224,90,43,.5); }
+        .temo-card:hover { transform:translateY(-4px); border-color:rgba(27, 107, 69,.5); }
         .temo-avatar { width:52px; height:52px; border-radius:50%; overflow:hidden; margin-bottom:16px; border:2px solid rgba(255,255,255,.2); }
         .temo-avatar img { width:100%; height:100%; object-fit:cover; }
         .temo-quote { color:rgba(255,255,255,.85); font-size:.92rem; line-height:1.6; font-style:italic; margin-bottom:14px; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
@@ -272,7 +256,7 @@ if(isset($conn) && $conn) {
         .newsletter-form { display:flex; background:#fff; border-radius:50px; overflow:hidden; box-shadow:0 8px 30px rgba(0,0,0,.2); }
         .newsletter-form input { flex:1; border:none; outline:none; padding:14px 24px; font-size:.97rem; color:var(--text-dark); }
         .newsletter-form button { padding:14px 28px; background:var(--primary); color:#fff; border:none; font-size:.95rem; font-weight:700; cursor:pointer; transition:background .2s; white-space:nowrap; }
-        .newsletter-form button:hover { background:#c44d22; }
+        .newsletter-form button:hover { background:#155a38; }
 
         /* ── CTA HOST ── */
         .cta-host-section { background:var(--primary); padding:80px 60px; text-align:center; }
@@ -305,7 +289,7 @@ if(isset($conn) && $conn) {
 
         /* Statistics Bar Section */
         .stats-bar-section {
-            background-color: #FAF8F5 !important;
+            background-color: #FFFFFF !important;
             padding: 60px 0;
             border-top: 1px solid #e5e7eb;
             border-bottom: 1px solid #e5e7eb;
@@ -319,7 +303,7 @@ if(isset($conn) && $conn) {
         .stat-number {
             font-size: 2.8rem;
             font-weight: 800;
-            color: #E05A2B;
+            color: #1B6B45;
             line-height: 1.1;
             margin-bottom: 6px;
             font-family: 'Outfit', 'Playfair Display', sans-serif;
@@ -327,33 +311,35 @@ if(isset($conn) && $conn) {
         .stat-label {
             font-size: 0.95rem;
             font-weight: 700;
-            color: #1B3A4B;
+            color: #111111;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             font-family: 'Outfit', sans-serif;
         }
+        .fade-in-up { opacity: 0; transform: translateY(30px); transition: opacity 0.6s ease, transform 0.6s ease; }
+        .fade-in-up.visible { opacity: 1; transform: translateY(0); }
+        .pourquoi-grid .pourquoi-card:nth-child(1) { transition-delay: 0s; }
+        .pourquoi-grid .pourquoi-card:nth-child(2) { transition-delay: 0.1s; }
+        .pourquoi-grid .pourquoi-card:nth-child(3) { transition-delay: 0.2s; }
+        .pourquoi-grid .pourquoi-card:nth-child(4) { transition-delay: 0.3s; }
     </style>
 </head>
 <body>
 
 <!-- NAVBAR -->
-<?php $navTransparent = true; include 'navbar.php'; ?>
+<?php include 'navbar.php'; ?>
 
 <!-- HERO -->
 <section class="hero">
-    <div class="hero-overlay" style="position:absolute;inset:0;background:linear-gradient(135deg,rgba(27,58,75,0.75) 0%,rgba(224,90,43,0.45) 100%);z-index:0;"></div>
-    <h1 class="hero-title">VIVEZ LA TUNISIE <span style="color:var(--primary)">AUTREMENT</span>.<br>AU PLUS PRÈS DE SES HABITANTS.</h1>
-
-    <form class="hero-search" action="search.php" method="GET">
-        <input type="text" name="q" placeholder="Rechercher une ville, une expérience...">
-        <button type="submit" style="padding:11px 28px;flex-shrink:0;background:var(--primary);color:#fff;border:none;border-radius:50px;cursor:pointer;font-size:.95rem;font-weight:700;transition:background .2s;" onmouseover="this.style.background='#c44d22'" onmouseout="this.style.background='#E05A2B'">Rechercher</button>
-    </form>
+    <div class="hero-overlay" style="position:absolute;inset:0;background:rgba(0,0,0,0.45);z-index:0;"></div>
+    <h1 class="hero-title" style="margin-bottom:16px;">VIVEZ LA TUNISIE <span style="color:var(--primary)">AUTREMENT</span>.<br>AU PLUS PRÈS DE SES HABITANTS.</h1>
+    <p style="color:#fff; font-size:1.1rem; font-weight:300; margin-bottom:40px;">Découvrez l'autre Tunisie. Des régions inexplorées, des rencontres authentiques.</p>
 
     <form class="booking-bar" action="search.php" method="GET" id="bookingBar">
         <div class="booking-field dest">
             <label>Destination</label>
             <div class="bf-control">
-                <svg class="bf-ico" viewBox="0 0 24 24" fill="none" stroke="#E05A2B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                <svg class="bf-ico" viewBox="0 0 24 24" fill="none" stroke="#1B6B45" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
                 <select name="destination" id="bk_dest" aria-label="Destination">
                     <option value="">Où allez-vous ?</option>
                     <?php
@@ -375,21 +361,21 @@ if(isset($conn) && $conn) {
         <div class="booking-field sf-field">
             <label>Arrivée</label>
             <div class="bf-control">
-                <svg class="bf-ico" viewBox="0 0 24 24" fill="none" stroke="#E05A2B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                <svg class="bf-ico" viewBox="0 0 24 24" fill="none" stroke="#1B6B45" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
                 <input type="text" name="date_debut" id="date_debut" placeholder="Ajouter une date" readonly>
             </div>
         </div>
         <div class="booking-field sf-field">
             <label>Départ</label>
             <div class="bf-control">
-                <svg class="bf-ico" viewBox="0 0 24 24" fill="none" stroke="#E05A2B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                <svg class="bf-ico" viewBox="0 0 24 24" fill="none" stroke="#1B6B45" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
                 <input type="text" name="date_fin" id="date_fin" placeholder="Ajouter une date" readonly>
             </div>
         </div>
         <div class="booking-field">
             <label>Voyageurs</label>
             <div class="bf-control">
-                <svg class="bf-ico" viewBox="0 0 24 24" fill="none" stroke="#E05A2B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                <svg class="bf-ico" viewBox="0 0 24 24" fill="none" stroke="#1B6B45" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
                 <input type="number" name="personnes" id="personnes" value="1" min="1" max="20">
             </div>
         </div>
@@ -398,9 +384,10 @@ if(isset($conn) && $conn) {
         </button>
     </form>
 
-    <div style="display:flex;gap:16px;flex-wrap:wrap;justify-content:center;margin-top:32px;">
-        <a href="explorer.php" style="display:inline-block;padding:14px 32px;background:#E05A2B;color:#fff;border-radius:50px;text-decoration:none;font-weight:700;font-size:1rem;box-shadow:0 6px 24px rgba(224,90,43,.4);transition:background .2s;" onmouseover="this.style.background='#c44d22'" onmouseout="this.style.background='#E05A2B'">Explorer les régions</a>
-        <a href="blogs.php" style="display:inline-block;padding:14px 32px;background:transparent;color:#fff;border:2px solid rgba(255,255,255,.85);border-radius:50px;text-decoration:none;font-weight:700;font-size:1rem;transition:all .2s;" onmouseover="this.style.background='#fff';this.style.color='#1B3A4B'" onmouseout="this.style.background='transparent';this.style.color='#fff'">Découvrir le blog</a>
+
+    <div style="display:flex;gap:16px;flex-wrap:wrap;justify-content:center;margin-top:16px;">
+        <a href="explorer.php" style="display:inline-block;padding:14px 32px;background:#1B6B45;color:#fff;border-radius:50px;text-decoration:none;font-weight:700;font-size:1rem;box-shadow:0 6px 24px rgba(27, 107, 69,.4);transition:background .2s;" onmouseover="this.style.background='#155a38'" onmouseout="this.style.background='#1B6B45'">Explorer les régions</a>
+        <a href="blogs.php" style="display:inline-block;padding:14px 32px;background:transparent;color:#fff;border:2px solid rgba(255,255,255,.85);border-radius:50px;text-decoration:none;font-weight:700;font-size:1rem;transition:all .2s;" onmouseover="this.style.background='#fff';this.style.color='#111111'" onmouseout="this.style.background='transparent';this.style.color='#fff'">Découvrir le blog</a>
     </div>
 </section>
 
@@ -408,7 +395,7 @@ if(isset($conn) && $conn) {
 <section class="trust-bar">
     <div class="trust-bar-inner">
         <div class="trust-item">
-            <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="#E05A2B" stroke-width="2">
+            <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="#1B6B45" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
             </svg>
             <div><strong>Annulation flexible</strong><span>Annulez jusqu'à 48h avant</span></div>
@@ -449,7 +436,7 @@ if(isset($conn) && $conn) {
         <div class="regions-grid">
             <?php if(count($regions) > 0): ?>
                 <?php foreach($regions as $region): ?>
-                <a href="region.php?id=<?= $region['id'] ?>" class="region-card animate-up">
+                <a href="region.php?id=<?= $region['id'] ?>" class="region-card animate-up fade-in-up">
                     <?php
                     $photo = '';
                     if (!empty($region['photo_principale'])) {
@@ -564,38 +551,38 @@ if(isset($conn) && $conn) {
         <div class="row g-4 text-center">
             <div class="col-6 col-md-3">
                 <div class="stat-item">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="currentColor" class="bi bi-people" viewBox="0 0 16 16" style="color: #E05A2B; margin-bottom: 12px;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="currentColor" class="bi bi-people" viewBox="0 0 16 16" style="color: #1B6B45; margin-bottom: 12px;">
                         <path d="M15 14s1 0 1-1-1-4-5-4-5 3-5 4 1 1 1 1zm-7.978-1L7 12.996c.001-.264.167-1.03.76-1.72C8.312 10.629 9.282 10 11 10c1.717 0 2.687.63 3.24 1.276.593.69.758 1.457.76 1.72l-.008.002-.014.002zM11 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4m3-2a3 3 0 1 1-6 0 3 3 0 0 1 6 0M6.936 9.28a6 6 0 0 0-1.23-.247A7 7 0 0 0 5 9c-4 0-5 3-5 4q0 1 1 1h4.216A2.24 2.24 0 0 1 5 13c0-1.01.377-2.042 1.09-2.904.243-.294.526-.569.846-.816M4.92 10A5.5 5.5 0 0 0 4 13H1c0-.26.164-1.03.76-1.724C2.3 10.634 3.227 10 4.92 10M1.5 5.5a3 3 0 1 1 6 0 3 3 0 0 1-6 0m3-2a2 2 0 1 0 0 4 2 2 0 0 0 0-4"/>
                     </svg>
-                    <div class="stat-number">1 200+</div>
+                    <div class="stat-number" data-target="1200" data-suffix="+">1 200+</div>
                     <div class="stat-label">Voyageurs</div>
                 </div>
             </div>
             <div class="col-6 col-md-3">
                 <div class="stat-item">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="currentColor" class="bi bi-compass" viewBox="0 0 16 16" style="color: #E05A2B; margin-bottom: 12px;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="currentColor" class="bi bi-compass" viewBox="0 0 16 16" style="color: #1B6B45; margin-bottom: 12px;">
                         <path d="M8 16.016a8 8 0 1 1 0-16 8 8 0 0 1 0 16.016M8 1.406a6.594 6.594 0 1 0 0 13.188 6.594 6.594 0 0 0 0-13.188"/>
                         <path d="M7.682 3.602a.5.5 0 0 1 .636 0l4.92 4.223a.5.5 0 0 1-.177.837l-5.148 1.716a.5.5 0 0 1-.63-.63L8.99 4.6l-1.308-1a.5.5 0 0 1 0-.798z"/>
                     </svg>
-                    <div class="stat-number">8</div>
+                    <div class="stat-number" data-target="8" data-suffix="">8</div>
                     <div class="stat-label">Régions découvertes</div>
                 </div>
             </div>
             <div class="col-6 col-md-3">
                 <div class="stat-item">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="currentColor" class="bi bi-house" viewBox="0 0 16 16" style="color: #E05A2B; margin-bottom: 12px;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="currentColor" class="bi bi-house" viewBox="0 0 16 16" style="color: #1B6B45; margin-bottom: 12px;">
                         <path d="M8.707 1.5a1 1 0 0 0-1.414 0L.646 8.146a.5.5 0 0 0 .708.708L2 8.207V13.5A1.5 1.5 0 0 0 3.5 15h9a1.5 1.5 0 0 0 1.5-1.5V8.207l.646.647a.5.5 0 0 0 .708-.708L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293zM13 7.207V13.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5V7.207l5-5z"/>
                     </svg>
-                    <div class="stat-number">50+</div>
+                    <div class="stat-number" data-target="50" data-suffix="+">50+</div>
                     <div class="stat-label">Hébergements</div>
                 </div>
             </div>
             <div class="col-6 col-md-3">
                 <div class="stat-item">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="currentColor" class="bi bi-star" viewBox="0 0 16 16" style="color: #E05A2B; margin-bottom: 12px;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="currentColor" class="bi bi-star" viewBox="0 0 16 16" style="color: #1B6B45; margin-bottom: 12px;">
                         <path d="M2.866 14.85c-.078.444.36.791.746.593l4.39-2.256 4.389 2.256c.386.198.824-.149.746-.592l-.83-4.73 3.522-3.356c.33-.314.16-.888-.282-.95l-4.898-.696L8.465.792a.513.513 0 0 0-.927 0L5.354 5.12l-4.898.696c-.441.062-.612.636-.283.95l3.523 3.356-.83 4.73zm4.905-2.767-3.686 1.894.694-3.957-2.88-2.748 4.013-.57 1.802-3.663 1.802 3.664 4.014.568-2.88 2.749.694 3.958-3.685-1.894z"/>
                     </svg>
-                    <div class="stat-number">4.8/5</div>
+                    <div class="stat-number" data-target="4.8" data-decimals="1" data-suffix="/5">4.8/5</div>
                     <div class="stat-label">Satisfaction moyenne</div>
                 </div>
             </div>
@@ -685,28 +672,28 @@ if(isset($conn) && $conn) {
         <h2 class="section-heading">Pourquoi <span style="color:var(--primary)">Tarkina</span> ?</h2>
         <p class="section-sub">Une plateforme pensée pour valoriser les territoires oubliés et leurs habitants.</p>
         <div class="pourquoi-grid">
-            <div class="pourquoi-card">
+            <div class="pourquoi-card fade-in-up">
                 <div class="pourquoi-icon">
                     <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"/></svg>
                 </div>
                 <h3>Authentique</h3>
                 <p>Des hôtes locaux qui partagent leur quotidien et leur culture, loin des services fabriqués.</p>
             </div>
-            <div class="pourquoi-card">
+            <div class="pourquoi-card fade-in-up">
                 <div class="pourquoi-icon">
                     <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"/></svg>
                 </div>
                 <h3>Local</h3>
                 <p>100% des services sont opérés par des habitants des régions tunisiennes méconnues.</p>
             </div>
-            <div class="pourquoi-card">
+            <div class="pourquoi-card fade-in-up">
                 <div class="pourquoi-icon">
                     <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/></svg>
                 </div>
                 <h3>Sécurisé</h3>
                 <p>Hôtes vérifiés, paiement protégé, support 7j/7 en français, arabe et anglais.</p>
             </div>
-            <div class="pourquoi-card">
+            <div class="pourquoi-card fade-in-up">
                 <div class="pourquoi-icon">
                     <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                 </div>
@@ -859,6 +846,50 @@ document.getElementById('bookingBar')?.addEventListener('submit', function(e) {
     window.location.href = 'region.php?' + p.toString();
   }
 });
+
+// IntersectionObserver for animations
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if(e.isIntersecting) { e.target.classList.add('visible'); } });
+}, { threshold: 0.1 });
+document.querySelectorAll('.fade-in-up').forEach(el => observer.observe(el));
+
+// Count-up animation for stats numbers
+const statsObserver = new IntersectionObserver((entries, observerInstance) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      const el = e.target;
+      observerInstance.unobserve(el); // only animate once
+      const target = parseFloat(el.getAttribute('data-target'));
+      const suffix = el.getAttribute('data-suffix') || '';
+      const decimals = parseInt(el.getAttribute('data-decimals') || '0', 10);
+      const duration = 1500; // 1.5s
+      const startTime = performance.now();
+      
+      function updateNumber(now) {
+        const elapsed = now - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const easeProgress = progress * (2 - progress); // easeOutQuad
+        const currentVal = easeProgress * target;
+        
+        let formattedVal = '';
+        if (decimals > 0) {
+          formattedVal = currentVal.toFixed(decimals);
+        } else {
+          formattedVal = Math.floor(currentVal).toLocaleString('fr-FR');
+        }
+        el.textContent = formattedVal + suffix;
+        
+        if (progress < 1) {
+          requestAnimationFrame(updateNumber);
+        } else {
+          el.textContent = (decimals > 0 ? target.toFixed(decimals) : target.toLocaleString('fr-FR')) + suffix;
+        }
+      }
+      requestAnimationFrame(updateNumber);
+    }
+  });
+}, { threshold: 0.1 });
+document.querySelectorAll('.stat-number').forEach(el => statsObserver.observe(el));
 
 // Make the whole Destination field open the dropdown (icon/label/blank area)
 (function(){

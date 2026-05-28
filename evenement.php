@@ -10,6 +10,7 @@ $id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
 if ($id <= 0) { header('Location: explorer.php'); exit; }
 $item = service_fetch_item($conn, 'evenement', $id);
 if (!$item) { header('Location: explorer.php'); exit; }
+$row = $item;
 
 service_resolve_region($conn, $item);
 $regionId = (int) ($item['region_id'] ?? 0);
@@ -59,10 +60,13 @@ $desc = trim((string) ($item['description'] ?? 'Participez à un événement cul
 <body class="service-page">
 <?php include __DIR__ . '/navbar.php'; ?>
 
-<button onclick="history.back()" style="display:inline-flex;align-items:center;gap:8px;margin:14px 0 0 24px;background:#fff;border:1.5px solid #e2ddd8;border-radius:50px;padding:8px 18px;color:#1B3A4B;cursor:pointer;font-weight:600;font-size:.9rem;font-family:inherit;transition:all .2s;" onmouseover="this.style.borderColor='#E05A2B';this.style.color='#E05A2B'" onmouseout="this.style.borderColor='#e2ddd8';this.style.color='#1B3A4B'">&#8592; Retour</button>
+<button onclick="history.back()" style="display:inline-flex;align-items:center;gap:8px;margin:14px 0 0 24px;background:#fff;border:1.5px solid #e2ddd8;border-radius:50px;padding:8px 18px;color:#111111;cursor:pointer;font-weight:600;font-size:.9rem;font-family:inherit;transition:all .2s;" onmouseover="this.style.borderColor='#1B6B45';this.style.color='#1B6B45'" onmouseout="this.style.borderColor='#e2ddd8';this.style.color='#111111'">&#8592; Retour</button>
 
 <div class="service-gallery-grid6" style="height:480px;">
-  <?php foreach ($gridPhotos as $ph): ?><img src="<?= htmlspecialchars($ph) ?>" alt=""><?php endforeach; ?>
+  <img src="<?= htmlspecialchars($row['image'] ?? $row['photo'] ?? $row['photo_principale'] ?? '') ?>" alt="<?= htmlspecialchars($item['titre']) ?>" onerror="this.src='images/placeholder.jpg'">
+  <?php foreach (array_slice($gridPhotos, 0, 5) as $ph): ?>
+    <img src="<?= htmlspecialchars($ph) ?>" alt="" onerror="this.src='images/placeholder.jpg'">
+  <?php endforeach; ?>
 </div>
 
 <div class="container py-3">
@@ -121,3 +125,4 @@ pers.addEventListener('input', upd);
 </script>
 </body>
 </html>
+

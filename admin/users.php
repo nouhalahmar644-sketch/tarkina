@@ -252,3 +252,4 @@ require_once __DIR__ . '/includes/sidebar.php';
   </div>
 </main>
 <?php require_once __DIR__ . '/includes/footer.php'; ?>
+

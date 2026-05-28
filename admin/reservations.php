@@ -19,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     $newStatus = isset($_POST['statut']) ? trim((string) $_POST['statut']) : '';
     $redirectUrl = 'reservations.php';
 
-    if ($targetId <= 0 || !in_array($newStatus, ['en_attente', 'confirmée', 'annulée', 'terminé'])) {
+    if ($targetId <= 0 || !in_array($newStatus, ['en_attente', 'confirmé', 'terminé', 'annulée'])) {
         $_SESSION['admin_flash_error'] = 'Action invalide.';
         header('Location: ' . $redirectUrl);
         exit;
@@ -50,16 +50,12 @@ $page = max(1, $page);
 $perPage = 15;
 $offset = ($page - 1) * $perPage;
 
-$countSql = 'SELECT COUNT(*) FROM reservations';
-$countStmt = mysqli_prepare($conn, $countSql);
+$countSql = "SELECT COUNT(*) FROM reservations WHERE type_service IN ('hebergement', 'guide', 'evenement')";
+$countRes = mysqli_query($conn, $countSql);
 $totalReservations = 0;
-if ($countStmt !== false) {
-    mysqli_stmt_execute($countStmt);
-    mysqli_stmt_bind_result($countStmt, $totalResDb);
-    if (mysqli_stmt_fetch($countStmt)) {
-        $totalReservations = (int) $totalResDb;
-    }
-    mysqli_stmt_close($countStmt);
+if ($countRes) {
+    $row = mysqli_fetch_row($countRes);
+    $totalReservations = (int) $row[0];
 }
 
 $totalPages = (int) ceil($totalReservations / $perPage);
@@ -71,16 +67,18 @@ if ($totalPages > 0 && $page > $totalPages) {
 $listSql = "
     SELECT r.*,
            u.nom AS user_nom, u.prenom AS user_prenom,
-           h.titre AS hebergement_titre, h.prix AS hebergement_prix,
-           rp.titre AS repas_titre, rp.prix AS repas_prix,
-           g.titre AS guide_titre, g.prix AS guide_prix,
-           e.titre AS evenement_titre, e.prix AS evenement_prix
+           CASE r.type_service
+               WHEN 'hebergement' THEN h.titre
+               WHEN 'guide'       THEN g.titre
+               WHEN 'evenement'   THEN e.titre
+               ELSE NULL
+           END AS service_titre
     FROM reservations r
-    LEFT JOIN utilisateur u ON r.utilisateur_id = u.id
-    LEFT JOIN hebergement h ON r.logement_id = h.id
-    LEFT JOIN repas rp ON r.repas_id = rp.id
-    LEFT JOIN guide g ON r.guide_id = g.id
-    LEFT JOIN evenement e ON r.evenement_id = e.id
+    LEFT JOIN utilisateur u  ON r.user_id = u.id
+    LEFT JOIN hebergement h  ON r.type_service = 'hebergement' AND r.service_id = h.id
+    LEFT JOIN guide g        ON r.type_service = 'guide'       AND r.service_id = g.id
+    LEFT JOIN evenement e    ON r.type_service = 'evenement'   AND r.service_id = e.id
+    WHERE r.type_service IN ('hebergement', 'guide', 'evenement')
     ORDER BY r.created_at DESC
     LIMIT ? OFFSET ?
 ";
@@ -141,43 +139,29 @@ require_once __DIR__ . '/includes/sidebar.php';
                 <td colspan="7">Aucune réservation trouvée.</td>
               </tr>
             <?php else: ?>
-              <?php foreach ($reservations as $r): 
-                  $type = '';
-                  $titre = '';
-                  $prix = 0;
-                  
-                  if (!empty($r['logement_id'])) {
-                      $type = 'Hébergement';
-                      $titre = $r['hebergement_titre'];
-                      $prix = (float)$r['hebergement_prix'];
-                  } elseif (!empty($r['repas_id'])) {
-                      $type = 'Repas';
-                      $titre = $r['repas_titre'];
-                      $prix = (float)$r['repas_prix'];
-                  } elseif (!empty($r['guide_id'])) {
-                      $type = 'Guide';
-                      $titre = $r['guide_titre'];
-                      $prix = (float)$r['guide_prix'];
-                  } elseif (!empty($r['evenement_id'])) {
-                      $type = 'Événement';
-                      $titre = $r['evenement_titre'];
-                      $prix = (float)$r['evenement_prix'];
-                  }
-                  
-                  $total = $prix;
+              <?php foreach ($reservations as $r):
+                  $typeLabels = [
+                      'hebergement' => 'Hébergement',
+                      'repas'       => 'Repas',
+                      'guide'       => 'Guide',
+                      'artisanat'   => 'Artisanat',
+                      'evenement'   => 'Événement',
+                  ];
+                  $type  = $typeLabels[$r['type_service']] ?? ucfirst((string)$r['type_service']);
+                  $titre = $r['service_titre'] ?? '(service supprimé)';
+
                   $dates_str = '';
-                  
-                  if ($type === 'Hébergement') {
-                      $dates_str = date('d/m/Y', strtotime($r['date_debut'])) . '<br>au ' . date('d/m/Y', strtotime($r['date_fin']));
-                      $d1 = new DateTime($r['date_debut']);
-                      $d2 = new DateTime($r['date_fin']);
-                      $nuits = max(1, $d1->diff($d2)->days);
-                      $total = $prix * $nuits;
-                  } else {
-                      $dates_str = date('d/m/Y', strtotime($r['date_debut']));
+                  if (!empty($r['date_debut'])) {
+                      if ($r['type_service'] === 'hebergement' && !empty($r['date_fin'])) {
+                          $dates_str = date('d/m/Y', strtotime($r['date_debut'])) . '<br>au ' . date('d/m/Y', strtotime($r['date_fin']));
+                      } else {
+                          $dates_str = date('d/m/Y', strtotime($r['date_debut']));
+                      }
                   }
-                  
-                  $userName = trim($r['user_prenom'] . ' ' . $r['user_nom']);
+
+                  $total    = (float)($r['prix_total'] ?? 0);
+                  $userName = trim(($r['user_prenom'] ?? '') . ' ' . ($r['user_nom'] ?? ''));
+                  if ($userName === '') $userName = 'Utilisateur #' . (int)$r['user_id'];
               ?>
                 <tr>
                   <td><?php echo (int) $r['id']; ?></td>
@@ -189,21 +173,32 @@ require_once __DIR__ . '/includes/sidebar.php';
                   <td><?php echo $dates_str; ?></td>
                   <td><strong><?php echo number_format($total, 2, '.', ' '); ?> TND</strong></td>
                   <td>
+                      <?php
+                          $sc = $r['statut'];
+                          $pill_colors = [
+                              'en_attente' => 'background:#fff3e0;color:#e65100;',
+                              'confirmé'   => 'background:#e8f5e9;color:#2e7d32;',
+                              'confirmée'  => 'background:#e8f5e9;color:#2e7d32;',
+                              'terminé'    => 'background:#eeeeee;color:#555;',
+                              'annulée'    => 'background:#fce4ec;color:#c62828;',
+                          ];
+                          $pill_style = $pill_colors[$sc] ?? 'background:var(--cream);color:var(--charcoal);';
+                      ?>
+                      <span class="role-pill" style="<?php echo $pill_style; ?>">
+                          <?php echo htmlspecialchars(ucfirst($sc)); ?>
+                      </span>
+                  </td>
+                  <td>
                       <form method="post" action="reservations.php" style="display:flex; gap:8px; align-items:center;">
                           <input type="hidden" name="action" value="change_status">
                           <input type="hidden" name="reservation_id" value="<?php echo (int) $r['id']; ?>">
-                          <select name="statut" class="search-input" style="padding: 6px; width: 120px; font-size: 13px;" onchange="this.form.submit()">
-                              <option value="en_attente" <?php if ($r['statut'] === 'en_attente') echo 'selected'; ?>>En attente</option>
-                              <option value="confirmée" <?php if ($r['statut'] === 'confirmée' || $r['statut'] === 'confirmee') echo 'selected'; ?>>Confirmée</option>
-                              <option value="annulée" <?php if ($r['statut'] === 'annulée' || $r['statut'] === 'annulee') echo 'selected'; ?>>Annulée</option>
-                              <option value="terminé" <?php if ($r['statut'] === 'terminé' || $r['statut'] === 'terminée' || $r['statut'] === 'termine') echo 'selected'; ?>>Terminée</option>
+                          <select name="statut" class="search-input" style="padding:6px; width:130px; font-size:13px;" onchange="this.form.submit()">
+                              <option value="en_attente" <?php if ($sc === 'en_attente') echo 'selected'; ?>>En attente</option>
+                              <option value="confirmé"   <?php if (in_array($sc, ['confirmé','confirmée','confirmee'])) echo 'selected'; ?>>Confirmé</option>
+                              <option value="terminé"    <?php if (in_array($sc, ['terminé','terminée','termine']))   echo 'selected'; ?>>Terminé</option>
+                              <option value="annulée"    <?php if (in_array($sc, ['annulée','annulee']))              echo 'selected'; ?>>Annulée</option>
                           </select>
                       </form>
-                  </td>
-                  <td>
-                      <span class="role-pill" style="background:var(--cream); color:var(--charcoal);">
-                          <?php echo htmlspecialchars(ucfirst($r['statut'])); ?>
-                      </span>
                   </td>
                 </tr>
               <?php endforeach; ?>
@@ -225,3 +220,4 @@ require_once __DIR__ . '/includes/sidebar.php';
   </div>
 </main>
 <?php require_once __DIR__ . '/includes/footer.php'; ?>
+

@@ -75,7 +75,7 @@ require_once __DIR__ . '/includes/sidebar.php';
     position: relative;
     overflow: hidden;
     margin-bottom: 32px;
-    box-shadow: 0 10px 30px rgba(232,96,60,0.2);
+    box-shadow: 0 10px 30px rgba(27, 107, 69,0.2);
   }
   .promo-banner h2 { font-size: 28px; margin-bottom: 8px; font-family: 'Playfair Display', serif; }
   .promo-banner p { font-size: 14px; opacity: 0.9; max-width: 60%; line-height: 1.5; }
@@ -519,4 +519,5 @@ require_once __DIR__ . '/includes/sidebar.php';
 </main>
 
 <?php require_once __DIR__ . '/includes/footer.php'; ?>
+
 

@@ -89,7 +89,7 @@ $page_title = 'Résultats de recherche – Tarkina';
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Lato:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         *, *::before, *::after { box-sizing: border-box; }
-        :root { --cream:#f5f2ee; --dark:#1c1c2e; --navy:#1B3A4B; --orange:#E05A2B; --muted:#6b6b6b; --border:#e0dbd4; --white:#fff; --radius:14px; }
+        :root { --cream:#FFFFFF; --dark:#1c1c2e; --navy:#111111; --orange:#1B6B45; --muted:#6b6b6b; --border:#e0dbd4; --white:#fff; --radius:14px; }
         body { font-family:'Lato',sans-serif; background:var(--cream); color:var(--dark); line-height:1.6; }
 
         .search-header { background:var(--navy); color:var(--white); padding:36px 56px; text-align:center; }
@@ -108,11 +108,11 @@ $page_title = 'Résultats de recherche – Tarkina';
         .filter-check:last-child { margin-bottom:0; }
         .filter-check input { accent-color:var(--orange); width:16px; height:16px; cursor:pointer; }
         .filter-field { width:100%; padding:10px 12px; border:1px solid var(--border); border-radius:9px; font-family:inherit; font-size:14px; background:var(--white); color:var(--dark); outline:none; }
-        .filter-field:focus { border-color:var(--orange); box-shadow:0 0 0 3px rgba(224,90,43,.12); }
+        .filter-field:focus { border-color:var(--orange); box-shadow:0 0 0 3px rgba(27, 107, 69,.12); }
         input[type=range].filter-field { padding:0; accent-color:var(--orange); height:6px; }
         .filter-range-val { font-weight:700; color:var(--orange); }
         .btn-filter { width:100%; background:var(--orange); color:#fff; border:none; border-radius:9px; padding:12px; font-weight:700; cursor:pointer; font-size:14px; transition:background .2s; }
-        .btn-filter:hover { background:#c44d22; }
+        .btn-filter:hover { background:#155a38; }
         .btn-reset { display:block; text-align:center; margin-top:10px; color:var(--muted); font-size:13px; text-decoration:none; }
         .btn-reset:hover { color:var(--orange); }
 
@@ -159,7 +159,7 @@ $page_title = 'Résultats de recherche – Tarkina';
     <aside class="filter-sidebar">
         <form method="get" action="search.php">
             <h3>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#E05A2B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1B6B45" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
                 Filtres
             </h3>
 
@@ -258,3 +258,4 @@ $page_title = 'Résultats de recherche – Tarkina';
 
 </body>
 </html>
+

@@ -50,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <title>Contact — Tarkina</title>
     <link rel="stylesheet" href="assets/css/style.css">
     <style>
-        :root { --primary: #E05A2B; --navy: #1B3A4B; --light-bg: #FAF8F5; --text-dark: #1a1a1a; --text-muted: #6b7280; --border: #e5e7eb; }
+        :root { --primary: #1B6B45; --navy: #111111; --light-bg: #FFFFFF; --text-dark: #1a1a1a; --text-muted: #6b7280; --border: #e5e7eb; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', system-ui, sans-serif; background: #fff; color: var(--text-dark); }
         .navbar { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background: #fff; border-bottom: 1px solid var(--border); padding: 0 60px; height: 70px; display: flex; align-items: center; justify-content: space-between; }
@@ -63,7 +63,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         .btn-nav-outline { padding: 8px 20px; border: 1.5px solid var(--navy); border-radius: 50px; color: var(--navy); text-decoration: none; font-size: 0.9rem; font-weight: 600; transition: all .2s; }
         .btn-nav-outline:hover { background: var(--navy); color: #fff; }
         .btn-nav-primary { padding: 8px 20px; background: var(--primary); border-radius: 50px; color: #fff; text-decoration: none; font-size: 0.9rem; font-weight: 600; transition: background .2s; }
-        .btn-nav-primary:hover { background: #c44d22; }
+        .btn-nav-primary:hover { background: #155a38; }
         .page-wrapper { min-height: 100vh; padding-top: 70px; display: flex; flex-direction: column; }
         .contact-section { flex: 1; padding: 80px 60px; display: grid; grid-template-columns: 1fr 1.2fr; gap: 80px; max-width: 1200px; margin: 0 auto; width: 100%; }
         .contact-info { padding-top: 12px; }
@@ -83,7 +83,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         .form-group input:focus, .form-group textarea:focus { border-color: var(--primary); background: #fff; }
         .form-group textarea { resize: vertical; min-height: 130px; }
         .btn-submit { width: 100%; padding: 14px; background: var(--primary); color: #fff; border: none; border-radius: 10px; font-size: 1rem; font-weight: 700; cursor: pointer; transition: background .2s; margin-top: 4px; }
-        .btn-submit:hover { background: #c44d22; }
+        .btn-submit:hover { background: #155a38; }
         .alert-success { background: #d1fae5; color: #065f46; border-radius: 10px; padding: 12px 16px; font-size: 0.9rem; margin-bottom: 20px; }
         .alert-error { background: #fee2e2; color: #991b1b; border-radius: 10px; padding: 12px 16px; font-size: 0.9rem; margin-bottom: 20px; }
         footer { background: var(--navy); color: #fff; padding: 60px 60px 30px; }
@@ -174,3 +174,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <?php include 'footer.php'; ?>
 </body>
 </html>
+

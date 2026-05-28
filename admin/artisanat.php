@@ -445,3 +445,4 @@ require_once __DIR__ . '/includes/sidebar.php';
   </div><!-- /content-wrap -->
 </main>
 <?php require_once __DIR__ . '/includes/footer.php'; ?>
+

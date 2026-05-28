@@ -22,9 +22,9 @@ $adminName = isset($_SESSION['user_name']) ? (string) $_SESSION['user_name'] : '
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
-    --navy: #1B2A4A;
-    --coral: #E8603C;
-    --cream: #FAF7F2;
+    --navy: #111111;
+    --coral: #1B6B45;
+    --cream: #FFFFFF;
     --charcoal: #2D2D2D;
     --grey: #8A8A8A;
     --border: #E2DDD6;
@@ -99,13 +99,13 @@ $adminName = isset($_SESSION['user_name']) ? (string) $_SESSION['user_name'] : '
   }
 
   .sidebar-link.active {
-    background: var(--white);
-    color: var(--navy);
+    background: #1B6B45;
+    color: #fff;
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
   }
   
   .sidebar-link.active i {
-    color: var(--coral);
+    color: #fff;
   }
 
   /* Upgrade / Pro Banner */
@@ -215,7 +215,7 @@ $adminName = isset($_SESSION['user_name']) ? (string) $_SESSION['user_name'] : '
   }
 
   .search-wrapper input:focus {
-    box-shadow: 0 0 0 3px rgba(232,96,60,0.1);
+    box-shadow: 0 0 0 3px rgba(27,107,69,0.1);
   }
 
   .page-body {
@@ -294,7 +294,7 @@ $adminName = isset($_SESSION['user_name']) ? (string) $_SESSION['user_name'] : '
 
   .search-input:focus {
     border-color: var(--coral);
-    box-shadow: 0 0 0 4px rgba(232,96,60,0.08);
+    box-shadow: 0 0 0 4px rgba(27,107,69,0.08);
     background: var(--white);
   }
 
@@ -367,8 +367,8 @@ $adminName = isset($_SESSION['user_name']) ? (string) $_SESSION['user_name'] : '
   }
 
   .role-pill.admin {
-    background: rgba(232, 96, 60, 0.14);
-    color: #b6492e;
+    background: rgba(27,107,69,0.14);
+    color: #0f4a2d;
   }
 
   .actions {
@@ -449,7 +449,7 @@ $adminName = isset($_SESSION['user_name']) ? (string) $_SESSION['user_name'] : '
   .form-select:focus,
   .form-textarea:focus {
     border-color: var(--coral);
-    box-shadow: 0 0 0 4px rgba(232,96,60,0.08);
+    box-shadow: 0 0 0 4px rgba(27,107,69,0.08);
   }
 
   .custom-file-wrap {
@@ -486,7 +486,7 @@ $adminName = isset($_SESSION['user_name']) ? (string) $_SESSION['user_name'] : '
   }
   .custom-file-wrap input[type="file"]:focus + .custom-file-btn {
     border-color: var(--coral);
-    box-shadow: 0 0 0 4px rgba(232,96,60,0.08);
+    box-shadow: 0 0 0 4px rgba(27,107,69,0.08);
   }
   .custom-file-name {
     font-size: 13px;
@@ -574,3 +574,5 @@ $adminName = isset($_SESSION['user_name']) ? (string) $_SESSION['user_name'] : '
 </head>
 <body>
 <div class="admin-shell">
+
+

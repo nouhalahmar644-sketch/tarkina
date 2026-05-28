@@ -1,9 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:wght@700;900&display=swap');
 
 :root {
-    --navy: #1B3A4B;
-    --cream: #f5f2ee;
-    --coral: #E05A2B;
+    --navy: #111111;
+    --cream: #FFFFFF;
+    --coral: #1B6B45;
     --white: #ffffff;
     --text: #333333;
     --grey: #666666;
@@ -88,13 +88,13 @@ nav.navbar:not(.navbar-dark) .nav-logo img {
     display: inline-block;
 }
 .btn-nav-primary:hover {
-    background: #d45625;
+    background: #155a38;
     transform: translateY(-2px);
 }
 .btn-nav-outline {
     background: transparent;
     color: var(--navy) !important;
-    border: 1.5px solid #1B3A4B;
+    border: 1.5px solid #111111;
     border-radius: 50px;
     padding: 8px 25px;
     font-weight: 600;
@@ -171,7 +171,7 @@ nav.navbar:not(.navbar-dark) .nav-logo img {
     padding: 0 16px;
 }
 .booking-icon {
-    color: #E05A2B;
+    color: #1B6B45;
     font-size: 18px;
     flex-shrink: 0;
 }
@@ -183,7 +183,7 @@ nav.navbar:not(.navbar-dark) .nav-logo img {
 .booking-field-text label {
     font-size: 11px;
     font-weight: 700;
-    color: #1B3A4B;
+    color: #111111;
     letter-spacing: 0.05em;
     cursor: pointer;
     margin: 0;
@@ -206,7 +206,7 @@ nav.navbar:not(.navbar-dark) .nav-logo img {
     flex-shrink: 0;
 }
 .booking-submit {
-    background: #E05A2B;
+    background: #1B6B45;
     border: none;
     border-radius: 50%;
     width: 48px;
@@ -221,7 +221,7 @@ nav.navbar:not(.navbar-dark) .nav-logo img {
     margin-left: 8px;
     transition: background 0.2s;
 }
-.booking-submit:hover { background: #c44d22; }
+.booking-submit:hover { background: #155a38; }
 
 /* Category Pills */
 .category-pills {
@@ -249,16 +249,16 @@ nav.navbar:not(.navbar-dark) .nav-logo img {
 }
 
 .category-pills-section .pill,
-section[style*="background:#FAF8F5"] .pill {
+section[style*="background:#FFFFFF"] .pill {
     background: #fff;
-    color: #1B3A4B;
+    color: #111111;
     border: 1.5px solid #e2ddd8;
     opacity: 1 !important;
 }
-section[style*="background:#FAF8F5"] .pill:hover {
-    background: #E05A2B;
+section[style*="background:#FFFFFF"] .pill:hover {
+    background: #1B6B45;
     color: #fff;
-    border-color: #E05A2B;
+    border-color: #1B6B45;
 }
 
 /* Free Text Search */
@@ -341,7 +341,7 @@ section[style*="background:#FAF8F5"] .pill:hover {
 .btn-forfait {
     display: block;
     width: 100%;
-    background: #E05A2B;
+    background: #1B6B45;
     color: white;
     text-align: center;
     text-decoration: none;
@@ -351,7 +351,7 @@ section[style*="background:#FAF8F5"] .pill:hover {
     margin-top: 15px;
     transition: background 0.3s;
 }
-.btn-forfait:hover { background: #d45625; color: white; }
+.btn-forfait:hover { background: #155a38; color: white; }
 
 .inclus-list { list-style: none; padding: 0; margin: 20px 0; }
 .inclus-list li { margin-bottom: 8px; font-size: 0.9rem; display: flex; align-items: center; gap: 10px; }
@@ -574,7 +574,7 @@ footer {
     font-size: .75rem;
     font-weight: 700;
     letter-spacing: 2px;
-    color: #E05A2B;
+    color: #1B6B45;
     text-transform: uppercase;
     margin-bottom: 8px;
 }
@@ -601,7 +601,7 @@ footer {
 .trust-item svg {
     width: 26px;
     height: 26px;
-    stroke: #E05A2B;
+    stroke: #1B6B45;
     flex-shrink: 0;
     margin-top: 2px;
 }
@@ -619,7 +619,7 @@ footer {
 /* Experiences Section */
 .experiences-section {
     padding: 80px 60px;
-    background: #FAF8F5;
+    background: #FFFFFF;
 }
 .experiences-inner {
     max-width: 1200px;
@@ -650,8 +650,8 @@ footer {
     position: relative;
 }
 .exp-card:hover {
-    border-color: #E05A2B;
-    box-shadow: 0 8px 30px rgba(224, 90, 43, .1);
+    border-color: #1B6B45;
+    box-shadow: 0 8px 30px rgba(27, 107, 69, .1);
     transform: translateY(-3px);
 }
 .exp-icon { font-size: 1.8rem; }
@@ -660,7 +660,7 @@ footer {
     font-weight: 700;
     letter-spacing: 1.5px;
     text-transform: uppercase;
-    color: #E05A2B;
+    color: #1B6B45;
 }
 .exp-text strong {
     display: block;
@@ -678,7 +678,7 @@ footer {
     bottom: 16px;
     right: 16px;
     font-size: 1rem;
-    color: #E05A2B;
+    color: #1B6B45;
     font-weight: 700;
     opacity: 0;
     transition: opacity .2s;
@@ -721,10 +721,10 @@ footer {
     border-radius: 50%;
     overflow: hidden;
     margin-bottom: 12px;
-    border: 3px solid #FAF8F5;
+    border: 3px solid #FFFFFF;
     transition: border-color .2s;
 }
-.host-card:hover .host-photo { border-color: #E05A2B; }
+.host-card:hover .host-photo { border-color: #1B6B45; }
 .host-photo img {
     width: 100%;
     height: 100%;
@@ -744,28 +744,28 @@ footer {
     color: #6b7280;
 }
 .host-price {
-    color: #E05A2B !important;
+    color: #1B6B45 !important;
     font-weight: 600 !important;
 }
 .btn-see-all {
-    color: #E05A2B;
+    color: #1B6B45;
     text-decoration: none;
     font-weight: 700;
     font-size: .92rem;
-    border: 1.5px solid #E05A2B;
+    border: 1.5px solid #1B6B45;
     padding: 8px 20px;
     border-radius: 50px;
     transition: all .2s;
     white-space: nowrap;
 }
 .btn-see-all:hover {
-    background: #E05A2B;
+    background: #1B6B45;
     color: #fff;
 }
 
 /* ── Testimonials — Hover Popup Design ─────────────────────────────────── */
 .temoignages-section {
-    background: #1B3A4B;
+    background: #111111;
     padding: 80px 60px;
     text-align: center;
 }
@@ -774,7 +774,7 @@ footer {
     font-size: .75rem;
     font-weight: 700;
     letter-spacing: 2.5px;
-    color: #E05A2B;
+    color: #1B6B45;
     text-transform: uppercase;
     margin-bottom: 12px;
 }
@@ -802,7 +802,7 @@ footer {
 }
 .temo-card:hover {
     transform: translateY(-4px);
-    border-color: rgba(224,90,43,0.5);
+    border-color: rgba(27,107,69,0.5);
 }
 .temo-avatar {
     width: 52px;
@@ -826,7 +826,7 @@ footer {
 }
 .temo-name { color: #fff; font-weight: 700; font-size: .9rem; }
 .temo-city { color: rgba(255,255,255,.5); font-size: .8rem; margin-bottom: 10px; }
-.temo-stars { color: #E05A2B; font-size: 1rem; letter-spacing: 2px; }
+.temo-stars { color: #1B6B45; font-size: 1rem; letter-spacing: 2px; }
 
 /* Hover Popup */
 .temo-popup {
@@ -882,26 +882,26 @@ footer {
 .temo-popup-content span { font-size: .78rem; color: #6b7280; display: block; }
 .temo-tag {
     margin-top: 6px !important;
-    color: #E05A2B !important;
+    color: #1B6B45 !important;
     font-weight: 600 !important;
 }
 
 /* EXPLORER REGIONS MAP */
 .explorer-hero {
-    background: #1B3A4B;
+    background: #111111;
     padding: 80px 24px 36px;
     text-align: center;
 }
 .hero-tag {
     display: inline-block;
-    background: rgba(224,90,43,0.18);
-    color: #E05A2B;
+    background: rgba(27,107,69,0.18);
+    color: #1B6B45;
     font-size: 12px;
     font-weight: 600;
     padding: 4px 14px;
     border-radius: 20px;
     margin-bottom: 14px;
-    border: 1px solid rgba(224,90,43,0.3);
+    border: 1px solid rgba(27,107,69,0.3);
 }
 .explorer-hero h1 {
     color: #fff;
@@ -931,7 +931,7 @@ footer {
     font-family: inherit;
 }
 .hero-search button {
-    background: #E05A2B;
+    background: #1B6B45;
     border: none;
     color: #fff;
     padding: 12px 20px;
@@ -947,7 +947,7 @@ footer {
     border-top: 1px solid rgba(255,255,255,0.1);
 }
 .hero-stat { text-align: center; }
-.stat-num { display: block; color: #E05A2B; font-size: 1.4rem; font-weight: 700; }
+.stat-num { display: block; color: #1B6B45; font-size: 1.4rem; font-weight: 700; }
 .stat-label { color: rgba(255,255,255,0.5); font-size: 0.78rem; }
 
 .explorer-map { height: 480px; width: 100%; z-index: 1; }
@@ -964,7 +964,7 @@ footer {
     margin-bottom: 24px;
 }
 .section-header h2 {
-    color: #1B3A4B;
+    color: #111111;
     font-size: 1.5rem;
 }
 .regions-list {
@@ -984,12 +984,12 @@ footer {
 }
 .region-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 8px 28px rgba(27,58,75,0.13);
-    border-color: #E05A2B;
+    box-shadow: 0 8px 28px rgba(17,17,17,0.13);
+    border-color: #1B6B45;
 }
 .region-card.active {
-    border-color: #E05A2B;
-    box-shadow: 0 0 0 3px rgba(224,90,43,0.15);
+    border-color: #1B6B45;
+    box-shadow: 0 0 0 3px rgba(27,107,69,0.15);
 }
 .card-img {
     width: 100%;
@@ -1011,7 +1011,7 @@ footer {
     position: absolute;
     bottom: 10px;
     left: 10px;
-    background: #E05A2B;
+    background: #1B6B45;
     color: #fff;
     font-size: 0.78rem;
     font-weight: 600;
@@ -1026,7 +1026,7 @@ footer {
     justify-content: space-between;
 }
 .card-top h3 {
-    color: #1B3A4B;
+    color: #111111;
     font-size: 1rem;
     font-weight: 700;
     margin-bottom: 5px;
@@ -1048,11 +1048,11 @@ footer {
 }
 .card-highlights {
     font-size: 0.75rem;
-    color: #E05A2B;
+    color: #1B6B45;
     font-weight: 500;
 }
 .btn-explore {
-    background: #1B3A4B;
+    background: #111111;
     color: #fff;
     padding: 6px 14px;
     border-radius: 8px;
@@ -1062,23 +1062,23 @@ footer {
     transition: background 0.2s;
     white-space: nowrap;
 }
-.btn-explore:hover { background: #E05A2B; }
+.btn-explore:hover { background: #1B6B45; }
 
-.flatpickr-calendar { border-radius: 14px !important; border: 1.5px solid #e2ddd8 !important; box-shadow: 0 8px 32px rgba(27,58,75,0.13) !important; font-family: inherit !important; overflow: hidden; }
-.flatpickr-months { background: #1B3A4B !important; border-radius: 12px 12px 0 0 !important; padding: 6px 0 !important; }
+.flatpickr-calendar { border-radius: 14px !important; border: 1.5px solid #e2ddd8 !important; box-shadow: 0 8px 32px rgba(17,17,17,0.13) !important; font-family: inherit !important; overflow: hidden; }
+.flatpickr-months { background: #111111 !important; border-radius: 12px 12px 0 0 !important; padding: 6px 0 !important; }
 .flatpickr-month, .flatpickr-current-month, .flatpickr-current-month .cur-month, .flatpickr-current-month .numInputWrapper input { color: #fff !important; }
 .flatpickr-prev-month, .flatpickr-next-month { color: #fff !important; fill: #fff !important; }
-.flatpickr-prev-month:hover svg, .flatpickr-next-month:hover svg { fill: #E05A2B !important; }
-.flatpickr-weekday { color: #1B3A4B !important; font-weight: 600 !important; font-size: 11px !important; }
+.flatpickr-prev-month:hover svg, .flatpickr-next-month:hover svg { fill: #1B6B45 !important; }
+.flatpickr-weekday { color: #111111 !important; font-weight: 600 !important; font-size: 11px !important; }
 .flatpickr-day { border-radius: 8px !important; font-size: 13px !important; color: #333 !important; }
-.flatpickr-day:hover { background: #fdeee8 !important; border-color: #fdeee8 !important; color: #E05A2B !important; }
-.flatpickr-day.selected, .flatpickr-day.startRange, .flatpickr-day.endRange { background: #E05A2B !important; border-color: #E05A2B !important; color: #fff !important; }
-.flatpickr-day.inRange { background: #fdeee8 !important; border-color: #fdeee8 !important; color: #E05A2B !important; box-shadow: -5px 0 0 #fdeee8, 5px 0 0 #fdeee8 !important; }
-.flatpickr-day.today { border-color: #E05A2B !important; color: #E05A2B !important; font-weight: 600 !important; }
+.flatpickr-day:hover { background: #e8f5ef !important; border-color: #e8f5ef !important; color: #1B6B45 !important; }
+.flatpickr-day.selected, .flatpickr-day.startRange, .flatpickr-day.endRange { background: #1B6B45 !important; border-color: #1B6B45 !important; color: #fff !important; }
+.flatpickr-day.inRange { background: #e8f5ef !important; border-color: #e8f5ef !important; color: #1B6B45 !important; box-shadow: -5px 0 0 #e8f5ef, 5px 0 0 #e8f5ef !important; }
+.flatpickr-day.today { border-color: #1B6B45 !important; color: #1B6B45 !important; font-weight: 600 !important; }
 .flatpickr-day.today.selected { color: #fff !important; }
 
 .category-pills-section {
-    background: #FAF8F5;
+    background: #FFFFFF;
     border-bottom: 1px solid #e2ddd8;
     padding: 12px 0;
 }
@@ -1092,7 +1092,7 @@ footer {
 .pills-bar .pill {
   background: #fff;
   border: 1.5px solid #e2ddd8;
-  color: #1B3A4B;
+  color: #111111;
   border-radius: 999px;
   padding: 7px 18px;
   font-size: 13px;
@@ -1103,14 +1103,14 @@ footer {
 }
 .explorer-pills .pill:hover,
 .pills-bar .pill:hover {
-  background: #fdeee8;
-  border-color: #E05A2B;
-  color: #E05A2B;
+  background: #e8f5ef;
+  border-color: #1B6B45;
+  color: #1B6B45;
 }
 .explorer-pills .pill.active,
 .pills-bar .pill.active {
-  background: #E05A2B;
-  border-color: #E05A2B;
+  background: #1B6B45;
+  border-color: #1B6B45;
   color: #fff;
 }
 
@@ -1158,7 +1158,7 @@ footer {
 }
 .region-card:hover, .forfait-card:hover, .svc-card:hover, .exp-card:hover {
   transform: translateY(-6px);
-  box-shadow: 0 16px 40px rgba(27,58,75,0.13);
+  box-shadow: 0 16px 40px rgba(17,17,17,0.13);
 }
 
 /* ── Smooth image zoom on hover ── */
@@ -1168,3 +1168,10 @@ footer {
 .region-card:hover img, .forfait-card:hover img {
   transform: scale(1.05);
 }
+
+
+
+/* Fix index newsletter to footer gap */
+.newsletter-section { margin-bottom: 0; }
+footer { margin-top: 0 !important; }
+.tkf { margin-top: 0 !important; }

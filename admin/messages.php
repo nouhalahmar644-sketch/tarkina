@@ -112,8 +112,8 @@ require_once __DIR__ . '/includes/sidebar.php';
 ?>
 <style>
   :root {
-    --navy: #1B3A4B !important;
-    --coral: #E05A2B !important;
+    --navy: #111111 !important;
+    --coral: #1B6B45 !important;
   }
 </style>
 <main class="admin-content">
@@ -196,3 +196,4 @@ require_once __DIR__ . '/includes/sidebar.php';
   </div>
 </main>
 <?php require_once __DIR__ . '/includes/footer.php'; ?>
+

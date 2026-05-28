@@ -116,3 +116,4 @@ function blog_date_fr($datetime) {
 <?php include 'footer.php'; ?>
 </body>
 </html>
+

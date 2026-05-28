@@ -79,10 +79,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
  
   :root {
-    --navy: #1B2A4A;
-    --coral: #E8603C;
+    --navy: #111111;
+    --coral: #1B6B45;
     --coral-light: #f07355;
-    --cream: #FAF7F2;
+    --cream: #FFFFFF;
     --charcoal: #2D2D2D;
     --grey: #8A8A8A;
     --grey-light: #F0EDE8;
@@ -258,7 +258,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   .form-group input:focus {
     border-color: var(--coral);
     background: var(--white);
-    box-shadow: 0 0 0 4px rgba(232,96,60,0.08);
+    box-shadow: 0 0 0 4px rgba(27, 107, 69,0.08);
   }
  
   .toggle-pass {
@@ -355,7 +355,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   .social-links a:hover {
     border-color: var(--coral);
     color: var(--coral);
-    background: rgba(232,96,60,0.06);
+    background: rgba(27, 107, 69,0.06);
   }
  
   @media (max-width: 700px) {
@@ -436,3 +436,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
  
 </body>
 </html>
+

@@ -3,7 +3,7 @@ session_start();
 require_once __DIR__ . '/includes/auth_guard.php';
 require_once __DIR__ . '/db.php';
 
-$user_id = $_SESSION['user_id'];
+$user_id = (int) $_SESSION['user_id'];
 $success_msg = '';
 $error_msg = '';
 
@@ -11,8 +11,8 @@ $error_msg = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'cancel') {
     $res_id = isset($_POST['reservation_id']) ? (int)$_POST['reservation_id'] : 0;
     if ($res_id > 0) {
-        // Only allow canceling if 'en_attente'
-        $res_check = mysqli_query($conn, "SELECT statut FROM reservations WHERE id = $res_id AND user_id = $user_id LIMIT 1");
+        // Only allow canceling if 'en_attente' or 'confirmé'
+        $res_check = mysqli_query($conn, "SELECT statut FROM reservations WHERE id = $res_id AND user_id = " . (int)$_SESSION['user_id'] . " LIMIT 1");
         $row_check = $res_check ? mysqli_fetch_assoc($res_check) : null;
 
         if ($row_check && in_array($row_check['statut'], ['en_attente', 'confirmé', 'confirmée', 'confirmee'], true)) {
@@ -41,7 +41,7 @@ $sql = "
     LEFT JOIN guide g ON r.type_service = 'guide' AND r.service_id = g.id
     LEFT JOIN evenement e ON r.type_service = 'evenement' AND r.service_id = e.id
     LEFT JOIN artisanat a ON r.type_service = 'artisanat' AND r.service_id = a.id
-    WHERE r.user_id = $user_id
+    WHERE r.user_id = " . (int)$_SESSION['user_id'] . "
     ORDER BY r.created_at DESC
 ";
 $result = mysqli_query($conn, $sql);
@@ -52,24 +52,40 @@ if ($result) {
     }
 }
 
+// Filter for Tab 1 (Mes Réservations): hebergement, guide, evenement only
+$reservations_list = [];
+foreach ($reservations as $r) {
+    if (in_array($r['type_service'], ['hebergement', 'guide', 'evenement'], true)) {
+        $reservations_list[] = $r;
+    }
+}
+
+// Filter for Tab 2 (Mes Commandes): artisanat, repas
+$commandes_list = [];
+foreach ($reservations as $r) {
+    if (in_array($r['type_service'], ['artisanat', 'repas'], true)) {
+        $commandes_list[] = $r;
+    }
+}
+
 ?>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mes Réservations – Tarkina</title>
+  <title>Mes Réservations & Commandes – Tarkina</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Lato:wght@400;600;700&display=swap" rel="stylesheet" />
   <!-- Bootstrap 5.3 CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --cream: #f5f2ee;
+      --cream: #FFFFFF;
       --dark: #1c1c2e;
-      --navy: #1B3A4B;
-      --orange: #e8642c;
-      --coral: #E05A2B;
+      --navy: #111111;
+      --orange: #1B6B45;
+      --coral: #1B6B45;
       --white: #ffffff;
       --border: #e0dbd4;
       --radius: 14px;
@@ -97,6 +113,38 @@ if ($result) {
     .alert-success { background: rgba(46, 204, 113, 0.1); color: var(--green); border: 1px solid rgba(46, 204, 113, 0.2); }
     .alert-error { background: rgba(231, 76, 60, 0.1); color: var(--red); border: 1px solid rgba(231, 76, 60, 0.2); }
 
+    /* Custom Nav Tabs Styling */
+    .nav-tabs {
+      border-bottom: 2px solid var(--border);
+      margin-bottom: 32px !important;
+      display: flex;
+      gap: 12px;
+    }
+    .nav-tabs .nav-item {
+      margin-bottom: -2px;
+    }
+    .nav-tabs .nav-link {
+      background: none;
+      border: none;
+      border-bottom: 3px solid transparent;
+      color: var(--navy);
+      font-weight: 700;
+      font-size: 16px;
+      padding: 12px 24px;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      border-radius: 0;
+    }
+    .nav-tabs .nav-link:hover {
+      color: var(--coral);
+      border-color: transparent;
+    }
+    .nav-tabs .nav-link.active {
+      color: var(--coral);
+      border-bottom: 3px solid var(--coral);
+      background: none;
+    }
+
     .reservations-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 24px; }
     
     .res-card { background: var(--white); border-radius: var(--radius); padding: 24px; border: 1px solid var(--border); display: flex; flex-direction: column; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
@@ -105,10 +153,11 @@ if ($result) {
     .res-type { font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
     .res-title { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 800; color: var(--dark); line-height: 1.2; }
     
-    .badge { padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 700; text-transform: uppercase; }
-    .badge-en_attente { background: rgba(232, 100, 44, 0.1); color: var(--orange); }
+    .badge { padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 700; text-transform: uppercase; border: none; display: inline-block; }
+    .badge-en_attente { background: rgba(27, 107, 69, 0.1); color: var(--coral); }
     .badge-confirmee { background: rgba(46, 204, 113, 0.1); color: var(--green); }
     .badge-annulee { background: rgba(231, 76, 60, 0.1); color: var(--red); }
+    .badge-terminee { background: rgba(107, 107, 107, 0.1); color: var(--muted); }
     
     .res-details { flex: 1; margin-bottom: 24px; }
     .detail-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px; }
@@ -147,7 +196,7 @@ if ($result) {
     #cancelModal .modal-body {
       font-size: 15px;
       color: #444;
-      padding: 12px 24px 20px;
+      padding: 20px 24px;
       line-height: 1.6;
     }
     #cancelModal .modal-footer {
@@ -157,7 +206,7 @@ if ($result) {
       padding: 0 24px 24px;
     }
     #btnConfirmCancel {
-      background: #E05A2B;
+      background: #1B6B45;
       color: #fff;
       border: none;
       border-radius: 8px;
@@ -167,9 +216,9 @@ if ($result) {
       transition: background .2s;
       flex: 1;
     }
-    #btnConfirmCancel:hover { background: #c44e22; }
+    #btnConfirmCancel:hover { background: #155a38; }
     #btnKeepReservation {
-      background: #1B3A4B;
+      background: #111111;
       color: #fff;
       border: none;
       border-radius: 8px;
@@ -188,7 +237,7 @@ if ($result) {
 
 <div class="main-container">
   <div class="page-header">
-    <h1 class="page-title">Mes Réservations</h1>
+    <h1 class="page-title">Mes Réservations & Commandes</h1>
   </div>
 
   <?php if ($success_msg): ?>
@@ -198,120 +247,239 @@ if ($result) {
     <div class="alert alert-error"><?= htmlspecialchars($error_msg) ?></div>
   <?php endif; ?>
 
-  <?php if (empty($reservations)): ?>
-    <div class="empty-state">
-      <h3>Aucune réservation</h3>
-      <p style="color:var(--muted); margin-bottom:24px;">Vous n'avez pas encore effectué de réservation.</p>
-      <a href="explorer.php" class="btn-nav">Explorer les offres</a>
-    </div>
-  <?php else: ?>
-    <div class="reservations-grid">
-      <?php foreach ($reservations as $r): 
-        $type = '';
-        $titre = '';
-        $prix = 0;
-        $url = '';
-        
-        if ($r['type_service'] === 'hebergement') {
-            $type = 'Hébergement';
-            $titre = $r['hebergement_titre'];
-        } elseif ($r['type_service'] === 'repas') {
-            $type = 'Gastronomie';
-            $titre = $r['repas_titre'];
-        } elseif ($r['type_service'] === 'guide') {
-            $type = 'Guide Local';
-            $titre = $r['guide_titre'];
-        } elseif ($r['type_service'] === 'evenement') {
-            $type = 'Événement';
-            $titre = $r['evenement_titre'];
-        } elseif ($r['type_service'] === 'artisanat') {
-            $type = 'Artisanat';
-            $titre = $r['artisanat_titre'];
-        }
-        $url = $r['type_service'] . '.php?id=' . $r['service_id'];
-        
-        $total = (float)$r['prix_total'];
-        
-        if ($r['type_service'] === 'hebergement') {
-            $dates_str = date('d/m/Y', strtotime($r['date_debut'])) . ' au ' . date('d/m/Y', strtotime($r['date_fin']));
-        } else {
-            $dates_str = date('d/m/Y', strtotime($r['date_debut']));
-        }
-        
-        $statut_class = '';
-        $statut_label = '';
-        switch ($r['statut']) {
-            case 'en_attente':
-                $statut_class = 'badge-en_attente';
-                $statut_label = 'En attente';
-                break;
-            case 'confirmée':
-            case 'confirmee':
-                $statut_class = 'badge-confirmee';
-                $statut_label = 'Confirmée';
-                break;
-            case 'annulée':
-            case 'annulee':
-                $statut_class = 'badge-annulee';
-                $statut_label = 'Annulée';
-                break;
-            case 'terminé':
-            case 'terminée':
-            case 'termine':
-                $statut_class = 'badge-confirmee';
-                $statut_label = 'Terminée';
-                break;
-            default:
-                $statut_class = 'badge-en_attente';
-                $statut_label = htmlspecialchars($r['statut']);
-        }
-      ?>
-      <div class="res-card">
-        <div class="res-header">
-            <div>
-                <div class="res-type"><?= htmlspecialchars($type) ?></div>
-                <div class="res-title"><?= htmlspecialchars($titre) ?></div>
-            </div>
-            <div class="badge <?= $statut_class ?>"><?= $statut_label ?></div>
+  <!-- Tabs Navigation -->
+  <ul class="nav nav-tabs" id="myTab" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active" id="reservations-tab" data-bs-toggle="tab" data-bs-target="#reservations-pane" type="button" role="tab" aria-controls="reservations-pane" aria-selected="true">Mes Réservations</button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="commandes-tab" data-bs-toggle="tab" data-bs-target="#commandes-pane" type="button" role="tab" aria-controls="commandes-pane" aria-selected="false">Mes Commandes</button>
+    </li>
+  </ul>
+
+  <div class="tab-content" id="myTabContent">
+    
+    <!-- Tab 1: Mes Réservations -->
+    <div class="tab-pane fade show active" id="reservations-pane" role="tabpanel" aria-labelledby="reservations-tab" tabindex="0">
+      <?php if (empty($reservations_list)): ?>
+        <div class="empty-state">
+          <h3>Aucune réservation</h3>
+          <p style="color:var(--muted); margin-bottom:24px;">Vous n'avez pas encore effectué de réservation.</p>
+          <a href="explorer.php" class="btn-nav">Explorer les offres</a>
         </div>
-        
-        <div class="res-details">
-            <div class="detail-row">
-                <span class="detail-label">N° de réservation</span>
-                <span class="detail-value">#<?= $r['id'] ?></span>
-            </div>
-            <div class="detail-row">
-                <span class="detail-label">Date de la demande</span>
-                <span class="detail-value"><?= date('d/m/Y', strtotime($r['created_at'])) ?></span>
-            </div>
-            <div class="detail-row">
-                <span class="detail-label"><?= $type === 'Hébergement' ? 'Dates du séjour' : 'Date prévue' ?></span>
-                <span class="detail-value"><?= $dates_str ?></span>
+      <?php else: ?>
+        <div class="reservations-grid">
+          <?php foreach ($reservations_list as $r): 
+            $type = '';
+            $titre = '';
+            
+            if ($r['type_service'] === 'hebergement') {
+                $type = 'Hébergement';
+                $titre = $r['hebergement_titre'];
+            } elseif ($r['type_service'] === 'repas') {
+                $type = 'Gastronomie';
+                $titre = $r['repas_titre'];
+            } elseif ($r['type_service'] === 'guide') {
+                $type = 'Guide Local';
+                $titre = $r['guide_titre'];
+            } elseif ($r['type_service'] === 'evenement') {
+                $type = 'Événement';
+                $titre = $r['evenement_titre'];
+            }
+            
+            $url = $r['type_service'] . '.php?id=' . $r['service_id'];
+            $total = (float)$r['prix_total'];
+            
+            if ($r['type_service'] === 'hebergement') {
+                $dates_str = 'du ' . date('d/m/Y', strtotime($r['date_debut'])) . ' au ' . date('d/m/Y', strtotime($r['date_fin']));
+            } else {
+                $dates_str = 'le ' . date('d/m/Y', strtotime($r['date_debut']));
+            }
+            
+            $statut_class = '';
+            $statut_label = '';
+            switch ($r['statut']) {
+                case 'en_attente':
+                    $statut_class = 'badge-en_attente';
+                    $statut_label = 'En attente';
+                    break;
+                case 'confirmée':
+                case 'confirmee':
+                case 'confirmé':
+                    $statut_class = 'badge-confirmee';
+                    $statut_label = 'Confirmée';
+                    break;
+                case 'annulée':
+                case 'annulee':
+                    $statut_class = 'badge-annulee';
+                    $statut_label = 'Annulée';
+                    break;
+                case 'terminé':
+                case 'terminée':
+                case 'termine':
+                    $statut_class = 'badge-terminee';
+                    $statut_label = 'Terminée';
+                    break;
+                default:
+                    $statut_class = 'badge-en_attente';
+                    $statut_label = htmlspecialchars($r['statut']);
+            }
+          ?>
+          <div class="res-card">
+            <div class="res-header">
+                <div>
+                    <div class="res-type"><?= htmlspecialchars($type) ?></div>
+                    <div class="res-title"><?= htmlspecialchars($titre) ?></div>
+                </div>
+                <div class="badge <?= $statut_class ?>"><?= $statut_label ?></div>
             </div>
             
-            <div class="res-total">
-                <span class="detail-label">Total estimé</span>
-                <span style="color:var(--orange);"><?= number_format($total, 2, '.', ' ') ?> TND</span>
+            <div class="res-details">
+                <div class="detail-row">
+                    <span class="detail-label">N° de réservation</span>
+                    <span class="detail-value">#<?= $r['id'] ?></span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Date de la demande</span>
+                    <span class="detail-value"><?= date('d/m/Y', strtotime($r['created_at'])) ?></span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Dates</span>
+                    <span class="detail-value"><?= $dates_str ?></span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Voyageurs</span>
+                    <span class="detail-value"><?= (int)$r['nb_voyageurs'] ?></span>
+                </div>
+                
+                <div class="res-total">
+                    <span class="detail-label">Total estimé</span>
+                    <span style="color:var(--orange);"><?= number_format($total, 2, '.', ' ') ?> TND</span>
+                </div>
             </div>
+            
+            <div class="res-actions">
+                <a href="<?= $url ?>" class="btn btn-outline">Voir détails</a>
+                <?php if (in_array($r['statut'], ['en_attente', 'confirmé', 'confirmée', 'confirmee'], true)): ?>
+                    <button type="button" class="btn btn-danger"
+                            onclick="openCancelModal(<?= (int)$r['id'] ?>)"
+                            style="flex:1;">
+                        Annuler
+                    </button>
+                <?php endif; ?>
+                <?php if (in_array($r['statut'], ['terminé','terminée','termine'], true)): ?>
+                    <a href="<?= htmlspecialchars($r['type_service']) ?>.php?id=<?= (int)$r['service_id'] ?>#avis" class="btn" style="flex:1;background:var(--orange);color:#fff;">Laisser un avis</a>
+                <?php endif; ?>
+            </div>
+          </div>
+          <?php endforeach; ?>
         </div>
-        
-        <div class="res-actions">
-            <a href="<?= $url ?>" class="btn btn-outline">Voir détails</a>
-            <?php if (in_array($r['statut'], ['en_attente', 'confirmé', 'confirmée', 'confirmee'], true)): ?>
-                <button type="button" class="btn btn-danger"
-                        onclick="openCancelModal(<?= (int)$r['id'] ?>)"
-                        style="flex:1;">
-                    Annuler
-                </button>
-            <?php endif; ?>
-            <?php if (in_array($r['statut'], ['terminé','terminée','termine'], true)): ?>
-                <a href="<?= htmlspecialchars($r['type_service']) ?>.php?id=<?= (int)$r['service_id'] ?>#avis" class="btn" style="flex:1;background:var(--orange);color:#fff;">Laisser un avis</a>
-            <?php endif; ?>
-        </div>
-      </div>
-      <?php endforeach; ?>
+      <?php endif; ?>
     </div>
-  <?php endif; ?>
+
+    <!-- Tab 2: Mes Commandes -->
+    <div class="tab-pane fade" id="commandes-pane" role="tabpanel" aria-labelledby="commandes-tab" tabindex="0">
+      <?php if (empty($commandes_list)): ?>
+        <div class="empty-state">
+          <h3>Aucune commande</h3>
+          <p style="color:var(--muted); margin-bottom:24px;">Vous n'avez pas encore effectué de commande.</p>
+          <a href="explorer.php" class="btn-nav">Explorer les offres</a>
+        </div>
+      <?php else: ?>
+        <div class="reservations-grid">
+          <?php foreach ($commandes_list as $r): 
+            $type = '';
+            $titre = '';
+            
+            if ($r['type_service'] === 'artisanat') {
+                $type = 'Artisanat';
+                $titre = $r['artisanat_titre'];
+            } elseif ($r['type_service'] === 'repas') {
+                $type = 'Gastronomie';
+                $titre = $r['repas_titre'];
+            }
+            
+            $url = $r['type_service'] . '.php?id=' . $r['service_id'];
+            $total = (float)$r['prix_total'];
+            
+            $statut_class = '';
+            $statut_label = '';
+            switch ($r['statut']) {
+                case 'en_attente':
+                    $statut_class = 'badge-en_attente';
+                    $statut_label = 'En attente';
+                    break;
+                case 'confirmée':
+                case 'confirmee':
+                case 'confirmé':
+                    $statut_class = 'badge-confirmee';
+                    $statut_label = 'Confirmée';
+                    break;
+                case 'annulée':
+                case 'annulee':
+                    $statut_class = 'badge-annulee';
+                    $statut_label = 'Annulée';
+                    break;
+                case 'terminé':
+                case 'terminée':
+                case 'termine':
+                    $statut_class = 'badge-terminee';
+                    $statut_label = 'Terminée';
+                    break;
+                default:
+                    $statut_class = 'badge-en_attente';
+                    $statut_label = htmlspecialchars($r['statut']);
+            }
+          ?>
+          <div class="res-card">
+            <div class="res-header">
+                <div>
+                    <div class="res-type"><?= htmlspecialchars($type) ?></div>
+                    <div class="res-title"><?= htmlspecialchars($titre) ?></div>
+                </div>
+                <div class="badge <?= $statut_class ?>"><?= $statut_label ?></div>
+            </div>
+            
+            <div class="res-details">
+                <div class="detail-row">
+                    <span class="detail-label">N° de commande</span>
+                    <span class="detail-value">#<?= $r['id'] ?></span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Date de commande</span>
+                    <span class="detail-value"><?= date('d/m/Y', strtotime($r['date_debut'])) ?></span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Quantité</span>
+                    <span class="detail-value"><?= (int)$r['nb_voyageurs'] ?></span>
+                </div>
+                
+                <div class="res-total">
+                    <span class="detail-label">Total</span>
+                    <span style="color:var(--orange);"><?= number_format($total, 2, '.', ' ') ?> TND</span>
+                </div>
+            </div>
+            
+            <div class="res-actions">
+                <a href="<?= $url ?>" class="btn btn-outline">Voir détails</a>
+                <?php if (in_array($r['statut'], ['en_attente', 'confirmé', 'confirmée', 'confirmee'], true)): ?>
+                    <button type="button" class="btn btn-danger"
+                            onclick="openCancelModal(<?= (int)$r['id'] ?>)"
+                            style="flex:1;">
+                        Annuler
+                    </button>
+                <?php endif; ?>
+                <?php if (in_array($r['statut'], ['terminé','terminée','termine'], true)): ?>
+                    <a href="<?= htmlspecialchars($r['type_service']) ?>.php?id=<?= (int)$r['service_id'] ?>#avis" class="btn" style="flex:1;background:var(--orange);color:#fff;">Laisser un avis</a>
+                <?php endif; ?>
+            </div>
+          </div>
+          <?php endforeach; ?>
+        </div>
+      <?php endif; ?>
+    </div>
+
+  </div>
 
 </div>
 
@@ -324,8 +492,7 @@ if ($result) {
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
       </div>
       <div class="modal-body">
-        Êtes-vous sûr de vouloir annuler cette réservation ?<br>
-        <strong>Cette action est irréversible.</strong>
+        Êtes-vous sûr de vouloir annuler cette réservation ? Cette action est irréversible.
       </div>
       <div class="modal-footer d-flex">
         <button type="button" id="btnConfirmCancel">Oui, annuler</button>
@@ -357,3 +524,4 @@ document.getElementById('btnConfirmCancel').addEventListener('click', function (
 </script>
 </body>
 </html>
+
