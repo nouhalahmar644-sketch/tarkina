@@ -3,6 +3,7 @@ session_start();
 
 require 'db.php';
 require_once __DIR__ . '/includes/i18n.php';   // sets $lang, $dir, $is_rtl
+require_once __DIR__ . '/includes/region_photo.php'; // manifest fallback for admin-uploaded region photos
 
 // ---------- Translations ----------
 $L_ALL = [
@@ -614,6 +615,11 @@ $fpLocale = ($lang === 'ar') ? 'ar' : (($lang === 'en') ? 'default' : 'fr');
                         elseif (file_exists('images/regions/' . $p)) { $photo = 'images/regions/' . $p; }
                         elseif (file_exists('assets/img/regions/' . $p)) { $photo = 'assets/img/regions/' . $p; }
                         elseif (file_exists('uploads/' . $p)) { $photo = 'uploads/' . $p; }
+                    }
+                    // Code-only fallback: manifest carries admin uploads across machines (DB isn't in git)
+                    if (empty($photo)) {
+                        $fb = region_photo_fallback((int) $region['id']);
+                        if ($fb !== '') $photo = $fb;
                     }
                     if (empty($photo)) { $photo = 'https://images.unsplash.com/photo-1539635278303-d4002c07eae3?w=600&q=80'; }
                     $nbServices = (int) $region['nb_services'];

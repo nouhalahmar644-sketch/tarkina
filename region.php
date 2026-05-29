@@ -4,6 +4,7 @@ mb_internal_encoding('UTF-8');
 header('Content-Type: text/html; charset=utf-8');
 require 'db.php';
 require_once __DIR__ . '/includes/i18n.php';
+require_once __DIR__ . '/includes/region_photo.php';
 mysqli_set_charset($conn, 'utf8mb4');
 
 $L_ALL = [
@@ -131,7 +132,13 @@ function tk_resolve_photo($path, $fallback) {
 }
 
 $fallbackImg = 'https://images.unsplash.com/photo-1539635278303-d4002c07eae3?w=1200&q=80';
-$mainPhoto = tk_resolve_photo($region['photo_principale'] ?? '', $fallbackImg);
+$mainPhoto = tk_resolve_photo($region['photo_principale'] ?? '', '');
+if ($mainPhoto === '') {
+    // Code-only manifest fallback for admin uploads (DB rows don't sync via git)
+    $fb = region_photo_fallback($region_id);
+    if ($fb !== '') { $mainPhoto = $fb; }
+}
+if ($mainPhoto === '') { $mainPhoto = $fallbackImg; }
 
 $secPhotos = [];
 if (!empty($region['photos_sec'])) {
