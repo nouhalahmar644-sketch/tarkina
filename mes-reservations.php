@@ -23,6 +23,7 @@ $L_ALL = [
         'type_guide'       => 'Guide Local',
         'type_evenement'   => 'Événement',
         'type_artisanat'   => 'Artisanat',
+        'type_forfait'     => 'Forfait',
         'from'             => 'du',
         'to'               => 'au',
         'on'               => 'le',
@@ -63,6 +64,7 @@ $L_ALL = [
         'explore_btn'      => 'استكشف العروض',
         'type_hebergement' => 'إقامة',
         'type_repas'       => 'مأكولات',
+        'type_forfait'     => 'باقة',
         'type_guide'       => 'مرشد محلي',
         'type_evenement'   => 'فعالية',
         'type_artisanat'   => 'حِرف يدوية',
@@ -106,6 +108,7 @@ $L_ALL = [
         'explore_btn'      => 'Explore offers',
         'type_hebergement' => 'Accommodation',
         'type_repas'       => 'Gastronomy',
+        'type_forfait'     => 'Pack',
         'type_guide'       => 'Local Guide',
         'type_evenement'   => 'Event',
         'type_artisanat'   => 'Handicrafts',
@@ -168,13 +171,15 @@ $sql = "
            rp.titre AS repas_titre,
            g.titre AS guide_titre,
            e.titre AS evenement_titre,
-           a.titre AS artisanat_titre
+           a.titre AS artisanat_titre,
+           pk.titre AS forfait_titre
     FROM reservations r
     LEFT JOIN hebergement h ON r.type_service = 'hebergement' AND r.service_id = h.id
     LEFT JOIN repas rp ON r.type_service = 'repas' AND r.service_id = rp.id
     LEFT JOIN guide g ON r.type_service = 'guide' AND r.service_id = g.id
     LEFT JOIN evenement e ON r.type_service = 'evenement' AND r.service_id = e.id
     LEFT JOIN artisanat a ON r.type_service = 'artisanat' AND r.service_id = a.id
+    LEFT JOIN packs pk ON r.type_service = 'forfait' AND r.service_id = pk.id
     WHERE r.user_id = " . (int)$_SESSION['user_id'] . "
     ORDER BY r.created_at DESC
 ";
@@ -189,7 +194,7 @@ if ($result) {
 // Filter for Tab 1 (Mes Réservations): hebergement, guide, evenement only
 $reservations_list = [];
 foreach ($reservations as $r) {
-    if (in_array($r['type_service'], ['hebergement', 'guide', 'evenement'], true)) {
+    if (in_array($r['type_service'], ['hebergement', 'guide', 'evenement', 'forfait'], true)) {
         $reservations_list[] = $r;
     }
 }
@@ -420,12 +425,15 @@ foreach ($reservations as $r) {
             } elseif ($r['type_service'] === 'evenement') {
                 $type = $L['type_evenement'];
                 $titre = $r['evenement_titre'];
+            } elseif ($r['type_service'] === 'forfait') {
+                $type = $L['type_forfait'];
+                $titre = $r['forfait_titre'];
             }
 
             $url = $r['type_service'] . '.php?id=' . $r['service_id'];
             $total = (float)$r['prix_total'];
 
-            if ($r['type_service'] === 'hebergement') {
+            if ($r['type_service'] === 'hebergement' || $r['type_service'] === 'forfait') {
                 $dates_str = $L['from'] . ' ' . date('d/m/Y', strtotime($r['date_debut'])) . ' ' . $L['to'] . ' ' . date('d/m/Y', strtotime($r['date_fin']));
             } else {
                 $dates_str = $L['on'] . ' ' . date('d/m/Y', strtotime($r['date_debut']));

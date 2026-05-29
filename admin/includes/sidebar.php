@@ -33,6 +33,12 @@ if (!isset($activePage)) {
     <a href="artisanat.php" class="sidebar-link <?php echo $activePage === 'artisanat' ? 'active' : ''; ?>">
       <i class="bi bi-bag-heart-fill"></i> Artisanat
     </a>
+    <a href="packs.php" class="sidebar-link <?php echo $activePage === 'packs' ? 'active' : ''; ?>">
+      <i class="bi bi-gift-fill"></i> Packs
+    </a>
+    <a href="gallery.php" class="sidebar-link <?php echo $activePage === 'gallery' ? 'active' : ''; ?>">
+      <i class="bi bi-images"></i> Galerie
+    </a>
     <a href="commandes.php" class="sidebar-link <?php echo $activePage === 'commandes' ? 'active' : ''; ?>">
       <i class="bi bi-receipt"></i> Commandes
     </a>

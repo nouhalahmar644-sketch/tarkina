@@ -252,12 +252,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['newsletter_submit']))
 // ---------- Fetch regions ----------
 $regions = [];
 if (isset($conn) && $conn) {
+    // Most popular regions = those with the most published services
     $res = mysqli_query($conn, "SELECT r.*,
         (SELECT COUNT(*) FROM hebergement WHERE region_id = r.id AND statut IN ('actif','publié')) +
         (SELECT COUNT(*) FROM repas WHERE region_id = r.id AND statut IN ('actif','publié')) +
         (SELECT COUNT(*) FROM guide WHERE region_id = r.id AND statut IN ('actif','publié')) +
-        (SELECT COUNT(*) FROM evenement WHERE region_id = r.id AND statut IN ('actif','publié')) AS nb_services
-        FROM region r ORDER BY r.nom ASC LIMIT 3");
+        (SELECT COUNT(*) FROM evenement WHERE region_id = r.id AND statut IN ('actif','publié')) +
+        (SELECT COUNT(*) FROM artisanat WHERE region_id = r.id AND statut IN ('actif','publié')) AS nb_services
+        FROM region r ORDER BY nb_services DESC, r.nom ASC LIMIT 3");
     if ($res) { while ($row = mysqli_fetch_assoc($res)) { $regions[] = $row; } }
 }
 
@@ -266,6 +268,57 @@ $guides = [];
 if (isset($conn) && $conn) {
     $res2 = mysqli_query($conn, "SELECT g.*, r.nom as region_nom FROM guide g LEFT JOIN region r ON g.region_id = r.id WHERE g.statut IN ('actif','publié') LIMIT 6");
     if ($res2) { while ($row = mysqli_fetch_assoc($res2)) { $guides[] = $row; } }
+}
+
+// ---------- Fetch gallery images (admin-managed; auto-creates table so it works on any machine) ----------
+$galleryImages = [];
+if (isset($conn) && $conn) {
+    try {
+        mysqli_query($conn, "CREATE TABLE IF NOT EXISTS gallery_images (id INT AUTO_INCREMENT PRIMARY KEY, image_path VARCHAR(500) NOT NULL, alt_text VARCHAR(255) NOT NULL DEFAULT '', position INT NOT NULL DEFAULT 0, statut VARCHAR(20) NOT NULL DEFAULT 'actif', created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci");
+        $gres = mysqli_query($conn, "SELECT image_path, alt_text FROM gallery_images WHERE statut = 'actif' ORDER BY position ASC, id ASC LIMIT 6");
+        if ($gres) { while ($g = mysqli_fetch_assoc($gres)) { $galleryImages[] = $g; } }
+    } catch (\Throwable $e) { /* fall back to defaults below */ }
+}
+// Fallback (no admin-managed images yet)
+if (empty($galleryImages)) {
+    $galleryImages = [
+        ['image_path' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/73/Sidi_Bou_Said_-_TN.jpg/800px-Sidi_Bou_Said_-_TN.jpg', 'alt_text' => 'Sidi Bou Said'],
+        ['image_path' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/63/Kairouan_Great_Mosque.jpg/800px-Kairouan_Great_Mosque.jpg', 'alt_text' => 'Kairouan'],
+        ['image_path' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2d/Desert_-_Tunisia_%28Rades%29.jpg/800px-Desert_-_Tunisia_%28Rades%29.jpg', 'alt_text' => 'Sahara'],
+        ['image_path' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Houmt_Souk_port.jpg/800px-Houmt_Souk_port.jpg', 'alt_text' => 'Djerba'],
+        ['image_path' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6c/Matmata_cave_houses.jpg/800px-Matmata_cave_houses.jpg', 'alt_text' => 'Matmata'],
+        ['image_path' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/ElJem_amphitheatre.jpg/800px-ElJem_amphitheatre.jpg', 'alt_text' => 'El Jem'],
+    ];
+}
+
+// ---------- Fetch admin-managed packs (auto-creates tables) ----------
+$dbPacks = [];
+if (isset($conn) && $conn) {
+    try {
+        mysqli_query($conn, "CREATE TABLE IF NOT EXISTS packs (id INT AUTO_INCREMENT PRIMARY KEY, titre VARCHAR(255) NOT NULL, slogan VARCHAR(500) NOT NULL DEFAULT '', region_id INT NOT NULL, image_path VARCHAR(500) NOT NULL DEFAULT '', prix_original DECIMAL(10,2) NOT NULL DEFAULT 0, prix_final DECIMAL(10,2) NOT NULL DEFAULT 0, statut VARCHAR(20) NOT NULL DEFAULT 'actif', position INT NOT NULL DEFAULT 0, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci");
+        mysqli_query($conn, "CREATE TABLE IF NOT EXISTS pack_services (id INT AUTO_INCREMENT PRIMARY KEY, pack_id INT NOT NULL, service_type VARCHAR(20) NOT NULL, service_id INT NOT NULL, INDEX idx_pack (pack_id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci");
+        $pres = mysqli_query($conn, "SELECT p.id, p.titre, p.slogan, p.region_id, p.image_path, p.prix_original, p.prix_final, r.nom AS region_nom FROM packs p LEFT JOIN region r ON p.region_id = r.id WHERE p.statut = 'actif' ORDER BY p.position ASC, p.id DESC LIMIT 3");
+        if ($pres) {
+            while ($p = mysqli_fetch_assoc($pres)) { $p['services'] = []; $dbPacks[(int) $p['id']] = $p; }
+        }
+        if (!empty($dbPacks)) {
+            $ids = implode(',', array_map('intval', array_keys($dbPacks)));
+            $svcRes = mysqli_query($conn, "SELECT pack_id, service_type, service_id FROM pack_services WHERE pack_id IN ($ids)");
+            $allowedSvcTypes = ['hebergement','repas','guide','evenement','artisanat'];
+            while ($svcRes && ($row = mysqli_fetch_assoc($svcRes))) {
+                $stype = $row['service_type']; $sid = (int) $row['service_id'];
+                if (!in_array($stype, $allowedSvcTypes, true)) continue;
+                $titreSt = mysqli_prepare($conn, "SELECT titre FROM `$stype` WHERE id = ? LIMIT 1");
+                mysqli_stmt_bind_param($titreSt, 'i', $sid);
+                mysqli_stmt_execute($titreSt);
+                mysqli_stmt_bind_result($titreSt, $stitre);
+                if (mysqli_stmt_fetch($titreSt)) {
+                    $dbPacks[(int) $row['pack_id']]['services'][] = ['type' => $stype, 'titre' => $stitre];
+                }
+                mysqli_stmt_close($titreSt);
+            }
+        }
+    } catch (\Throwable $e) { $dbPacks = []; }
 }
 
 // Flatpickr locale (uses ar for Arabic, fr for French, default for English)
@@ -590,56 +643,95 @@ $fpLocale = ($lang === 'ar') ? 'ar' : (($lang === 'en') ? 'default' : 'fr');
             <p class="section-sub"><?= htmlspecialchars($L['pk_sub']) ?></p>
         </div>
         <div class="forfaits-grid">
-            <div class="forfait-card animate-up">
-                <div class="forfait-img-wrap">
-                    <img loading="lazy" src="https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=800&fit=crop" alt="<?= htmlspecialchars($L['pk1_title']) ?>" onerror="this.src='assets/img/placeholder.jpg'">
-                    <span class="forfait-price-badge"><?= htmlspecialchars($L['pk_from']) ?> 350 DT</span>
+            <?php if (!empty($dbPacks)): ?>
+                <?php foreach ($dbPacks as $pk):
+                    $pkImg = $pk['image_path'];
+                    if ($pkImg && strpos($pkImg, 'http') !== 0 && strpos($pkImg, 'uploads/') !== 0 && strpos($pkImg, 'images/') !== 0) {
+                        $pkImg = 'uploads/packs/' . ltrim($pkImg, '/');
+                    }
+                    if (!$pkImg) $pkImg = 'https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=800&fit=crop';
+                    $pkPrixO = (float) $pk['prix_original'];
+                    $pkPrixF = (float) $pk['prix_final'];
+                    $hasDiscount = $pkPrixO > $pkPrixF && $pkPrixO > 0;
+                ?>
+                <div class="forfait-card animate-up">
+                    <div class="forfait-img-wrap">
+                        <img loading="lazy" src="<?= htmlspecialchars($pkImg) ?>" alt="<?= htmlspecialchars($pk['titre']) ?>" onerror="this.src='assets/img/placeholder.jpg'">
+                        <span class="forfait-price-badge">
+                            <?= htmlspecialchars($L['pk_from']) ?> <?= number_format($pkPrixF, 0) ?> DT
+                            <?php if ($hasDiscount): ?>
+                                <small style="text-decoration:line-through; color:#aaa; font-weight:500; margin-left:6px;"><?= number_format($pkPrixO, 0) ?></small>
+                            <?php endif; ?>
+                        </span>
+                    </div>
+                    <div class="forfait-body">
+                        <p class="forfait-meta">📍 <?= htmlspecialchars($pk['region_nom'] ?: '') ?> · <?= count($pk['services']) ?> services</p>
+                        <h3 class="forfait-title"><?= htmlspecialchars($pk['titre']) ?></h3>
+                        <?php if (!empty($pk['slogan'])): ?>
+                            <p style="font-size:.86rem; color:var(--text-muted); margin: 0 0 12px; line-height:1.5;"><?= htmlspecialchars($pk['slogan']) ?></p>
+                        <?php endif; ?>
+                        <ul class="forfait-includes">
+                            <?php foreach ($pk['services'] as $sv): ?>
+                                <li><?= htmlspecialchars($sv['titre']) ?></li>
+                            <?php endforeach; ?>
+                        </ul>
+                        <a href="forfait.php?id=<?= (int) $pk['id'] ?>" class="btn-forfait"><?= htmlspecialchars($L['pk_book']) ?></a>
+                    </div>
                 </div>
-                <div class="forfait-body">
-                    <p class="forfait-meta"><?= htmlspecialchars($L['pk1_loc']) ?></p>
-                    <h3 class="forfait-title"><?= htmlspecialchars($L['pk1_title']) ?></h3>
-                    <ul class="forfait-includes">
-                        <li><?= htmlspecialchars($L['pk1_i1']) ?></li>
-                        <li><?= htmlspecialchars($L['pk1_i2']) ?></li>
-                        <li><?= htmlspecialchars($L['pk1_i3']) ?></li>
-                        <li><?= htmlspecialchars($L['pk1_i4']) ?></li>
-                    </ul>
-                    <a href="region.php?id=5" class="btn-forfait"><?= htmlspecialchars($L['pk_book']) ?></a>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <!-- Default packs (shown until admin creates packs in /admin/packs.php) -->
+                <div class="forfait-card animate-up">
+                    <div class="forfait-img-wrap">
+                        <img loading="lazy" src="https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=800&fit=crop" alt="<?= htmlspecialchars($L['pk1_title']) ?>" onerror="this.src='assets/img/placeholder.jpg'">
+                        <span class="forfait-price-badge"><?= htmlspecialchars($L['pk_from']) ?> 350 DT</span>
+                    </div>
+                    <div class="forfait-body">
+                        <p class="forfait-meta"><?= htmlspecialchars($L['pk1_loc']) ?></p>
+                        <h3 class="forfait-title"><?= htmlspecialchars($L['pk1_title']) ?></h3>
+                        <ul class="forfait-includes">
+                            <li><?= htmlspecialchars($L['pk1_i1']) ?></li>
+                            <li><?= htmlspecialchars($L['pk1_i2']) ?></li>
+                            <li><?= htmlspecialchars($L['pk1_i3']) ?></li>
+                            <li><?= htmlspecialchars($L['pk1_i4']) ?></li>
+                        </ul>
+                        <a href="region.php?id=5" class="btn-forfait"><?= htmlspecialchars($L['pk_book']) ?></a>
+                    </div>
                 </div>
-            </div>
-            <div class="forfait-card animate-up">
-                <div class="forfait-img-wrap">
-                    <img loading="lazy" src="https://images.unsplash.com/photo-1561625116-5f8675632053?w=800&fit=crop" alt="<?= htmlspecialchars($L['pk2_title']) ?>" onerror="this.src='assets/img/placeholder.jpg'">
-                    <span class="forfait-price-badge"><?= htmlspecialchars($L['pk_from']) ?> 220 DT</span>
+                <div class="forfait-card animate-up">
+                    <div class="forfait-img-wrap">
+                        <img loading="lazy" src="https://images.unsplash.com/photo-1561625116-5f8675632053?w=800&fit=crop" alt="<?= htmlspecialchars($L['pk2_title']) ?>" onerror="this.src='assets/img/placeholder.jpg'">
+                        <span class="forfait-price-badge"><?= htmlspecialchars($L['pk_from']) ?> 220 DT</span>
+                    </div>
+                    <div class="forfait-body">
+                        <p class="forfait-meta"><?= htmlspecialchars($L['pk2_loc']) ?></p>
+                        <h3 class="forfait-title"><?= htmlspecialchars($L['pk2_title']) ?></h3>
+                        <ul class="forfait-includes">
+                            <li><?= htmlspecialchars($L['pk2_i1']) ?></li>
+                            <li><?= htmlspecialchars($L['pk2_i2']) ?></li>
+                            <li><?= htmlspecialchars($L['pk2_i3']) ?></li>
+                        </ul>
+                        <a href="region.php?id=4" class="btn-forfait"><?= htmlspecialchars($L['pk_book']) ?></a>
+                    </div>
                 </div>
-                <div class="forfait-body">
-                    <p class="forfait-meta"><?= htmlspecialchars($L['pk2_loc']) ?></p>
-                    <h3 class="forfait-title"><?= htmlspecialchars($L['pk2_title']) ?></h3>
-                    <ul class="forfait-includes">
-                        <li><?= htmlspecialchars($L['pk2_i1']) ?></li>
-                        <li><?= htmlspecialchars($L['pk2_i2']) ?></li>
-                        <li><?= htmlspecialchars($L['pk2_i3']) ?></li>
-                    </ul>
-                    <a href="region.php?id=4" class="btn-forfait"><?= htmlspecialchars($L['pk_book']) ?></a>
+                <div class="forfait-card">
+                    <div class="forfait-img-wrap">
+                        <img loading="lazy" src="https://images.unsplash.com/photo-1539650116574-75c0c6d73f6e?w=800&fit=crop" alt="<?= htmlspecialchars($L['pk3_title']) ?>" onerror="this.src='assets/img/placeholder.jpg'">
+                        <span class="forfait-price-badge"><?= htmlspecialchars($L['pk_from']) ?> 480 DT</span>
+                    </div>
+                    <div class="forfait-body">
+                        <p class="forfait-meta"><?= htmlspecialchars($L['pk3_loc']) ?></p>
+                        <h3 class="forfait-title"><?= htmlspecialchars($L['pk3_title']) ?></h3>
+                        <ul class="forfait-includes">
+                            <li><?= htmlspecialchars($L['pk3_i1']) ?></li>
+                            <li><?= htmlspecialchars($L['pk3_i2']) ?></li>
+                            <li><?= htmlspecialchars($L['pk3_i3']) ?></li>
+                            <li><?= htmlspecialchars($L['pk3_i4']) ?></li>
+                        </ul>
+                        <a href="region.php?id=3" class="btn-forfait"><?= htmlspecialchars($L['pk_book']) ?></a>
+                    </div>
                 </div>
-            </div>
-            <div class="forfait-card">
-                <div class="forfait-img-wrap">
-                    <img loading="lazy" src="https://images.unsplash.com/photo-1539650116574-75c0c6d73f6e?w=800&fit=crop" alt="<?= htmlspecialchars($L['pk3_title']) ?>" onerror="this.src='assets/img/placeholder.jpg'">
-                    <span class="forfait-price-badge"><?= htmlspecialchars($L['pk_from']) ?> 480 DT</span>
-                </div>
-                <div class="forfait-body">
-                    <p class="forfait-meta"><?= htmlspecialchars($L['pk3_loc']) ?></p>
-                    <h3 class="forfait-title"><?= htmlspecialchars($L['pk3_title']) ?></h3>
-                    <ul class="forfait-includes">
-                        <li><?= htmlspecialchars($L['pk3_i1']) ?></li>
-                        <li><?= htmlspecialchars($L['pk3_i2']) ?></li>
-                        <li><?= htmlspecialchars($L['pk3_i3']) ?></li>
-                        <li><?= htmlspecialchars($L['pk3_i4']) ?></li>
-                    </ul>
-                    <a href="region.php?id=3" class="btn-forfait"><?= htmlspecialchars($L['pk_book']) ?></a>
-                </div>
-            </div>
+            <?php endif; ?>
         </div>
     </div>
 </section>
@@ -686,12 +778,14 @@ $fpLocale = ($lang === 'ar') ? 'ar' : (($lang === 'en') ? 'default' : 'fr');
         <h2 class="gallery-title"><?= htmlspecialchars($L['gal_title']) ?></h2>
         <div class="gallery-underline"></div>
         <div class="gallery-grid">
-            <img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/73/Sidi_Bou_Said_-_TN.jpg/800px-Sidi_Bou_Said_-_TN.jpg" alt="Sidi Bou Said" onerror="this.src='https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=800&fit=crop'">
-            <img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/63/Kairouan_Great_Mosque.jpg/800px-Kairouan_Great_Mosque.jpg" alt="Kairouan" onerror="this.src='https://images.unsplash.com/photo-1561625116-5f8675632053?w=800&fit=crop'">
-            <img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2d/Desert_-_Tunisia_%28Rades%29.jpg/800px-Desert_-_Tunisia_%28Rades%29.jpg" alt="Sahara" onerror="this.src='https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=800&fit=crop'">
-            <img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Houmt_Souk_port.jpg/800px-Houmt_Souk_port.jpg" alt="Djerba" onerror="this.src='https://images.unsplash.com/photo-1539650116574-75c0c6d73f6e?w=800&fit=crop'">
-            <img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6c/Matmata_cave_houses.jpg/800px-Matmata_cave_houses.jpg" alt="Matmata" onerror="this.src='https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=800&fit=crop'">
-            <img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/ElJem_amphitheatre.jpg/800px-ElJem_amphitheatre.jpg" alt="El Jem" onerror="this.src='https://images.unsplash.com/photo-1561625116-5f8675632053?w=800&fit=crop'">
+            <?php foreach ($galleryImages as $gimg):
+                $gsrc = $gimg['image_path'];
+                if ($gsrc && strpos($gsrc, 'http') !== 0 && strpos($gsrc, 'uploads/') !== 0 && strpos($gsrc, 'images/') !== 0) {
+                    $gsrc = 'uploads/gallery/' . ltrim($gsrc, '/');
+                }
+            ?>
+            <img loading="lazy" src="<?= htmlspecialchars($gsrc) ?>" alt="<?= htmlspecialchars($gimg['alt_text']) ?>" onerror="this.src='https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=800&fit=crop'">
+            <?php endforeach; ?>
         </div>
         <div class="gallery-cta">
             <a href="explorer.php" class="btn-gallery"><?= htmlspecialchars($L['gal_cta']) ?></a>
