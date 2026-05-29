@@ -605,9 +605,14 @@ $fpLocale = ($lang === 'ar') ? 'ar' : (($lang === 'en') ? 'default' : 'fr');
                     $photo = '';
                     if (!empty($region['photo_principale'])) {
                         $p = $region['photo_principale'];
-                        if (strpos($p, 'http') === 0) { $photo = $p; }
+                        // Path already absolute/relative-to-root — use as-is
+                        if (strpos($p, 'http') === 0 || strpos($p, 'uploads/') === 0 || strpos($p, 'images/') === 0 || strpos($p, 'assets/') === 0) {
+                            $photo = $p;
+                        }
+                        // Bare filename — search common folders
+                        elseif (file_exists('uploads/regions/' . $p)) { $photo = 'uploads/regions/' . $p; }
+                        elseif (file_exists('images/regions/' . $p)) { $photo = 'images/regions/' . $p; }
                         elseif (file_exists('assets/img/regions/' . $p)) { $photo = 'assets/img/regions/' . $p; }
-                        elseif (file_exists('assets/img/' . $p)) { $photo = 'assets/img/' . $p; }
                         elseif (file_exists('uploads/' . $p)) { $photo = 'uploads/' . $p; }
                     }
                     if (empty($photo)) { $photo = 'https://images.unsplash.com/photo-1539635278303-d4002c07eae3?w=600&q=80'; }

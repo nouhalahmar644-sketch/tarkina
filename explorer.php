@@ -87,9 +87,24 @@ function region_photo(array $r, array $fallback_by_name, string $fallback_defaul
         if (stripos($pp, 'http') === 0) {
             return $pp;
         }
-        foreach (['images/regions/', 'uploads/regions/'] as $dir) {
-            if (is_file(__DIR__ . '/' . $dir . $pp)) {
-                return $dir . $pp;
+        // Path already relative-to-root (uploads/regions/x.jpg, images/regions/x.jpg, etc.) — use as-is if the file exists
+        if (preg_match('#^(uploads|images|assets)/#', $pp) === 1) {
+            if (is_file(__DIR__ . '/' . $pp)) {
+                return $pp;
+            }
+            // Try basename in known dirs as a recovery
+            $base = basename($pp);
+            foreach (['uploads/regions/', 'images/regions/'] as $dir) {
+                if (is_file(__DIR__ . '/' . $dir . $base)) {
+                    return $dir . $base;
+                }
+            }
+        } else {
+            // Bare filename — try known dirs
+            foreach (['uploads/regions/', 'images/regions/'] as $dir) {
+                if (is_file(__DIR__ . '/' . $dir . $pp)) {
+                    return $dir . $pp;
+                }
             }
         }
     }
