@@ -148,7 +148,7 @@ $desc = trim((string) ($item['description'] ?? $L['desc_default']));
 <body class="service-page">
 <?php include __DIR__ . '/navbar.php'; ?>
 
-<button onclick="history.back()" style="display:inline-flex;align-items:center;gap:8px;margin:14px 0 0 24px;background:#fff;border:1.5px solid #e2ddd8;border-radius:50px;padding:8px 18px;color:#111111;cursor:pointer;font-weight:600;font-size:.9rem;font-family:inherit;transition:all .2s;" onmouseover="this.style.borderColor='#1B6B45';this.style.color='#1B6B45'" onmouseout="this.style.borderColor='#e2ddd8';this.style.color='#111111'">&#8592; <?= htmlspecialchars($L['back']) ?></button>
+<button onclick="history.back()" style="display:inline-flex;align-items:center;gap:8px;margin:14px 0 0 24px;background:#fff;border:1.5px solid #e2ddd8;border-radius:50px;padding:8px 18px;color:#0b1c30;cursor:pointer;font-weight:600;font-size:.9rem;font-family:inherit;transition:all .2s;" onmouseover="this.style.borderColor='#f16e22';this.style.color='#f16e22'" onmouseout="this.style.borderColor='#e2ddd8';this.style.color='#0b1c30'">&#8592; <?= htmlspecialchars($L['back']) ?></button>
 
 <div class="service-gallery-asym">
   <div class="col-a"><img src="<?= htmlspecialchars($row['image'] ?? $row['photo'] ?? $row['photo_principale'] ?? '') ?>" alt="" onerror="this.src='images/placeholder.jpg'"></div>

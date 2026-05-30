@@ -66,6 +66,24 @@ if ($totalPages > 0 && $page > $totalPages) {
     $offset = ($page - 1) * $perPage;
 }
 
+// ── Mini-stat counts ──
+$cmdEnAttente = 0; $cmdConfirmees = 0; $cmdTerminees = 0; $cmdAnnulees = 0; $cmdCA = 0.0;
+$statCmd = mysqli_query($conn, "SELECT
+    SUM(statut IN ('en_attente','pending')) AS en_attente,
+    SUM(statut IN ('confirmé','confirmed','confirmee','accepté')) AS confirmees,
+    SUM(statut IN ('terminé','terminee','termine')) AS terminees,
+    SUM(statut IN ('annulée','annulee','cancelled')) AS annulees,
+    SUM(CASE WHEN statut NOT IN ('annulée','annulee','cancelled') THEN prix_total ELSE 0 END) AS ca
+    FROM reservations
+    WHERE type_service IN ('artisanat', 'repas')");
+if ($statCmd && $sc2 = mysqli_fetch_assoc($statCmd)) {
+    $cmdEnAttente  = (int)($sc2['en_attente'] ?? 0);
+    $cmdConfirmees = (int)($sc2['confirmees'] ?? 0);
+    $cmdTerminees  = (int)($sc2['terminees'] ?? 0);
+    $cmdAnnulees   = (int)($sc2['annulees'] ?? 0);
+    $cmdCA         = (float)($sc2['ca'] ?? 0);
+}
+
 // Fetch list with joins
 $listSql = "
     SELECT r.*,
@@ -115,6 +133,54 @@ require_once __DIR__ . '/includes/sidebar.php';
       <?php if ($flashError !== ''): ?>
         <div class="flash error"><?php echo htmlspecialchars($flashError); ?></div>
       <?php endif; ?>
+
+      <!-- ── Mini stats ── -->
+      <style>
+        .mini-stat-row { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:28px; }
+        @media(max-width:900px){ .mini-stat-row { grid-template-columns:repeat(2,1fr); } }
+        .mini-stat-card { background:var(--white); border-radius:16px; border:1px solid var(--border); padding:20px 18px 16px; box-shadow:0 4px 14px rgba(0,0,0,0.04); transition:transform .2s,box-shadow .2s; }
+        .mini-stat-card:hover { transform:translateY(-3px); box-shadow:0 8px 22px rgba(0,0,0,0.08); }
+        .msi { width:34px; height:34px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:17px; margin-bottom:12px; }
+        .msi.navy  { background:#eef0f6; color:var(--navy); }
+        .msi.orange{ background:#fff4eb; color:var(--coral); }
+        .msi.green { background:#eef6ee; color:#2e7d32; }
+        .msi.red   { background:#fdecea; color:#c0392b; }
+        .msl { font-size:10px; font-weight:800; letter-spacing:1.5px; text-transform:uppercase; color:#8892a4; margin-bottom:5px; }
+        .msv { font-size:26px; font-weight:800; color:var(--navy); line-height:1; margin-bottom:10px; }
+        .msd { border:none; border-top:1px solid var(--border); margin:0 0 8px; }
+        .mss { font-size:11px; color:#8892a4; line-height:1.5; }
+        .mss.pos { color:#2e7d32; } .mss.neg { color:#c0392b; }
+      </style>
+      <div class="mini-stat-row">
+        <div class="mini-stat-card">
+          <div class="msi navy"><i class="bi bi-cart"></i></div>
+          <div class="msl">EN ATTENTE</div>
+          <div class="msv"><?= $cmdEnAttente ?></div>
+          <hr class="msd">
+          <div class="mss"><?= $cmdEnAttente + $cmdConfirmees > 0 ? round($cmdEnAttente / ($cmdEnAttente + $cmdConfirmees) * 100) : 0 ?>% du volume actif</div>
+        </div>
+        <div class="mini-stat-card">
+          <div class="msi orange"><i class="bi bi-bag-check"></i></div>
+          <div class="msl">TRAITÉES</div>
+          <div class="msv"><?= $cmdConfirmees ?></div>
+          <hr class="msd">
+          <div class="mss"><?= $cmdTerminees ?> terminée(s)</div>
+        </div>
+        <div class="mini-stat-card">
+          <div class="msi red"><i class="bi bi-x-circle"></i></div>
+          <div class="msl">ANNULÉES</div>
+          <div class="msv"><?= $cmdAnnulees ?></div>
+          <hr class="msd">
+          <div class="mss neg">Commandes annulées</div>
+        </div>
+        <div class="mini-stat-card">
+          <div class="msi green"><i class="bi bi-cash-coin"></i></div>
+          <div class="msl">CHIFFRE D'AFFAIRES</div>
+          <div class="msv" style="font-size:18px;"><?= number_format($cmdCA, 2, '.', ' ') ?> TND</div>
+          <hr class="msd">
+          <div class="mss pos">Hors annulées</div>
+        </div>
+      </div>
 
       <div class="toolbar">
         <div></div>

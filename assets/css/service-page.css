@@ -1,6 +1,6 @@
 :root {
-  --primary: #1B6B45;
-  --navy: #111111;
+  --primary: #f16e22;
+  --navy: #0b1c30;
   --light-bg: #FFFFFF;
   --border: #E2DDD6;
   --muted: #6B7280;
@@ -211,7 +211,7 @@ body.service-page {
   margin-top: 8px;
 }
 
-.btn-book:hover { background: #155a38; color: #fff; }
+.btn-book:hover { background: #d95716; color: #fff; }
 
 .booking-note {
   text-align: center;

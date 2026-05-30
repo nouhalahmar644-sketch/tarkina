@@ -35,6 +35,7 @@ $totalGuides = table_count($conn, 'guide');
 $totalEvenements = table_count($conn, 'evenement');
 $totalArtisanat = table_count($conn, 'artisanat');
 
+
 $contentCount = $totalHebergements;
 $contentLabel = 'Total hébergements';
 
@@ -196,6 +197,7 @@ require_once __DIR__ . '/includes/sidebar.php';
   
   .order-total { margin-top: 24px; padding-top: 16px; border-top: 1px dashed var(--border); display: flex; justify-content: space-between; align-items: center; font-size: 16px; font-weight: 700; color: var(--navy); margin-bottom: 20px; }
   .btn-checkout { width: 100%; background: var(--coral); color: #fff; border: none; padding: 14px; border-radius: 12px; font-size: 14px; font-weight: 700; cursor: pointer; transition: opacity 0.2s; }
+
   .btn-checkout:hover { opacity: 0.9; }
 
   @media (max-width: 1100px) {

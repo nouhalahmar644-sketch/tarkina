@@ -99,7 +99,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="stylesheet" href="assets/css/rtl.css">
     <style>
-        :root { --primary: #1B6B45; --navy: #111111; --light-bg: #FFFFFF; --text-dark: #1a1a1a; --text-muted: #6b7280; --border: #e5e7eb; }
+        :root { --primary: #f16e22; --navy: #0b1c30; --light-bg: #FFFFFF; --text-dark: #1a1a1a; --text-muted: #6b7280; --border: #e5e7eb; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', system-ui, sans-serif; background: #fff; color: var(--text-dark); }
         .page-wrapper { min-height: 100vh; display: flex; flex-direction: column; }
@@ -121,7 +121,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         .form-group input:focus, .form-group textarea:focus { border-color: var(--primary); background: #fff; }
         .form-group textarea { resize: vertical; min-height: 130px; }
         .btn-submit { width: 100%; padding: 14px; background: var(--primary); color: #fff; border: none; border-radius: 10px; font-size: 1rem; font-weight: 700; cursor: pointer; transition: background .2s; margin-top: 4px; }
-        .btn-submit:hover { background: #155a38; }
+        .btn-submit:hover { background: #d95716; }
         .alert-success { background: #d1fae5; color: #065f46; border-radius: 10px; padding: 12px 16px; font-size: 0.9rem; margin-bottom: 20px; }
         .alert-error { background: #fee2e2; color: #991b1b; border-radius: 10px; padding: 12px 16px; font-size: 0.9rem; margin-bottom: 20px; }
     </style>

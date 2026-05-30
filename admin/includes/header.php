@@ -22,8 +22,8 @@ $adminName = isset($_SESSION['user_name']) ? (string) $_SESSION['user_name'] : '
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
-    --navy: #111111;
-    --coral: #1B6B45;
+    --navy: #0b1c30;
+    --coral: #f16e22;
     --cream: #FFFFFF;
     --charcoal: #2D2D2D;
     --grey: #8A8A8A;
@@ -99,7 +99,7 @@ $adminName = isset($_SESSION['user_name']) ? (string) $_SESSION['user_name'] : '
   }
 
   .sidebar-link.active {
-    background: #1B6B45;
+    background: #f16e22;
     color: #fff;
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
   }
@@ -215,7 +215,7 @@ $adminName = isset($_SESSION['user_name']) ? (string) $_SESSION['user_name'] : '
   }
 
   .search-wrapper input:focus {
-    box-shadow: 0 0 0 3px rgba(27,107,69,0.1);
+    box-shadow: 0 0 0 3px rgba(241,110,34,0.15);
   }
 
   .page-body {
@@ -294,7 +294,7 @@ $adminName = isset($_SESSION['user_name']) ? (string) $_SESSION['user_name'] : '
 
   .search-input:focus {
     border-color: var(--coral);
-    box-shadow: 0 0 0 4px rgba(27,107,69,0.08);
+    box-shadow: 0 0 0 4px rgba(241,110,34,0.1);
     background: var(--white);
   }
 
@@ -367,8 +367,8 @@ $adminName = isset($_SESSION['user_name']) ? (string) $_SESSION['user_name'] : '
   }
 
   .role-pill.admin {
-    background: rgba(27,107,69,0.14);
-    color: #0f4a2d;
+    background: rgba(241,110,34,0.14);
+    color: #b35000;
   }
 
   .actions {
@@ -449,7 +449,7 @@ $adminName = isset($_SESSION['user_name']) ? (string) $_SESSION['user_name'] : '
   .form-select:focus,
   .form-textarea:focus {
     border-color: var(--coral);
-    box-shadow: 0 0 0 4px rgba(27,107,69,0.08);
+    box-shadow: 0 0 0 4px rgba(241,110,34,0.1);
   }
 
   .custom-file-wrap {
@@ -486,7 +486,7 @@ $adminName = isset($_SESSION['user_name']) ? (string) $_SESSION['user_name'] : '
   }
   .custom-file-wrap input[type="file"]:focus + .custom-file-btn {
     border-color: var(--coral);
-    box-shadow: 0 0 0 4px rgba(27,107,69,0.08);
+    box-shadow: 0 0 0 4px rgba(241,110,34,0.1);
   }
   .custom-file-name {
     font-size: 13px;

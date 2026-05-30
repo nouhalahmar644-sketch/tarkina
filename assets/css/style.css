@@ -1,9 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:wght@700;900&display=swap');
 
 :root {
-    --navy: #111111;
+    --navy: #0b1c30;
     --cream: #FFFFFF;
-    --coral: #1B6B45;
+    --coral: #f16e22;
     --white: #ffffff;
     --text: #333333;
     --grey: #666666;
@@ -88,13 +88,13 @@ nav.navbar:not(.navbar-dark) .nav-logo img {
     display: inline-block;
 }
 .btn-nav-primary:hover {
-    background: #155a38;
+    background: #d95716;
     transform: translateY(-2px);
 }
 .btn-nav-outline {
     background: transparent;
     color: var(--navy) !important;
-    border: 1.5px solid #111111;
+    border: 1.5px solid #0b1c30;
     border-radius: 50px;
     padding: 8px 25px;
     font-weight: 600;
@@ -109,12 +109,14 @@ nav.navbar:not(.navbar-dark) .nav-logo img {
     transform: translateY(-2px);
 }
 .navbar-brand img {
-    height: 40px;
+    height: 32px;
     width: auto;
 }
 .btn-outline-white {
     border: 1px solid var(--white);
     color: var(--white);
+    border-radius: 50px;
+    padding: 8px 20px;
 }
 .btn-outline-white:hover {
     background: var(--white);
@@ -171,7 +173,7 @@ nav.navbar:not(.navbar-dark) .nav-logo img {
     padding: 0 16px;
 }
 .booking-icon {
-    color: #1B6B45;
+    color: #f16e22;
     font-size: 18px;
     flex-shrink: 0;
 }
@@ -183,7 +185,7 @@ nav.navbar:not(.navbar-dark) .nav-logo img {
 .booking-field-text label {
     font-size: 11px;
     font-weight: 700;
-    color: #111111;
+    color: #0b1c30;
     letter-spacing: 0.05em;
     cursor: pointer;
     margin: 0;
@@ -206,7 +208,7 @@ nav.navbar:not(.navbar-dark) .nav-logo img {
     flex-shrink: 0;
 }
 .booking-submit {
-    background: #1B6B45;
+    background: #f16e22;
     border: none;
     border-radius: 50%;
     width: 48px;
@@ -221,7 +223,7 @@ nav.navbar:not(.navbar-dark) .nav-logo img {
     margin-left: 8px;
     transition: background 0.2s;
 }
-.booking-submit:hover { background: #155a38; }
+.booking-submit:hover { background: #d95716; }
 
 /* Category Pills */
 .category-pills {
@@ -251,14 +253,14 @@ nav.navbar:not(.navbar-dark) .nav-logo img {
 .category-pills-section .pill,
 section[style*="background:#FFFFFF"] .pill {
     background: #fff;
-    color: #111111;
+    color: #0b1c30;
     border: 1.5px solid #e2ddd8;
     opacity: 1 !important;
 }
 section[style*="background:#FFFFFF"] .pill:hover {
-    background: #1B6B45;
+    background: #f16e22;
     color: #fff;
-    border-color: #1B6B45;
+    border-color: #f16e22;
 }
 
 /* Free Text Search */
@@ -341,17 +343,17 @@ section[style*="background:#FFFFFF"] .pill:hover {
 .btn-forfait {
     display: block;
     width: 100%;
-    background: #1B6B45;
+    background: #f16e22;
     color: white;
     text-align: center;
     text-decoration: none;
     padding: 12px;
-    border-radius: 8px;
+    border-radius: 50px;
     font-weight: 600;
     margin-top: 15px;
     transition: background 0.3s;
 }
-.btn-forfait:hover { background: #155a38; color: white; }
+.btn-forfait:hover { background: #d95716; color: white; }
 
 .inclus-list { list-style: none; padding: 0; margin: 20px 0; }
 .inclus-list li { margin-bottom: 8px; font-size: 0.9rem; display: flex; align-items: center; gap: 10px; }
@@ -574,7 +576,7 @@ footer {
     font-size: .75rem;
     font-weight: 700;
     letter-spacing: 2px;
-    color: #1B6B45;
+    color: #f16e22;
     text-transform: uppercase;
     margin-bottom: 8px;
 }
@@ -601,7 +603,7 @@ footer {
 .trust-item svg {
     width: 26px;
     height: 26px;
-    stroke: #1B6B45;
+    stroke: #f16e22;
     flex-shrink: 0;
     margin-top: 2px;
 }
@@ -650,8 +652,8 @@ footer {
     position: relative;
 }
 .exp-card:hover {
-    border-color: #1B6B45;
-    box-shadow: 0 8px 30px rgba(27, 107, 69, .1);
+    border-color: #f16e22;
+    box-shadow: 0 8px 30px rgba(241, 110, 34, .1);
     transform: translateY(-3px);
 }
 .exp-icon { font-size: 1.8rem; }
@@ -660,7 +662,7 @@ footer {
     font-weight: 700;
     letter-spacing: 1.5px;
     text-transform: uppercase;
-    color: #1B6B45;
+    color: #f16e22;
 }
 .exp-text strong {
     display: block;
@@ -678,7 +680,7 @@ footer {
     bottom: 16px;
     right: 16px;
     font-size: 1rem;
-    color: #1B6B45;
+    color: #f16e22;
     font-weight: 700;
     opacity: 0;
     transition: opacity .2s;
@@ -724,7 +726,7 @@ footer {
     border: 3px solid #FFFFFF;
     transition: border-color .2s;
 }
-.host-card:hover .host-photo { border-color: #1B6B45; }
+.host-card:hover .host-photo { border-color: #f16e22; }
 .host-photo img {
     width: 100%;
     height: 100%;
@@ -744,28 +746,28 @@ footer {
     color: #6b7280;
 }
 .host-price {
-    color: #1B6B45 !important;
+    color: #f16e22 !important;
     font-weight: 600 !important;
 }
 .btn-see-all {
-    color: #1B6B45;
+    color: #f16e22;
     text-decoration: none;
     font-weight: 700;
     font-size: .92rem;
-    border: 1.5px solid #1B6B45;
+    border: 1.5px solid #f16e22;
     padding: 8px 20px;
     border-radius: 50px;
     transition: all .2s;
     white-space: nowrap;
 }
 .btn-see-all:hover {
-    background: #1B6B45;
+    background: #f16e22;
     color: #fff;
 }
 
 /* ── Testimonials — Hover Popup Design ─────────────────────────────────── */
 .temoignages-section {
-    background: #111111;
+    background: #0b1c30;
     padding: 80px 60px;
     text-align: center;
 }
@@ -774,7 +776,7 @@ footer {
     font-size: .75rem;
     font-weight: 700;
     letter-spacing: 2.5px;
-    color: #1B6B45;
+    color: #f16e22;
     text-transform: uppercase;
     margin-bottom: 12px;
 }
@@ -802,7 +804,7 @@ footer {
 }
 .temo-card:hover {
     transform: translateY(-4px);
-    border-color: rgba(27,107,69,0.5);
+    border-color: rgba(241,110,34,0.5);
 }
 .temo-avatar {
     width: 52px;
@@ -826,7 +828,7 @@ footer {
 }
 .temo-name { color: #fff; font-weight: 700; font-size: .9rem; }
 .temo-city { color: rgba(255,255,255,.5); font-size: .8rem; margin-bottom: 10px; }
-.temo-stars { color: #1B6B45; font-size: 1rem; letter-spacing: 2px; }
+.temo-stars { color: #f16e22; font-size: 1rem; letter-spacing: 2px; }
 
 /* Hover Popup */
 .temo-popup {
@@ -882,26 +884,26 @@ footer {
 .temo-popup-content span { font-size: .78rem; color: #6b7280; display: block; }
 .temo-tag {
     margin-top: 6px !important;
-    color: #1B6B45 !important;
+    color: #f16e22 !important;
     font-weight: 600 !important;
 }
 
 /* EXPLORER REGIONS MAP */
 .explorer-hero {
-    background: #111111;
+    background: #0b1c30;
     padding: 80px 24px 36px;
     text-align: center;
 }
 .hero-tag {
     display: inline-block;
-    background: rgba(27,107,69,0.18);
-    color: #1B6B45;
+    background: rgba(241,110,34,0.18);
+    color: #f16e22;
     font-size: 12px;
     font-weight: 600;
     padding: 4px 14px;
     border-radius: 20px;
     margin-bottom: 14px;
-    border: 1px solid rgba(27,107,69,0.3);
+    border: 1px solid rgba(241,110,34,0.3);
 }
 .explorer-hero h1 {
     color: #fff;
@@ -931,7 +933,7 @@ footer {
     font-family: inherit;
 }
 .hero-search button {
-    background: #1B6B45;
+    background: #f16e22;
     border: none;
     color: #fff;
     padding: 12px 20px;
@@ -947,7 +949,7 @@ footer {
     border-top: 1px solid rgba(255,255,255,0.1);
 }
 .hero-stat { text-align: center; }
-.stat-num { display: block; color: #1B6B45; font-size: 1.4rem; font-weight: 700; }
+.stat-num { display: block; color: #f16e22; font-size: 1.4rem; font-weight: 700; }
 .stat-label { color: rgba(255,255,255,0.5); font-size: 0.78rem; }
 
 .explorer-map { height: 480px; width: 100%; z-index: 1; }
@@ -964,7 +966,7 @@ footer {
     margin-bottom: 24px;
 }
 .section-header h2 {
-    color: #111111;
+    color: #0b1c30;
     font-size: 1.5rem;
 }
 .regions-list {
@@ -984,12 +986,12 @@ footer {
 }
 .region-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 8px 28px rgba(17,17,17,0.13);
-    border-color: #1B6B45;
+    box-shadow: 0 8px 28px rgba(11,28,48,0.13);
+    border-color: #f16e22;
 }
 .region-card.active {
-    border-color: #1B6B45;
-    box-shadow: 0 0 0 3px rgba(27,107,69,0.15);
+    border-color: #f16e22;
+    box-shadow: 0 0 0 3px rgba(241,110,34,0.15);
 }
 .card-img {
     width: 100%;
@@ -1011,7 +1013,7 @@ footer {
     position: absolute;
     bottom: 10px;
     left: 10px;
-    background: #1B6B45;
+    background: #f16e22;
     color: #fff;
     font-size: 0.78rem;
     font-weight: 600;
@@ -1026,7 +1028,7 @@ footer {
     justify-content: space-between;
 }
 .card-top h3 {
-    color: #111111;
+    color: #0b1c30;
     font-size: 1rem;
     font-weight: 700;
     margin-bottom: 5px;
@@ -1048,33 +1050,33 @@ footer {
 }
 .card-highlights {
     font-size: 0.75rem;
-    color: #1B6B45;
+    color: #f16e22;
     font-weight: 500;
 }
 .btn-explore {
-    background: #111111;
+    background: #0b1c30;
     color: #fff;
     padding: 6px 14px;
-    border-radius: 8px;
+    border-radius: 50px;
     font-size: 0.82rem;
     font-weight: 600;
     text-decoration: none;
     transition: background 0.2s;
     white-space: nowrap;
 }
-.btn-explore:hover { background: #1B6B45; }
+.btn-explore:hover { background: #f16e22; }
 
-.flatpickr-calendar { border-radius: 14px !important; border: 1.5px solid #e2ddd8 !important; box-shadow: 0 8px 32px rgba(17,17,17,0.13) !important; font-family: inherit !important; overflow: hidden; }
-.flatpickr-months { background: #111111 !important; border-radius: 12px 12px 0 0 !important; padding: 6px 0 !important; }
+.flatpickr-calendar { border-radius: 14px !important; border: 1.5px solid #e2ddd8 !important; box-shadow: 0 8px 32px rgba(11,28,48,0.13) !important; font-family: inherit !important; overflow: hidden; }
+.flatpickr-months { background: #0b1c30 !important; border-radius: 12px 12px 0 0 !important; padding: 6px 0 !important; }
 .flatpickr-month, .flatpickr-current-month, .flatpickr-current-month .cur-month, .flatpickr-current-month .numInputWrapper input { color: #fff !important; }
 .flatpickr-prev-month, .flatpickr-next-month { color: #fff !important; fill: #fff !important; }
-.flatpickr-prev-month:hover svg, .flatpickr-next-month:hover svg { fill: #1B6B45 !important; }
-.flatpickr-weekday { color: #111111 !important; font-weight: 600 !important; font-size: 11px !important; }
+.flatpickr-prev-month:hover svg, .flatpickr-next-month:hover svg { fill: #f16e22 !important; }
+.flatpickr-weekday { color: #0b1c30 !important; font-weight: 600 !important; font-size: 11px !important; }
 .flatpickr-day { border-radius: 8px !important; font-size: 13px !important; color: #333 !important; }
-.flatpickr-day:hover { background: #e8f5ef !important; border-color: #e8f5ef !important; color: #1B6B45 !important; }
-.flatpickr-day.selected, .flatpickr-day.startRange, .flatpickr-day.endRange { background: #1B6B45 !important; border-color: #1B6B45 !important; color: #fff !important; }
-.flatpickr-day.inRange { background: #e8f5ef !important; border-color: #e8f5ef !important; color: #1B6B45 !important; box-shadow: -5px 0 0 #e8f5ef, 5px 0 0 #e8f5ef !important; }
-.flatpickr-day.today { border-color: #1B6B45 !important; color: #1B6B45 !important; font-weight: 600 !important; }
+.flatpickr-day:hover { background: #fdf2ec !important; border-color: #fdf2ec !important; color: #f16e22 !important; }
+.flatpickr-day.selected, .flatpickr-day.startRange, .flatpickr-day.endRange { background: #f16e22 !important; border-color: #f16e22 !important; color: #fff !important; }
+.flatpickr-day.inRange { background: #fdf2ec !important; border-color: #fdf2ec !important; color: #f16e22 !important; box-shadow: -5px 0 0 #fdf2ec, 5px 0 0 #fdf2ec !important; }
+.flatpickr-day.today { border-color: #f16e22 !important; color: #f16e22 !important; font-weight: 600 !important; }
 .flatpickr-day.today.selected { color: #fff !important; }
 
 .category-pills-section {
@@ -1092,7 +1094,7 @@ footer {
 .pills-bar .pill {
   background: #fff;
   border: 1.5px solid #e2ddd8;
-  color: #111111;
+  color: #0b1c30;
   border-radius: 999px;
   padding: 7px 18px;
   font-size: 13px;
@@ -1103,14 +1105,14 @@ footer {
 }
 .explorer-pills .pill:hover,
 .pills-bar .pill:hover {
-  background: #e8f5ef;
-  border-color: #1B6B45;
-  color: #1B6B45;
+  background: #fdf2ec;
+  border-color: #f16e22;
+  color: #f16e22;
 }
 .explorer-pills .pill.active,
 .pills-bar .pill.active {
-  background: #1B6B45;
-  border-color: #1B6B45;
+  background: #f16e22;
+  border-color: #f16e22;
   color: #fff;
 }
 

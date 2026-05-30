@@ -175,8 +175,8 @@ foreach ($regions as $r) {
 
     <style>
         :root {
-            --navy: #111111;
-            --coral: #1B6B45;
+            --navy: #0b1c30;
+            --coral: #f16e22;
             --cream: #FFFFFF;
             --border: #E5E7EB;
             --muted: #6B7280;
@@ -185,7 +185,7 @@ foreach ($regions as $r) {
 
         /* Page header */
         .discover-hero {
-            background: linear-gradient(135deg, var(--navy) 0%, #163140 100%);
+            background: linear-gradient(135deg, var(--navy) 0%, #162e49 100%);
             color: #fff;
             padding: 80px 20px 70px;
             text-align: center;
@@ -193,9 +193,9 @@ foreach ($regions as $r) {
         }
         .discover-hero .tag {
             display: inline-block;
-            background: rgba(27, 107, 69, 0.18);
+            background: rgba(241, 110, 34, 0.18);
             color: #ffd9c9;
-            border: 1px solid rgba(27, 107, 69, 0.4);
+            border: 1px solid rgba(241, 110, 34, 0.4);
             padding: 6px 16px;
             border-radius: 50px;
             font-size: 0.8rem;
@@ -282,7 +282,7 @@ foreach ($regions as $r) {
             transition: background .2s ease;
             align-self: flex-start;
         }
-        .btn-discover:hover { background: #c64a1f; color: #fff; }
+        .btn-discover:hover { background: #d95716; color: #fff; }
         .fade-in-up { opacity: 0; transform: translateY(30px); transition: opacity 0.6s ease, transform 0.6s ease; }
         .fade-in-up.visible { opacity: 1; transform: translateY(0); }
     </style>
@@ -353,7 +353,7 @@ foreach ($regions as $r) {
 
     const coralIcon = L.divIcon({
         className: '',
-        html: '<div style="background:#1B6B45;width:16px;height:16px;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.35)"></div>',
+        html: '<div style="background:#f16e22;width:16px;height:16px;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.35)"></div>',
         iconSize: [22, 22],
         iconAnchor: [11, 11],
         popupAnchor: [0, -12]

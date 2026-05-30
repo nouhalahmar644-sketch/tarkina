@@ -280,12 +280,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     .pack-svc-card:hover { box-shadow:0 10px 28px rgba(17,17,17,.10); transform:translateY(-3px); color:inherit; }
     .pack-svc-card img { width:100%; height:150px; object-fit:cover; display:block; }
     .pack-svc-card .pack-svc-body { padding:14px 16px; flex:1; display:flex; flex-direction:column; }
-    .pack-svc-card .pack-svc-type { font-size:.7rem; font-weight:800; text-transform:uppercase; letter-spacing:.7px; color:#1B6B45; margin-bottom:6px; }
+    .pack-svc-card .pack-svc-type { font-size:.7rem; font-weight:800; text-transform:uppercase; letter-spacing:.7px; color:#f16e22; margin-bottom:6px; }
     .pack-svc-card .pack-svc-title { font-weight:700; font-size:.97rem; color:#111; margin:0 0 6px; line-height:1.35; }
     .pack-svc-card .pack-svc-loc { font-size:.78rem; color:#777; margin:0 0 10px; }
     .pack-svc-card .pack-svc-foot { margin-top:auto; display:flex; justify-content:space-between; align-items:center; font-size:.85rem; }
     .pack-svc-card .pack-svc-price { font-weight:700; color:#111; }
-    .pack-svc-card .pack-svc-link { color:#1B6B45; font-weight:600; font-size:.78rem; }
+    .pack-svc-card .pack-svc-link { color:#f16e22; font-weight:600; font-size:.78rem; }
     .pack-region-pill { display:inline-flex; align-items:center; gap:6px; background:#f1eee9; padding:5px 12px; border-radius:999px; font-size:.82rem; font-weight:600; color:#333; margin-right:8px; }
   </style>
 </head>
@@ -293,7 +293,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <?php include __DIR__ . '/navbar.php'; ?>
 
-<button onclick="history.back()" style="background:none;border:none;cursor:pointer;font-size:1rem;color:#1B3A4B;padding:14px 0 0 24px;display:inline-flex;align-items:center;gap:6px;font-weight:600;" onmouseover="this.style.color='#1B6B45'" onmouseout="this.style.color='#1B3A4B'">
+<button onclick="history.back()" style="background:none;border:none;cursor:pointer;font-size:1rem;color:#0b1c30;padding:14px 0 0 24px;display:inline-flex;align-items:center;gap:6px;font-weight:600;" onmouseover="this.style.color='#f16e22'" onmouseout="this.style.color='#0b1c30'">
   <?= htmlspecialchars($L['back']) ?>
 </button>
 

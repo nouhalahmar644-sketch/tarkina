@@ -217,7 +217,7 @@ function tk_stable_rating(int $id): array {
 <link rel="stylesheet" href="assets/css/rtl.css">
 <style>
 *,*::before,*::after{box-sizing:border-box;}
-:root{--navy:#111111;--coral:#1B6B45;--text:#1a1a1a;--muted:#6b7280;--border:#e5e7eb;--bg:#ffffff;}
+:root{--navy:#0b1c30;--coral:#f16e22;--text:#1a1a1a;--muted:#6b7280;--border:#e5e7eb;--bg:#ffffff;}
 body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--text);margin:0;}
 a{color:inherit;}
 
