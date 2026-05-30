@@ -124,59 +124,72 @@ $desc = trim((string) ($item['description'] ?? $L['desc_default']));
 
 <button onclick="history.back()" style="display:inline-flex;align-items:center;gap:8px;margin:14px 0 0 24px;background:#fff;border:1.5px solid #e2ddd8;border-radius:50px;padding:8px 18px;color:#0b1c30;cursor:pointer;font-weight:600;font-size:.9rem;font-family:inherit;transition:all .2s;" onmouseover="this.style.borderColor='#f16e22';this.style.color='#f16e22'" onmouseout="this.style.borderColor='#e2ddd8';this.style.color='#0b1c30'">&#8592; <?php echo htmlspecialchars($L['back']) ?></button>
 
+<?php
+$allPhotos = array_merge([$mainPhoto], $thumbs);
+$allPhotos = array_unique(array_filter($allPhotos));
+?>
+
 <div class="container py-4">
 
-
   <div class="row g-4">
-    <div class="col-lg-6">
-      <img id="mainProductImg" class="artisanat-main-img" src="<?= htmlspecialchars($row['image'] ?? $row['photo'] ?? $row['photo_principale'] ?? '') ?>" alt="<?= htmlspecialchars($item['titre']) ?>" onerror="this.src='images/placeholder.jpg'">
-      <div class="artisanat-thumbs">
-        <?php foreach ($thumbs as $i => $th): ?>
-          <img src="<?= htmlspecialchars($th) ?>" alt="" class="thumb-img <?= $i === 0 ? 'active' : '' ?>" data-src="<?= htmlspecialchars($th) ?>" onerror="this.src='images/placeholder.jpg'">
-        <?php endforeach; ?>
+    <div class="col-lg-7">
+      
+      <!-- Photo Gallery: main photo + thumbnail grid below it -->
+      <div class="mb-4">
+        <img id="mainProductImg" class="artisanat-main-img" src="<?= htmlspecialchars($mainPhoto) ?>" alt="<?= htmlspecialchars($item['titre']) ?>" style="width: 100%; border-radius: 12px; height: 380px; object-fit: cover; margin-bottom: 12px;" onerror="this.src='images/placeholder.jpg'">
+        <?php if (count($allPhotos) > 1): ?>
+          <div class="artisanat-thumbs" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px;">
+            <?php foreach ($allPhotos as $i => $ph): ?>
+              <img src="<?= htmlspecialchars($ph) ?>" alt="" class="thumb-img <?= $i === 0 ? 'active' : '' ?>" data-src="<?= htmlspecialchars($ph) ?>" style="height: 70px; width: 100%; object-fit: cover; border-radius: 8px; cursor: pointer; border: 2px solid transparent; transition: all 0.2s;" onerror="this.src='images/placeholder.jpg'">
+            <?php endforeach; ?>
+          </div>
+        <?php endif; ?>
       </div>
-    </div>
 
-    <div class="col-lg-6">
       <div class="service-cat"><?= htmlspecialchars($L['cat']) ?> · <?= htmlspecialchars($regionNomDisplay) ?></div>
       <h1 class="service-title"><?= htmlspecialchars($item['titre']) ?></h1>
       <div class="service-meta">
         <span>⭐ <?= $__sum['count'] > 0 ? number_format($__sum['avg'], 1) : '—' ?> · <?= (int) $__sum['count'] ?> <?= htmlspecialchars($L['reviews']) ?></span>
         <span>📍 <?= htmlspecialchars(service_localisation($item)) ?></span>
       </div>
-      <div class="booking-price" style="margin:16px 0;"><?= number_format($prix, 0) ?> TND</div>
       <p class="service-desc text-muted"><?= nl2br(htmlspecialchars($desc)) ?></p>
 
-      <?php if ($successMsg): ?><div class="flash-ok"><?= htmlspecialchars($successMsg) ?></div><?php endif; ?>
-      <?php if ($errorMsg): ?><div class="flash-err"><?= htmlspecialchars($errorMsg) ?></div><?php endif; ?>
-
-      <?php if (empty($_SESSION['user_id'])): ?>
-        <div class="login-prompt order-box"><p><?= htmlspecialchars($L['login_to_order']) ?></p><a href="login.php"><?= htmlspecialchars($L['login']) ?></a> · <a href="register.php"><?= htmlspecialchars($L['create_account']) ?></a></div>
-      <?php else: ?>
-      <form method="post" class="order-box">
-        <label class="form-label small fw-bold"><?= htmlspecialchars($L['quantity']) ?></label>
-        <div class="qty-wrap">
-          <button type="button" class="qty-btn" id="qtyMinus">−</button>
-          <span class="qty-val" id="qtyVal">1</span>
-          <input type="hidden" name="quantite" id="quantite" value="1">
-          <button type="button" class="qty-btn" id="qtyPlus">+</button>
-        </div>
-        <div class="row g-2 mb-3">
-          <div class="col-6"><label class="form-label small fw-bold"><?= htmlspecialchars($L['name']) ?></label><input type="text" name="nom" class="form-control" value="<?= htmlspecialchars($_SESSION['user_name'] ?? '') ?>" required></div>
-          <div class="col-6"><label class="form-label small fw-bold"><?= htmlspecialchars($L['email']) ?></label><input type="email" name="email" class="form-control" required></div>
-        </div>
-        <div class="mb-3"><label class="form-label small fw-bold"><?= htmlspecialchars($L['delivery_address']) ?></label><input type="text" name="adresse" class="form-control" required></div>
-        <hr class="booking-sep">
-        <div class="booking-total-row"><span><?= htmlspecialchars($L['total']) ?></span><span id="totalDisplay"><?= number_format($prix, 0) ?> TND</span></div>
-        <button type="submit" class="btn-book"><?= htmlspecialchars($L['order']) ?></button>
-      </form>
-      <?php endif; ?>
+      <div class="service-section" style="margin-top:24px;">
+        <h3><?= htmlspecialchars($L['customer_reviews']) ?></h3>
+        <?php $serviceType = 'artisanat'; $serviceId = $id; include __DIR__ . '/includes/avis_section.php'; ?>
+      </div>
     </div>
-  </div>
 
-  <div class="service-section" style="margin-top:24px;">
-    <h3><?= htmlspecialchars($L['customer_reviews']) ?></h3>
-    <?php $serviceType = 'artisanat'; $serviceId = $id; include __DIR__ . '/includes/avis_section.php'; ?>
+    <div class="col-lg-5">
+      <div class="booking-card">
+        <div class="booking-price"><?= number_format($prix, 0) ?> TND</div>
+        <?php if ($successMsg): ?><div class="flash-ok"><?= htmlspecialchars($successMsg) ?></div><?php endif; ?>
+        <?php if ($errorMsg): ?><div class="flash-err"><?= htmlspecialchars($errorMsg) ?></div><?php endif; ?>
+
+        <?php if (empty($_SESSION['user_id'])): ?>
+          <div class="login-prompt"><p><?= htmlspecialchars($L['login_to_order']) ?></p><a href="login.php"><?= htmlspecialchars($L['login']) ?></a> · <a href="register.php"><?= htmlspecialchars($L['create_account']) ?></a></div>
+        <?php else: ?>
+        <form method="post">
+          <hr class="booking-sep">
+          <label class="form-label small fw-bold"><?= htmlspecialchars($L['quantity']) ?></label>
+          <div class="qty-wrap mb-3">
+            <button type="button" class="qty-btn" id="qtyMinus">−</button>
+            <span class="qty-val" id="qtyVal">1</span>
+            <input type="hidden" name="quantite" id="quantite" value="1">
+            <button type="button" class="qty-btn" id="qtyPlus">+</button>
+          </div>
+          <div class="row g-2 mb-3">
+            <div class="col-6"><label class="form-label small fw-bold"><?= htmlspecialchars($L['name']) ?></label><input type="text" name="nom" class="form-control" value="<?= htmlspecialchars($_SESSION['user_name'] ?? '') ?>" required></div>
+            <div class="col-6"><label class="form-label small fw-bold"><?= htmlspecialchars($L['email']) ?></label><input type="email" name="email" class="form-control" required></div>
+          </div>
+          <div class="mb-3"><label class="form-label small fw-bold"><?= htmlspecialchars($L['delivery_address']) ?></label><input type="text" name="adresse" class="form-control" required></div>
+          <hr class="booking-sep">
+          <div class="booking-total-row"><span><?= htmlspecialchars($L['total']) ?></span><span id="totalDisplay"><?= number_format($prix, 0) ?> TND</span></div>
+          <button type="submit" class="btn-book"><?= htmlspecialchars($L['order']) ?></button>
+        </form>
+        <?php endif; ?>
+      </div>
+    </div>
   </div>
 </div>
 

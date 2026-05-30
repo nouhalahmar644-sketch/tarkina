@@ -146,23 +146,34 @@ $desc = trim((string) ($item['description'] ?? $L['desc_default']));
 
 <button onclick="history.back()" style="display:inline-flex;align-items:center;gap:8px;margin:14px 0 0 24px;background:#fff;border:1.5px solid #e2ddd8;border-radius:50px;padding:8px 18px;color:#0b1c30;cursor:pointer;font-weight:600;font-size:.9rem;font-family:inherit;transition:all .2s;" onmouseover="this.style.borderColor='#f16e22';this.style.color='#f16e22'" onmouseout="this.style.borderColor='#e2ddd8';this.style.color='#0b1c30'">&#8592; <?= htmlspecialchars($L['back']) ?></button>
 
-<div class="service-gallery-grid6">
-  <img src="<?= htmlspecialchars($row['image'] ?? $row['photo'] ?? $row['photo_principale'] ?? '') ?>" alt="<?= htmlspecialchars($item['titre']) ?>" onerror="this.src='images/placeholder.jpg'">
-  <?php foreach (array_slice($gridPhotos, 0, 5) as $ph): ?>
-    <img src="<?= htmlspecialchars($ph) ?>" alt="" onerror="this.src='images/placeholder.jpg'">
-  <?php endforeach; ?>
-</div>
+<?php
+$allPhotos = array_merge([$mainPhoto], $gridPhotos);
+$allPhotos = array_unique(array_filter($allPhotos));
+?>
 
 <div class="container py-3">
 
   <div class="row g-4">
-    <div class="col-lg-8">
+    <div class="col-lg-7">
+      
+      <!-- Photo Gallery: main photo + thumbnail grid below it -->
+      <div class="mb-4">
+        <img id="mainProductImg" class="artisanat-main-img" src="<?= htmlspecialchars($mainPhoto) ?>" alt="<?= htmlspecialchars($item['titre']) ?>" style="width: 100%; border-radius: 12px; height: 380px; object-fit: cover; margin-bottom: 12px;" onerror="this.src='images/placeholder.jpg'">
+        <?php if (count($allPhotos) > 1): ?>
+          <div class="artisanat-thumbs" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px;">
+            <?php foreach ($allPhotos as $i => $ph): ?>
+              <img src="<?= htmlspecialchars($ph) ?>" alt="" class="thumb-img <?= $i === 0 ? 'active' : '' ?>" data-src="<?= htmlspecialchars($ph) ?>" style="height: 70px; width: 100%; object-fit: cover; border-radius: 8px; cursor: pointer; border: 2px solid transparent; transition: all 0.2s;" onerror="this.src='images/placeholder.jpg'">
+            <?php endforeach; ?>
+          </div>
+        <?php endif; ?>
+      </div>
+
       <div class="service-cat"><?= htmlspecialchars($L['cat']) ?></div>
       <h1 class="service-title"><?= htmlspecialchars($item['titre']) ?></h1>
       <div class="service-meta">
-        <span><?= htmlspecialchars(service_localisation($item)) ?></span>
+        <span>📍 <?= htmlspecialchars(service_localisation($item)) ?></span>
         <span>⭐ <?= $__sum['count'] > 0 ? number_format($__sum['avg'], 1) : '—' ?> (<?= (int) $__sum['count'] ?> <?= htmlspecialchars($L['reviews']) ?>)</span>
-        <span><?= htmlspecialchars($L['capacity']) ?> <?= $capacite ?></span>
+        <span>👥 <?= htmlspecialchars($L['capacity']) ?> <?= $capacite ?></span>
       </div>
       <p class="service-desc"><?= nl2br(htmlspecialchars($desc)) ?></p>
       <hr>
@@ -172,7 +183,7 @@ $desc = trim((string) ($item['description'] ?? $L['desc_default']));
         <?php $serviceType = 'guide'; $serviceId = $id; include __DIR__ . '/includes/avis_section.php'; ?>
       </div>
     </div>
-    <div class="col-lg-4">
+    <div class="col-lg-5">
       <div class="booking-card">
         <div class="booking-price"><?= number_format($prix, 0) ?> TND <small><?= htmlspecialchars($L['per_person']) ?></small></div>
         <?php if ($successMsg): ?><div class="flash-ok"><?= htmlspecialchars($successMsg) ?></div><?php endif; ?>
@@ -207,6 +218,13 @@ if (pers) {
     document.getElementById('totalDisplay').textContent = t.toFixed(0)+' TND'; }
   pers.addEventListener('input', upd);
 }
+document.querySelectorAll('.thumb-img').forEach(img=>{
+  img.addEventListener('click', ()=>{
+    document.getElementById('mainProductImg').src = img.dataset.src;
+    document.querySelectorAll('.thumb-img').forEach(t=>t.classList.remove('active'));
+    img.classList.add('active');
+  });
+});
 </script>
 </body>
 </html>

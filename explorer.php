@@ -72,13 +72,17 @@ $fallback_by_name = [
     'Chenini'       => 'https://images.unsplash.com/photo-1547471080-7cc2caa01a7e?w=800&q=80',
 ];
 
+require_once __DIR__ . '/includes/region_photo.php';
+
 /**
  * Resolve the best photo URL for a region.
  * Priority:
  *  1. photo_principale starting with http -> use as-is
  *  2. file exists at images/regions/<photo_principale> or uploads/regions/<photo_principale>
- *  3. existing 'photo' column file on disk (legacy assets)
- *  4. per-region Unsplash fallback (else generic Tunisia fallback)
+ *  3. JSON manifest (data/region_photos.json) — code-only fallback for admin
+ *     uploads when the DB isn't synced across machines
+ *  4. existing 'photo' column file on disk (legacy assets)
+ *  5. per-region Unsplash fallback (else generic Tunisia fallback)
  */
 function region_photo(array $r, array $fallback_by_name, string $fallback_default): string
 {
@@ -106,6 +110,16 @@ function region_photo(array $r, array $fallback_by_name, string $fallback_defaul
                     return $dir . $pp;
                 }
             }
+        }
+    }
+
+    // Manifest fallback (code-only, propagates admin uploads across machines)
+    $rid = (int) ($r['id'] ?? 0);
+    if ($rid > 0) {
+        $manifest = region_photo_fallback($rid);
+        if ($manifest !== '') {
+            if (stripos($manifest, 'http') === 0) return $manifest;
+            if (is_file(__DIR__ . '/' . ltrim($manifest, '/'))) return ltrim($manifest, '/');
         }
     }
 

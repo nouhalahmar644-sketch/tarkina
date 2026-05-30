@@ -109,8 +109,15 @@ function blog_date_fr($datetime, $lang = 'fr') {
 <?php include 'navbar.php'; ?>
 
 <section class="blog-hero">
-  <h1><?= htmlspecialchars($L['hero_a']) ?><span style="color:#ffd9c9"><?= htmlspecialchars($L['hero_b']) ?></span><?= htmlspecialchars($L['hero_c']) ?></h1>
-  <p><?= htmlspecialchars($L['hero_sub']) ?></p>
+  <span class="blog-hero__label">Blog</span>
+  <h1 class="blog-hero__title">Le Blog des Voyageurs</h1>
+  <p class="blog-hero__sub"><?= htmlspecialchars($L['hero_sub']) ?></p>
+  <form class="blog-search-form" method="get" action="blogs.php">
+    <div class="blog-search-group">
+      <input type="text" name="search" class="blog-search-input" placeholder="Rechercher un article...">
+      <button type="submit" class="blog-search-btn">Rechercher</button>
+    </div>
+  </form>
 </section>
 
 <div class="blog-wrap">
@@ -128,35 +135,71 @@ function blog_date_fr($datetime, $lang = 'fr') {
     <?php endif; ?>
   </div>
 
-  <?php if (empty($posts)): ?>
-    <div class="blog-empty">
-      <i class="bi bi-journal-text" style="font-size:2.5rem;color:#ccc;"></i>
-      <p><?= htmlspecialchars($L['empty_a']) ?><?= $regionFilter ? htmlspecialchars($L['empty_b']) : '' ?><?= htmlspecialchars($L['empty_c']) ?></p>
+  <div class="row g-4">
+    <div class="col-lg-8">
+      <?php if (empty($posts)): ?>
+        <div class="blog-empty">
+          <i class="bi bi-journal-text" style="font-size:2.5rem;color:#ccc;"></i>
+          <p><?= htmlspecialchars($L['empty_a']) ?><?= $regionFilter ? htmlspecialchars($L['empty_b']) : '' ?><?= htmlspecialchars($L['empty_c']) ?></p>
+        </div>
+      <?php else: ?>
+        <div class="blog-grid">
+          <?php foreach ($posts as $p): ?>
+            <?php
+              $img = blog_photo_src($p['photo'] ?? '', 'https://images.unsplash.com/photo-1539650116574-75c0c6d73f6e?w=700&q=80');
+            ?>
+            <a href="blog-post.php?id=<?= (int)$p['id'] ?>" class="blog-card">
+              <div class="blog-card__img">
+                <img loading="lazy" src="<?= htmlspecialchars($img) ?>" alt="<?= htmlspecialchars($p['titre']) ?>">
+              </div>
+              <div class="blog-card__body">
+                <?php if (!empty($p['region_nom'])): ?>
+                  <span class="blog-card__region-badge"><i class="bi bi-geo-alt-fill"></i> <?= htmlspecialchars($p['region_nom']) ?></span>
+                <?php endif; ?>
+                <h3 class="blog-card__title"><?= htmlspecialchars($p['titre']) ?></h3>
+                <span class="blog-card__date"><i class="bi bi-calendar3"></i> <?= htmlspecialchars(blog_date_fr($p['created_at'], $lang)) ?></span>
+                <p class="blog-card__excerpt"><?= htmlspecialchars(blog_excerpt($p['contenu'])) ?></p>
+                <div class="blog-card__more">Lire la suite &rarr;</div>
+                <div class="blog-card__meta">
+                  <span class="blog-card__author"><span class="avatar"><?= htmlspecialchars(blog_initials($p['prenom'], $p['nom'])) ?></span><?= htmlspecialchars($p['prenom'].' '.$p['nom']) ?></span>
+                  <span class="blog-like"><i class="bi bi-heart-fill"></i> <?= (int)$p['likes'] ?></span>
+                </div>
+              </div>
+            </a>
+          <?php endforeach; ?>
+        </div>
+      <?php endif; ?>
     </div>
-  <?php else: ?>
-    <div class="blog-grid">
-      <?php foreach ($posts as $p): ?>
+
+    <div class="col-lg-4">
+      <div class="blog-sidebar">
         <?php
-          $img = blog_photo_src($p['photo'] ?? '', 'https://images.unsplash.com/photo-1539650116574-75c0c6d73f6e?w=700&q=80');
+        $recentPosts = array_slice($posts, 0, 3);
+        if (!empty($recentPosts)):
         ?>
-        <a href="blog-post.php?id=<?= (int)$p['id'] ?>" class="blog-card">
-          <div class="blog-card__img">
-            <img loading="lazy" src="<?= htmlspecialchars($img) ?>" alt="<?= htmlspecialchars($p['titre']) ?>">
-            <?php if (!empty($p['region_nom'])): ?><span class="blog-card__region"><i class="bi bi-geo-alt-fill"></i> <?= htmlspecialchars($p['region_nom']) ?></span><?php endif; ?>
-          </div>
-          <div class="blog-card__body">
-            <h3 class="blog-card__title"><?= htmlspecialchars($p['titre']) ?></h3>
-            <span class="blog-card__date"><i class="bi bi-calendar3"></i> <?= htmlspecialchars(blog_date_fr($p['created_at'], $lang)) ?></span>
-            <p class="blog-card__excerpt"><?= htmlspecialchars(blog_excerpt($p['contenu'])) ?></p>
-            <div class="blog-card__meta">
-              <span class="blog-card__author"><span class="avatar"><?= htmlspecialchars(blog_initials($p['prenom'], $p['nom'])) ?></span><?= htmlspecialchars($p['prenom'].' '.$p['nom']) ?></span>
-              <span class="blog-like"><i class="bi bi-heart-fill"></i> <?= (int)$p['likes'] ?></span>
+          <div class="sidebar-widget">
+            <h4 class="sidebar-widget__title">Articles récents</h4>
+            <div class="recent-posts-list">
+              <?php foreach ($recentPosts as $rp): ?>
+                <?php
+                  $rpImg = blog_photo_src($rp['photo'] ?? '', 'https://images.unsplash.com/photo-1539650116574-75c0c6d73f6e?w=150&q=80');
+                ?>
+                <a href="blog-post.php?id=<?= (int)$rp['id'] ?>" class="recent-post-item">
+                  <div class="recent-post-thumb">
+                    <img src="<?= htmlspecialchars($rpImg) ?>" alt="<?= htmlspecialchars($rp['titre']) ?>" onerror="this.src='images/placeholder.jpg'">
+                  </div>
+                  <div class="recent-post-details">
+                    <div class="recent-post-title"><?= htmlspecialchars($rp['titre']) ?></div>
+                    <div class="recent-post-date"><?= htmlspecialchars(blog_date_fr($rp['created_at'], $lang)) ?></div>
+                  </div>
+                </a>
+              <?php endforeach; ?>
             </div>
           </div>
-        </a>
-      <?php endforeach; ?>
+        <?php endif; ?>
+      </div>
     </div>
-  <?php endif; ?>
+  </div>
 </div>
 
 <?php include 'footer.php'; ?>

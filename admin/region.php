@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/includes/auth_admin.php';
+require_once __DIR__ . '/../includes/region_photo.php';
 
 // ---------- Upload directory ----------
 $uploadBase = realpath(__DIR__ . '/..') . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'regions';
@@ -48,6 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 mysqli_stmt_execute($st);
                 $aff = mysqli_stmt_affected_rows($st);
                 mysqli_stmt_close($st);
+                if ($aff > 0) { region_photo_manifest_set($regionId, ''); }
                 $_SESSION[$aff > 0 ? 'reg_flash_success' : 'reg_flash_error'] =
                     $aff > 0 ? 'Région supprimée avec succès.' : 'Région introuvable.';
             } else {
@@ -83,6 +85,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if ($st) {
                     mysqli_stmt_bind_param($st,'sssssssi',$nom,$description,$meilleure_saison,$langues,$monnaie,$photoP,$photosSecJs,$regionId);
                     mysqli_stmt_execute($st); mysqli_stmt_close($st);
+                    region_photo_manifest_set($regionId, $photoP);
                     $_SESSION['reg_flash_success'] = 'Région mise à jour.';
                 } else { $_SESSION['reg_flash_error'] = 'Modification impossible.'; }
             } else {
@@ -100,7 +103,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $st  = mysqli_prepare($conn, $sql);
             if ($st) {
                 mysqli_stmt_bind_param($st,'sssssss',$nom,$description,$meilleure_saison,$langues,$monnaie,$photoP,$photosSecJs);
-                mysqli_stmt_execute($st); mysqli_stmt_close($st);
+                mysqli_stmt_execute($st);
+                $newId = (int) mysqli_insert_id($conn);
+                mysqli_stmt_close($st);
+                if ($newId > 0 && $photoP !== '') { region_photo_manifest_set($newId, $photoP); }
                 $_SESSION['reg_flash_success'] = 'Région ajoutée avec succès.';
             } else { $_SESSION['reg_flash_error'] = 'Création impossible pour le moment.'; }
         }

@@ -3,6 +3,7 @@ session_start();
 
 require 'db.php';
 require_once __DIR__ . '/includes/i18n.php';   // sets $lang, $dir, $is_rtl
+require_once __DIR__ . '/includes/region_photo.php'; // manifest fallback for admin-uploaded region photos
 
 // ---------- Translations ----------
 $L_ALL = [
