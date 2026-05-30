@@ -103,7 +103,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', system-ui, sans-serif; background: #fff; color: var(--text-dark); }
         .page-wrapper { min-height: 100vh; display: flex; flex-direction: column; }
-        .contact-section { flex: 1; padding: 60px 60px; display: grid; grid-template-columns: 1fr 1.2fr; gap: 80px; max-width: 1200px; margin: 0 auto; width: 100%; }
+        .contact-section { flex: 1; padding: 60px 60px; display: grid; grid-template-columns: 1fr 1.2fr; gap: 80px; max-width: 1200px; margin: 0 auto; width: 100%; margin-top: 80px; }
         .contact-info { padding-top: 12px; }
         .contact-label { font-size: 0.78rem; font-weight: 700; letter-spacing: 2px; color: var(--primary); text-transform: uppercase; margin-bottom: 20px; }
         .contact-heading { font-size: 3rem; font-weight: 800; line-height: 1.15; color: var(--text-dark); margin-bottom: 20px; font-family: Georgia, 'Times New Roman', serif; }

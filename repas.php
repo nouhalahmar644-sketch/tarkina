@@ -102,7 +102,7 @@ $regionNom = !empty($item['region_nom']) ? $item['region_nom'] : service_localis
 $mainPhoto = service_main_photo($item, 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=1200&q=80');
 $prix = (float) ($item['prix'] ?? 0);
 $capacite = max(1, (int) ($item['capacite'] ?? 6));
-$photos = [$mainPhoto, $mainPhoto, $mainPhoto];
+$sidePhotos = service_secondary_photos($item, 4);
 $inclus = service_default_inclus();
 require_once __DIR__ . '/includes/avis_helpers.php';
 $__sum = avis_summary($conn, 'repas', $id);
@@ -150,19 +150,28 @@ $desc = trim((string) ($item['description'] ?? $L['desc_default']));
 
 <button onclick="history.back()" style="display:inline-flex;align-items:center;gap:8px;margin:14px 0 0 24px;background:#fff;border:1.5px solid #e2ddd8;border-radius:50px;padding:8px 18px;color:#111111;cursor:pointer;font-weight:600;font-size:.9rem;font-family:inherit;transition:all .2s;" onmouseover="this.style.borderColor='#1B6B45';this.style.color='#1B6B45'" onmouseout="this.style.borderColor='#e2ddd8';this.style.color='#111111'">&#8592; <?= htmlspecialchars($L['back']) ?></button>
 
-<div class="service-gallery-asym">
-  <div class="col-a"><img src="<?= htmlspecialchars($row['image'] ?? $row['photo'] ?? $row['photo_principale'] ?? '') ?>" alt="" onerror="this.src='images/placeholder.jpg'"></div>
-  <div class="col-b"><img src="<?= htmlspecialchars($row['image'] ?? $row['photo'] ?? $row['photo_principale'] ?? '') ?>" alt="" onerror="this.src='images/placeholder.jpg'"></div>
-  <div class="col-c">
-    <img src="<?= htmlspecialchars($row['image'] ?? $row['photo'] ?? $row['photo_principale'] ?? '') ?>" alt="" onerror="this.src='images/placeholder.jpg'">
-    <img src="<?= htmlspecialchars($row['image'] ?? $row['photo'] ?? $row['photo_principale'] ?? '') ?>" alt="" onerror="this.src='images/placeholder.jpg'">
-  </div>
-</div>
+<?php
+$allPhotos = array_merge([$mainPhoto], $sidePhotos);
+$allPhotos = array_unique(array_filter($allPhotos));
+?>
 
 <div class="container py-3">
 
   <div class="row g-4">
-    <div class="col-lg-8">
+    <div class="col-lg-7">
+      
+      <!-- Photo Gallery: main photo + thumbnail grid below it -->
+      <div class="mb-4">
+        <img id="mainProductImg" class="artisanat-main-img" src="<?= htmlspecialchars($mainPhoto) ?>" alt="<?= htmlspecialchars($item['titre']) ?>" style="width: 100%; border-radius: 12px; height: 380px; object-fit: cover; margin-bottom: 12px;" onerror="this.src='images/placeholder.jpg'">
+        <?php if (count($allPhotos) > 1): ?>
+          <div class="artisanat-thumbs" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px;">
+            <?php foreach ($allPhotos as $i => $ph): ?>
+              <img src="<?= htmlspecialchars($ph) ?>" alt="" class="thumb-img <?= $i === 0 ? 'active' : '' ?>" data-src="<?= htmlspecialchars($ph) ?>" style="height: 70px; width: 100%; object-fit: cover; border-radius: 8px; cursor: pointer; border: 2px solid transparent; transition: all 0.2s;" onerror="this.src='images/placeholder.jpg'">
+            <?php endforeach; ?>
+          </div>
+        <?php endif; ?>
+      </div>
+
       <div class="service-cat"><?= htmlspecialchars($L['cat']) ?></div>
       <h1 class="service-title"><?= htmlspecialchars($item['titre']) ?></h1>
       <div class="service-meta">
@@ -176,7 +185,7 @@ $desc = trim((string) ($item['description'] ?? $L['desc_default']));
         <?php $serviceType = 'repas'; $serviceId = $id; include __DIR__ . '/includes/avis_section.php'; ?>
       </div>
     </div>
-    <div class="col-lg-4">
+    <div class="col-lg-5">
       <div class="booking-card">
         <div class="booking-price"><?= number_format($prix, 0) ?> TND <small><?= htmlspecialchars($L['per_person']) ?></small></div>
         <?php if ($successMsg): ?><div class="flash-ok"><?= htmlspecialchars($successMsg) ?></div><?php endif; ?>
@@ -213,7 +222,16 @@ const pers = document.getElementById('nb_voyageurs');
 function upd(){ const n=Math.max(1,parseInt(pers.value||2,10)); const t=n*prix;
   document.getElementById('calcLine').innerHTML = prix.toFixed(0)+' TND × '+n+' '+PERS_WORD+' → <span id="calcTotal">'+t.toFixed(0)+'</span> TND';
   document.getElementById('totalDisplay').textContent = t.toFixed(0)+' TND'; }
-pers.addEventListener('input', upd);
+if (pers) {
+  pers.addEventListener('input', upd);
+}
+document.querySelectorAll('.thumb-img').forEach(img=>{
+  img.addEventListener('click', ()=>{
+    document.getElementById('mainProductImg').src = img.dataset.src;
+    document.querySelectorAll('.thumb-img').forEach(t=>t.classList.remove('active'));
+    img.classList.add('active');
+  });
+});
 </script>
 </body>
 </html>
