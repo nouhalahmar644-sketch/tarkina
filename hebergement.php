@@ -420,6 +420,7 @@ if (count($descParts) < 2) {
   if(e)e.addEventListener('input',function(){var v=this.value.replace(/\D/g,'');if(v.length>=3)v=v.slice(0,2)+'/'+v.slice(2,4);this.value=v;});
 })();
 </script>
+<script src="assets/js/service-lightbox.js"></script>
 </body>
 </html>
 

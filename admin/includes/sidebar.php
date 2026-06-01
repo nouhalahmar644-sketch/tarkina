@@ -4,7 +4,12 @@ if (!isset($activePage)) {
 }
 ?>
 <aside class="admin-sidebar">
-  <div class="brand">Tarkina<span>.</span></div>
+  <a href="dashboard.php" class="brand" style="display:flex;align-items:center;justify-content:flex-start;gap:8px;text-decoration:none;color:#fff;padding:4px 6px;margin-bottom:24px;overflow:hidden;">
+    <img src="../images/tarkinalogo.png" alt="Tarkina"
+         style="height:30px;max-width:170px;width:auto;display:block;filter:brightness(0) invert(1);"
+         onerror="this.style.display='none';this.nextElementSibling.style.display='inline';">
+    <span style="display:none;font-family:'Playfair Display',Georgia,serif;font-weight:800;font-size:1.3rem;color:#fff;letter-spacing:-.5px;">Tarkina<span style="color:var(--coral,#f16e22);">.</span></span>
+  </a>
   <nav class="sidebar-nav">
     <a href="dashboard.php" class="sidebar-link <?php echo $activePage === 'dashboard' ? 'active' : ''; ?>">
       <i class="bi bi-grid-fill"></i> Tableau de bord

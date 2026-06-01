@@ -133,7 +133,7 @@ $L = $L_ALL[$lang] ?? $L_ALL['fr'];
     </style>
 </head>
 <body>
-<?php include 'navbar.php'; ?>
+<?php $navLight = true; include 'navbar.php'; ?>
 
 <section style="padding-top:0;">
     <div class="about-hero">

@@ -248,8 +248,11 @@ foreach ($regions as $r) {
             overflow-x: hidden;
             scroll-behavior: smooth;
             font-family: 'Lato', 'Segoe UI', sans-serif;
-            background-color: var(--navy);
+            background-color: #0a0a0a;
         }
+        /* The map is fixed; hide it as soon as the user reaches the footer so it never overlaps. */
+        .fixed-map-wrapper { transition: opacity .35s ease, visibility .35s ease; }
+        .fixed-map-wrapper.is-hidden { opacity: 0; visibility: hidden; pointer-events: none; }
 
         .discover-page-wrapper {
             position: relative;
@@ -266,6 +269,10 @@ foreach ($regions as $r) {
         }
         .tk-nav__logo, .tk-nav-link, .tk-icon-link {
             color: #ffffff !important;
+        }
+        /* Render the navbar logo in pure white on the dark explorer background */
+        .tk-nav__logo img {
+            filter: brightness(0) invert(1);
         }
         .tk-nav-link.active {
             color: var(--coral) !important;
@@ -619,7 +626,7 @@ foreach ($regions as $r) {
 
 <div class="discover-page-wrapper">
     <!-- NAVBAR -->
-    <?php include 'navbar.php'; ?>
+    <?php $navTransparent = true; include 'navbar.php'; ?>
 
     <!-- FIXED MAP COLUMN -->
     <div class="fixed-map-wrapper">
@@ -682,21 +689,16 @@ foreach ($regions as $r) {
             
             <div class="discover-header">
                 <div class="header-top">
-                    <h1 class="header-title">Découvrir</h1>
-                    <div class="header-breadcrumbs">
-                        <a href="index.php">Accueil</a> / <span>Découvrir</span>
-                    </div>
+                    <h1 class="header-title"><?= htmlspecialchars($L['hero_h1']) ?></h1>
                 </div>
                 <div class="header-line"></div>
             </div>
-            
+
             <div class="section-content-wrapper">
                 <div class="details-card">
-                    <h2>TUNISIE</h2>
+                    <h2><?= htmlspecialchars($L['hero_tag']) ?></h2>
                     <div class="card-title-line"></div>
-                    <p>
-                        Il y a tant de choses à découvrir dans chaque région de la Tunisie : des paysages contrastés, un littoral long de 1250 km parsemé d'îles et d'archipels, des traditions et coutumes diverses, un riche héritage historique. Nous vous présentons ces régions en les répartissant, par commodité, en trois zones : le nord, le centre et le sud.
-                    </p>
+                    <p><?= htmlspecialchars($L['hero_sub']) ?></p>
                 </div>
             </div>
         </section>
@@ -720,6 +722,8 @@ foreach ($regions as $r) {
         <?php endforeach; ?>
     </div>
 </div>
+
+<?php include 'footer.php'; ?>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
@@ -817,6 +821,19 @@ foreach ($regions as $r) {
             setTimeout(() => { isScrollingFromClick = false; }, 900);
         });
     });
+
+    /* ── Fade the fixed map out once the footer scrolls into view ── */
+    (function(){
+        const mapWrap = document.querySelector('.fixed-map-wrapper');
+        const footer  = document.querySelector('footer.tkf, footer');
+        if (!mapWrap || !footer) return;
+        const footerObserver = new IntersectionObserver(function(entries){
+            entries.forEach(function(e){
+                mapWrap.classList.toggle('is-hidden', e.isIntersecting);
+            });
+        }, { root: null, threshold: 0 });
+        footerObserver.observe(footer);
+    })();
 </script>
 
 </body>

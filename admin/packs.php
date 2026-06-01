@@ -347,7 +347,7 @@ require_once __DIR__ . '/includes/sidebar.php';
             </div>
 
             <div class="actions" style="margin-top: 14px;">
-              <button type="submit" id="saveBtn" class="btn-small btn-coral" disabled>Créer le pack</button>
+              <button type="submit" id="saveBtn" class="btn-small btn-coral">Créer le pack</button>
               <a href="packs.php" class="btn-small btn-soft">Annuler</a>
             </div>
           </form>
@@ -417,7 +417,12 @@ require_once __DIR__ . '/includes/sidebar.php';
             } else {
               econ.textContent = 'Économie pour le client : —';
             }
-            saveBtn.disabled = !(n >= 2 && n <= 5 && final > 0 && sel.value);
+            // Visual hint only — keep button enabled so click always submits; server validates strictly.
+            if (n >= 2 && n <= 5 && final > 0 && sel.value) {
+              saveBtn.style.opacity = '1'; saveBtn.title = '';
+            } else {
+              saveBtn.style.opacity = '0.7'; saveBtn.title = 'Choisissez une région, 2-5 services, et un prix final.';
+            }
           }
 
           sel.addEventListener('change', renderServices);

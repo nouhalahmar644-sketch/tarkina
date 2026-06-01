@@ -1177,3 +1177,56 @@ footer {
 .newsletter-section { margin-bottom: 0; }
 footer { margin-top: 0 !important; }
 .tkf { margin-top: 0 !important; }
+
+/* ── Global button hover animation (letter-spacing + box-shadow lift) ──
+   Applied to every common button class across the site so all CTAs share the
+   same interactive feel. */
+.btn,
+.btn-nav-primary,
+.btn-nav-outline,
+.btn-coral,
+.btn-forfait,
+.btn-gallery,
+.btn-create,
+.btn-like,
+.btn-search,
+.btn-submit,
+.btn-action,
+.btn-cta,
+.btn-small,
+.bf-submit,
+.booking-btn,
+.blog-search__btn,
+.newsletter-form button,
+button[type="submit"]:not(.tk-skip-hover),
+input[type="submit"]:not(.tk-skip-hover) {
+    transition: letter-spacing .25s ease, box-shadow .25s ease,
+                background-color .2s ease, color .2s ease,
+                transform .2s ease, border-color .2s ease !important;
+}
+.btn:hover,
+.btn-nav-primary:hover,
+.btn-nav-outline:hover,
+.btn-coral:hover,
+.btn-forfait:hover,
+.btn-gallery:hover,
+.btn-create:hover,
+.btn-like:hover,
+.btn-search:hover,
+.btn-submit:hover,
+.btn-action:hover,
+.btn-cta:hover,
+.btn-small:hover,
+.bf-submit:hover,
+.booking-btn:hover,
+.blog-search__btn:hover,
+.newsletter-form button:hover,
+button[type="submit"]:not(.tk-skip-hover):hover,
+input[type="submit"]:not(.tk-skip-hover):hover {
+    letter-spacing: 1.5px;
+    box-shadow: 0 6px 22px rgba(241, 110, 34, .35),
+                0 0 0 1px rgba(241, 110, 34, .12) inset !important;
+}
+/* Make sure the navbar pill buttons keep their solid background when hovered */
+.btn-nav-primary:hover { background:#d95716; color:#fff !important; }
+.btn-nav-outline:hover { background:var(--navy); color:#fff !important; border-color:var(--navy); }

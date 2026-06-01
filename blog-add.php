@@ -157,7 +157,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <link rel="stylesheet" href="assets/css/blog.css">
 </head>
 <body class="blog-page">
-<?php include 'navbar.php'; ?>
+<?php $navLight = true; include 'navbar.php'; ?>
 
 <div class="blog-wrap">
   <a href="blogs.php" class="post-back"><i class="bi bi-arrow-left"></i> <?= htmlspecialchars($L['back']) ?></a>

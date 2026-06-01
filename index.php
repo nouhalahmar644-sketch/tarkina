@@ -343,8 +343,23 @@ $fpLocale = ($lang === 'ar') ? 'ar' : (($lang === 'en') ? 'default' : 'fr');
         * { margin:0; padding:0; box-sizing:border-box; }
         body { font-family:'Segoe UI',system-ui,sans-serif; background:#fff; color:var(--text-dark); }
 
-        /* ── HERO ── */
-        .hero { min-height:85vh; background-image: url('images/hero-tunisia.jpg'); background-size: cover; background-position: center; position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:80px 40px 0 40px; }
+        /* ── HERO — warm-orange Sahara dunes at golden hour ── */
+        .hero {
+            min-height:90vh;
+            background-image:
+                linear-gradient(135deg, rgba(241,110,34,.35) 0%, rgba(11,28,48,.55) 60%, rgba(11,28,48,.75) 100%),
+                url('https://images.unsplash.com/photo-1542401886-65d6c61db217?auto=format&fit=crop&w=2000&q=80');
+            background-size: cover;
+            background-position: center;
+            background-color: #1a1208;
+            position:relative;
+            display:flex;
+            flex-direction:column;
+            align-items:center;
+            justify-content:center;
+            text-align:center;
+            padding:80px 40px 0 40px;
+        }
         .hero > *:not(.hero-overlay) { position:relative; z-index:1; }
         .hero-title { font-size:clamp(2rem,5vw,4rem); font-weight:900; color:#fff; line-height:1.05; letter-spacing:-1px; margin-bottom:40px; font-family:Georgia,'Times New Roman',serif; text-shadow:0 2px 20px rgba(0,0,0,.3); }
         .hero-pills { display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin-bottom:28px; margin-top:24px; }
@@ -387,23 +402,23 @@ $fpLocale = ($lang === 'ar') ? 'ar' : (($lang === 'en') ? 'default' : 'fr');
         .regions-header .section-heading { color:var(--navy); }
         .link-all { color:var(--primary); text-decoration:none; font-weight:600; font-size:.92rem; }
         .link-all:hover { text-decoration:underline; }
-        /* Slider for regions */
-        .regions-slider { width:100%; height:280px; overflow:hidden; mask-image:linear-gradient(to right, transparent, #000 8% 92%, transparent); }
-        .regions-slider .rs-list { display:flex; width:max-content; animation:rsMarquee 25s linear infinite; }
+        /* Slider for regions — bigger cards, ~3 visible, slower auto-advance */
+        .regions-slider { width:100%; max-width:1280px; margin:0 auto; height:430px; overflow:hidden; mask-image:linear-gradient(to right, transparent, #000 6% 94%, transparent); }
+        .regions-slider .rs-list { display:flex; width:max-content; animation:rsMarquee 55s linear infinite; }
         .regions-slider:hover .rs-list { animation-play-state:paused; }
-        .regions-slider .rs-item { width:300px; height:280px; flex-shrink:0; transition:filter .4s; }
+        .regions-slider .rs-item { width:400px; height:420px; flex-shrink:0; transition:filter .4s; padding:0 10px; }
         @keyframes rsMarquee {
             0% { transform: translateX(0); }
             100% { transform: translateX(-50%); }
         }
-        .regions-slider:hover .rs-item { filter:grayscale(.6); }
+        .regions-slider:hover .rs-item { filter:grayscale(.45); }
         .regions-slider .rs-item:hover { filter:grayscale(0) !important; }
-        .region-card { border-radius:16px; overflow:hidden; text-decoration:none; color:inherit; display:block; box-shadow:0 10px 30px rgba(11,28,48,0.06); transition:transform .2s,box-shadow .2s; position:relative; width:280px; height:260px; margin:0 10px; }
-        .region-card:hover { transform:translateY(-5px); box-shadow:0 12px 40px rgba(11,28,48,0.12); }
-        .region-card img { width:100%; height:180px; object-fit:cover; display:block; }
-        .region-card-body { padding:14px 16px; background:#fff; border-top:2px solid var(--primary); }
-        .region-card-badge { position:absolute; top:12px; left:12px; background:var(--primary); color:#fff; padding:3px 10px; border-radius:50px; font-size:.72rem; font-weight:700; }
-        .region-card-name { font-size:1rem; font-weight:700; margin-bottom:4px; color:var(--navy); }
+        .region-card { border-radius:18px; overflow:hidden; text-decoration:none; color:inherit; display:block; box-shadow:0 14px 38px rgba(11,28,48,0.10); transition:transform .25s,box-shadow .25s; position:relative; width:100%; height:400px; }
+        .region-card:hover { transform:translateY(-6px); box-shadow:0 18px 50px rgba(11,28,48,0.16); }
+        .region-card img { width:100%; height:300px; object-fit:cover; display:block; }
+        .region-card-body { padding:16px 18px; background:#fff; border-top:2px solid var(--primary); }
+        .region-card-badge { position:absolute; top:14px; left:14px; background:var(--primary); color:#fff; padding:4px 12px; border-radius:50px; font-size:.78rem; font-weight:700; }
+        .region-card-name { font-size:1.1rem; font-weight:800; margin-bottom:4px; color:var(--navy); }
         .region-card-desc { font-size:.78rem; color:rgba(11,28,48,.6); line-height:1.4; margin-bottom:6px; display:none; }
         .region-card-meta { display:flex; align-items:center; gap:8px; font-size:.75rem; color:rgba(11,28,48,.6); }
         /* Static grid fallback for non-slider view */
@@ -432,19 +447,22 @@ $fpLocale = ($lang === 'ar') ? 'ar' : (($lang === 'en') ? 'default' : 'fr');
         .gallery-section-inner { max-width:1200px; margin:0 auto; padding:0 60px; }
         .gallery-title { text-align:center; font-size:2rem; font-weight:800; letter-spacing:2px; margin-bottom:8px; text-transform:uppercase; color:var(--navy); }
         .gallery-underline { width:60px; height:3px; background:var(--primary); margin:0 auto 40px; }
-        /* Gallery auto-slider */
-        .gallery-slider { width:100%; height:220px; overflow:hidden; mask-image:linear-gradient(to right, transparent, #000 8% 92%, transparent); margin-bottom:16px; }
-        .gallery-slider .gs-list { display:flex; width:max-content; animation:gsMarquee 20s linear infinite; }
-        .gallery-slider:hover .gs-list { animation-play-state:paused; }
-        .gallery-slider .gs-item { width:220px; height:220px; flex-shrink:0; padding:0 8px; transition:filter .4s; }
-        @keyframes gsMarquee {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(-50%); }
-        }
-        .gallery-slider:hover .gs-item { filter:grayscale(.5); }
-        .gallery-slider .gs-item:hover { filter:grayscale(0) !important; }
-        .gallery-slider img { width:100%; height:220px; object-fit:cover; border-radius:14px; cursor:pointer; transition:transform .3s; }
-        .gallery-slider img:hover { transform:scale(1.04); }
+        /* 3×2 flip-card grid */
+        .gallery-flip-grid { display:grid; grid-template-columns:repeat(3,1fr); grid-template-rows:repeat(2,260px); gap:18px; }
+        .flip-card { perspective:1200px; background:transparent; }
+        .flip-card-inner { position:relative; width:100%; height:100%; transition:transform .8s cubic-bezier(.4,.2,.2,1); transform-style:preserve-3d; border-radius:16px; }
+        .flip-card:hover .flip-card-inner { transform:rotateY(180deg); }
+        .flip-card-front,
+        .flip-card-back { position:absolute; inset:0; backface-visibility:hidden; -webkit-backface-visibility:hidden; border-radius:16px; overflow:hidden; box-shadow:0 10px 30px rgba(11,28,48,.12); }
+        .flip-card-front img { width:100%; height:100%; object-fit:cover; display:block; }
+        .flip-card-front::after { content:''; position:absolute; inset:0; background:linear-gradient(180deg, rgba(0,0,0,0) 55%, rgba(0,0,0,.55) 100%); pointer-events:none; }
+        .flip-card-front .flip-caption { position:absolute; left:16px; right:16px; bottom:14px; color:#fff; font-weight:800; font-size:1rem; letter-spacing:.3px; text-shadow:0 2px 8px rgba(0,0,0,.4); z-index:1; }
+        .flip-card-back { transform:rotateY(180deg); background:linear-gradient(135deg, var(--navy) 0%, #1c324c 100%); color:#fff; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:22px; text-align:center; }
+        .flip-card-back .fb-icon { font-size:1.8rem; margin-bottom:8px; }
+        .flip-card-back .fb-title { font-size:1.05rem; font-weight:800; margin-bottom:8px; color:#fff; }
+        .flip-card-back .fb-sub { font-size:.85rem; line-height:1.5; opacity:.85; }
+        @media(max-width:900px){ .gallery-flip-grid { grid-template-columns:repeat(2,1fr); grid-template-rows:repeat(3,240px); } }
+        @media(max-width:560px){ .gallery-flip-grid { grid-template-columns:1fr; grid-template-rows:repeat(6,220px); } }
         .gallery-cta { text-align:center; margin-top:32px; }
         .btn-gallery { display:inline-block; padding:12px 32px; border:2px solid var(--primary); color:var(--primary); border-radius:50px; text-decoration:none; font-weight:700; font-size:.95rem; transition:all .2s; }
         .btn-gallery:hover { background:var(--primary); color:#fff; }
@@ -529,11 +547,11 @@ $fpLocale = ($lang === 'ar') ? 'ar' : (($lang === 'en') ? 'default' : 'fr');
 </head>
 <body>
 
-<?php include 'navbar.php'; ?>
+<?php $navTransparent = true; include 'navbar.php'; ?>
 
 <!-- HERO -->
 <section class="hero">
-    <div class="hero-overlay" style="position:absolute;inset:0;background:rgba(0,0,0,0.45);z-index:0;"></div>
+    <div class="hero-overlay" style="position:absolute;inset:0;background:linear-gradient(180deg, rgba(241,110,34,.15) 0%, rgba(11,28,48,.4) 60%, rgba(11,28,48,.55) 100%);z-index:0;"></div>
     <h1 class="hero-title" style="margin-bottom:16px;"><?= $L['hero_full'] ?></h1>
     <p style="color:#fff; font-size:1.1rem; font-weight:300; margin-bottom:40px;"><?= htmlspecialchars($L['hero_sub']) ?></p>
 
@@ -819,22 +837,40 @@ $fpLocale = ($lang === 'ar') ? 'ar' : (($lang === 'en') ? 'default' : 'fr');
     <div class="gallery-section-inner">
         <h2 class="gallery-title"><?= htmlspecialchars($L['gal_title']) ?></h2>
         <div class="gallery-underline"></div>
-        <!-- Auto-scrolling gallery slider -->
-        <div class="gallery-slider">
-            <div class="gs-list">
-            <?php for ($loop = 0; $loop < 2; $loop++): ?>
-                <?php foreach ($galleryImages as $gi => $gimg):
-                    $gsrc = $gimg['image_path'];
-                    if ($gsrc && strpos($gsrc, 'http') !== 0 && strpos($gsrc, 'uploads/') !== 0 && strpos($gsrc, 'images/') !== 0) {
-                        $gsrc = 'uploads/gallery/' . ltrim($gsrc, '/');
-                    }
-                ?>
-                <div class="gs-item">
-                    <img loading="lazy" src="<?= htmlspecialchars($gsrc) ?>" alt="<?= htmlspecialchars($gimg['alt_text']) ?>" onerror="this.src='https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=800&fit=crop'">
+        <!-- 3×2 flip-card grid -->
+        <div class="gallery-flip-grid">
+        <?php
+            $flipBacks = [
+                ['icon' => '🌊', 'sub' => 'Sidi Bou Saïd · Bleu & blanc'],
+                ['icon' => '🕌', 'sub' => 'Kairouan · Patrimoine UNESCO'],
+                ['icon' => '🏜️', 'sub' => 'Sahara · Dunes infinies'],
+                ['icon' => '🏝️', 'sub' => 'Djerba · Île de douceur'],
+                ['icon' => '🏘️', 'sub' => 'Matmata · Maisons troglodytes'],
+                ['icon' => '🏛️', 'sub' => "El Jem · L'amphithéâtre romain"],
+            ];
+            $flipItems = array_slice($galleryImages, 0, 6);
+            foreach ($flipItems as $idx => $gimg):
+                $gsrc = $gimg['image_path'];
+                if ($gsrc && strpos($gsrc, 'http') !== 0 && strpos($gsrc, 'uploads/') !== 0 && strpos($gsrc, 'images/') !== 0) {
+                    $gsrc = 'uploads/gallery/' . ltrim($gsrc, '/');
+                }
+                $alt = trim((string) ($gimg['alt_text'] ?? '')) ?: 'Tunisia';
+                $meta = $flipBacks[$idx] ?? ['icon' => '📷', 'sub' => $alt];
+        ?>
+            <div class="flip-card">
+              <div class="flip-card-inner">
+                <div class="flip-card-front">
+                  <img loading="lazy" src="<?= htmlspecialchars($gsrc) ?>" alt="<?= htmlspecialchars($alt) ?>" onerror="this.src='https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=800&fit=crop'">
+                  <div class="flip-caption"><?= htmlspecialchars($alt) ?></div>
                 </div>
-                <?php endforeach; ?>
-            <?php endfor; ?>
+                <div class="flip-card-back">
+                  <div class="fb-icon"><?= $meta['icon'] ?></div>
+                  <div class="fb-title"><?= htmlspecialchars($alt) ?></div>
+                  <div class="fb-sub"><?= htmlspecialchars($meta['sub']) ?></div>
+                </div>
+              </div>
             </div>
+        <?php endforeach; ?>
         </div>
         <div class="gallery-cta">
             <a href="explorer.php" class="btn-gallery"><?= htmlspecialchars($L['gal_cta']) ?></a>
@@ -1017,18 +1053,21 @@ document.querySelectorAll('.sf-field').forEach(field => {
 });
 
 document.getElementById('bookingBar')?.addEventListener('submit', function(e) {
+  /* Send the booking form to the global search results page (not a single region). */
+  e.preventDefault();
   const dest = this.querySelector('select[name="destination"]');
+  const dd   = this.querySelector('[name="date_debut"]').value;
+  const df   = this.querySelector('[name="date_fin"]').value;
+  const pers = this.querySelector('[name="personnes"]').value;
+  const p    = new URLSearchParams();
   if (dest && dest.value) {
-    e.preventDefault();
-    const p = new URLSearchParams({ id: dest.value });
-    const dd = this.querySelector('[name="date_debut"]').value;
-    const df = this.querySelector('[name="date_fin"]').value;
-    const pers = this.querySelector('[name="personnes"]').value;
-    if (dd) p.set('date_debut', dd);
-    if (df) p.set('date_fin', df);
-    if (pers) p.set('personnes', pers);
-    window.location.href = 'region.php?' + p.toString();
+    p.set('region', dest.value);
+    p.set('destination', dest.options[dest.selectedIndex].text);
   }
+  if (dd)   p.set('date_debut', dd);
+  if (df)   p.set('date_fin', df);
+  if (pers) p.set('personnes', pers);
+  window.location.href = 'search.php' + (p.toString() ? '?' + p.toString() : '');
 });
 
 const observer = new IntersectionObserver((entries) => {

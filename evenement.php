@@ -226,6 +226,7 @@ document.querySelectorAll('.thumb-img').forEach(img=>{
   });
 });
 </script>
+<script src="assets/js/service-lightbox.js"></script>
 </body>
 </html>
 

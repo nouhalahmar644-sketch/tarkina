@@ -441,5 +441,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   document.getElementById('nb_voyageurs')?.addEventListener('input', updateTotal);
 })();
 </script>
+<script src="assets/js/service-lightbox.js"></script>
 </body>
 </html>

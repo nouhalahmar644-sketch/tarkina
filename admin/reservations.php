@@ -1,6 +1,21 @@
 <?php
 require_once __DIR__ . '/includes/auth_admin.php';
 
+// Make sure the `packs` table exists (auto-created elsewhere) before we LEFT-JOIN it.
+mysqli_query($conn, "CREATE TABLE IF NOT EXISTS packs (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    titre VARCHAR(255) NOT NULL,
+    slogan VARCHAR(500) NOT NULL DEFAULT '',
+    region_id INT NOT NULL,
+    image_path VARCHAR(500) NOT NULL DEFAULT '',
+    prix_original DECIMAL(10,2) NOT NULL DEFAULT 0,
+    prix_final DECIMAL(10,2) NOT NULL DEFAULT 0,
+    statut VARCHAR(20) NOT NULL DEFAULT 'actif',
+    position INT NOT NULL DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci");
+
 $flashSuccess = '';
 $flashError = '';
 
@@ -50,7 +65,9 @@ $page = max(1, $page);
 $perPage = 15;
 $offset = ($page - 1) * $perPage;
 
-$countSql = "SELECT COUNT(*) FROM reservations WHERE type_service IN ('hebergement', 'guide', 'evenement')";
+// Show ALL service-types in the master reservations view so admins see every booking
+// (hebergement, repas, guide, evenement, artisanat, forfait).
+$countSql = "SELECT COUNT(*) FROM reservations";
 $countRes = mysqli_query($conn, $countSql);
 $totalReservations = 0;
 if ($countRes) {
@@ -73,8 +90,7 @@ $statRes = mysqli_query($conn, "SELECT
     SUM(statut IN ('annulée','annulee','cancelled')) AS annulees,
     SUM(CASE WHEN statut NOT IN ('annulée','annulee','cancelled') THEN prix_total ELSE 0 END) AS ca,
     MAX(CASE WHEN statut IN ('confirmé','confirmed','confirmee','accepté') THEN created_at ELSE NULL END) AS derniere_conf
-    FROM reservations
-    WHERE type_service IN ('hebergement', 'guide', 'evenement')");
+    FROM reservations");
 if ($statRes && $sr = mysqli_fetch_assoc($statRes)) {
     $resEnAttente   = (int)($sr['en_attente'] ?? 0);
     $resConfirmees  = (int)($sr['confirmees'] ?? 0);
@@ -89,16 +105,21 @@ $listSql = "
            u.nom AS user_nom, u.prenom AS user_prenom,
            CASE r.type_service
                WHEN 'hebergement' THEN h.titre
+               WHEN 'repas'       THEN rp.titre
                WHEN 'guide'       THEN g.titre
                WHEN 'evenement'   THEN e.titre
+               WHEN 'artisanat'   THEN a.titre
+               WHEN 'forfait'     THEN p.titre
                ELSE NULL
            END AS service_titre
     FROM reservations r
     LEFT JOIN utilisateur u  ON r.user_id = u.id
     LEFT JOIN hebergement h  ON r.type_service = 'hebergement' AND r.service_id = h.id
+    LEFT JOIN repas rp       ON r.type_service = 'repas'       AND r.service_id = rp.id
     LEFT JOIN guide g        ON r.type_service = 'guide'       AND r.service_id = g.id
     LEFT JOIN evenement e    ON r.type_service = 'evenement'   AND r.service_id = e.id
-    WHERE r.type_service IN ('hebergement', 'guide', 'evenement')
+    LEFT JOIN artisanat a    ON r.type_service = 'artisanat'   AND r.service_id = a.id
+    LEFT JOIN packs p        ON r.type_service = 'forfait'     AND r.service_id = p.id
     ORDER BY r.created_at DESC
     LIMIT ? OFFSET ?
 ";

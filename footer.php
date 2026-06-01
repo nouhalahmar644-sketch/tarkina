@@ -69,7 +69,7 @@ $tf = [
 ][$__fLang] ?? [];
 ?>
 <style>
-.tkf{background:#0b1c30;color:#fff;padding:56px clamp(20px,5vw,60px) 26px;margin-top:60px;font-family:'Lato','Segoe UI',system-ui,sans-serif;}
+.tkf{background:#0a0a0a;color:#fff;padding:56px clamp(20px,5vw,60px) 26px;margin-top:60px;font-family:'Lato','Segoe UI',system-ui,sans-serif;}
 .tkf__grid{display:grid;grid-template-columns:1.6fr 1fr 1fr 1.2fr;gap:40px;max-width:1200px;margin:0 auto 40px;}
 .tkf__brand-name{font-family:'Playfair Display',Georgia,serif;font-size:1.6rem;font-weight:800;margin-bottom:12px;}
 .tkf__brand-desc{color:rgba(255,255,255,.6);font-size:.9rem;line-height:1.75;margin-bottom:18px;max-width:300px;}
