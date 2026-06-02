@@ -373,7 +373,7 @@ foreach ($reservations as $r) {
 </head>
 <body>
 
-<?php include 'navbar.php'; ?>
+<?php $navLight = true; include 'navbar.php'; ?>
 
 <div class="main-container">
   <div class="page-header">

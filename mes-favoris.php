@@ -39,7 +39,7 @@ $L = $L_ALL[$lang] ?? $L_ALL['fr'];
 </head>
 <body>
 
-<?php include 'navbar.php'; ?>
+<?php $navLight = true; include 'navbar.php'; ?>
 
 <div class="page-container">
     <h1 class="page-title"><?= htmlspecialchars($L['heading']) ?></h1>
