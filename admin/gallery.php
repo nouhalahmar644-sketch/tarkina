@@ -102,13 +102,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// ---------- Fetch list ----------
-$images = [];
-$res = mysqli_query($conn, "SELECT id, image_path, alt_text, position, statut, created_at FROM gallery_images ORDER BY position ASC, id ASC");
-if ($res) { while ($r = mysqli_fetch_assoc($res)) { $images[] = $r; } }
+// ---------- Filter / search ----------
+$status = isset($_GET['statut']) ? trim((string) $_GET['statut']) : '';
+$qStr   = isset($_GET['q'])      ? trim((string) $_GET['q'])      : '';
+$whereParts = []; $bindTypes = ''; $bindArgs = [];
+if ($qStr !== '') {
+    $whereParts[] = 'alt_text LIKE ?';
+    $like = '%' . $qStr . '%';
+    $bindTypes .= 's'; $bindArgs[] = $like;
+}
+if ($status !== '') {
+    $whereParts[] = 'statut = ?';
+    $bindTypes .= 's'; $bindArgs[] = $status;
+}
+$whereSql = $whereParts ? ' WHERE ' . implode(' AND ', $whereParts) : '';
 
-$nbActive = 0;
-foreach ($images as $img) { if ($img['statut'] === 'actif') $nbActive++; }
+// ---------- Fetch list (filtered) ----------
+$images = [];
+$sqlList = 'SELECT id, image_path, alt_text, position, statut, created_at FROM gallery_images' . $whereSql . ' ORDER BY position ASC, id ASC';
+$ls = mysqli_prepare($conn, $sqlList);
+if ($ls) {
+    if ($bindTypes !== '') mysqli_stmt_bind_param($ls, $bindTypes, ...$bindArgs);
+    mysqli_stmt_execute($ls);
+    $res = mysqli_stmt_get_result($ls);
+    while ($r = mysqli_fetch_assoc($res)) { $images[] = $r; }
+    mysqli_stmt_close($ls);
+}
+
+// ---------- Global totals for mini-stats (ignore filters) ----------
+$totGalAll = 0; $totGalActive = 0; $totGalInactive = 0;
+$gres = mysqli_query($conn, "SELECT COUNT(*) AS total, SUM(statut = 'actif') AS active FROM gallery_images");
+if ($gres && $gr = mysqli_fetch_assoc($gres)) {
+    $totGalAll    = (int) $gr['total'];
+    $totGalActive = (int) $gr['active'];
+    $totGalInactive = max(0, $totGalAll - $totGalActive);
+}
+$nbActive = $totGalActive; // used in the existing helper text below
 
 $pageTitle   = 'Galerie';
 $pageHeading = 'Galerie « La Tunisie en Images »';
@@ -116,6 +145,7 @@ $activePage  = 'gallery';
 
 require_once __DIR__ . '/includes/header.php';
 require_once __DIR__ . '/includes/sidebar.php';
+require_once __DIR__ . '/includes/stats_helpers.php';
 ?>
 <main class="admin-content">
   <div class="content-wrap">
@@ -131,6 +161,38 @@ require_once __DIR__ . '/includes/sidebar.php';
       <?php if ($flashError !== ''): ?>
         <div class="flash error"><?= htmlspecialchars($flashError) ?></div>
       <?php endif; ?>
+
+      <?php admin_stats_css(); ?>
+      <div class="mini-stat-row">
+        <div class="mini-stat-card">
+          <div class="msi navy"><i class="bi bi-images"></i></div>
+          <div class="msl">TOTAL IMAGES</div>
+          <div class="msv"><?= $totGalAll ?></div>
+          <hr class="msd">
+          <div class="mss"><?= $totGalAll ?> image(s) en base</div>
+        </div>
+        <div class="mini-stat-card">
+          <div class="msi orange"><i class="bi bi-eye"></i></div>
+          <div class="msl">ACTIVES</div>
+          <div class="msv"><?= $totGalActive ?></div>
+          <hr class="msd">
+          <div class="mss pos"><?= $totGalAll > 0 ? round($totGalActive / $totGalAll * 100) : 0 ?>% visibles</div>
+        </div>
+        <div class="mini-stat-card">
+          <div class="msi red"><i class="bi bi-eye-slash"></i></div>
+          <div class="msl">INACTIVES</div>
+          <div class="msv"><?= $totGalInactive ?></div>
+          <hr class="msd">
+          <div class="mss neg">Masquées du site</div>
+        </div>
+        <div class="mini-stat-card">
+          <div class="msi green"><i class="bi bi-stars"></i></div>
+          <div class="msl">SUR L'ACCUEIL</div>
+          <div class="msv"><?= min(6, $totGalActive) ?></div>
+          <hr class="msd">
+          <div class="mss pos">Les 6 premières actives</div>
+        </div>
+      </div>
 
       <div class="form-card">
         <div class="stat-label">Ajouter une image à la galerie</div>
@@ -164,8 +226,26 @@ require_once __DIR__ . '/includes/sidebar.php';
       </div>
 
       <div class="toolbar" style="margin-top: 22px;">
-        <div></div>
-        <div class="muted">Total : <strong><?= count($images) ?></strong> · Actives : <strong><?= $nbActive ?></strong></div>
+        <form method="get" action="gallery.php" class="search-form" style="margin:0;">
+          <input type="text" name="q" class="search-input" value="<?= htmlspecialchars($qStr) ?>" placeholder="Rechercher par texte alternatif...">
+          <?php if ($status !== ''): ?>
+            <input type="hidden" name="statut" value="<?= htmlspecialchars($status) ?>">
+          <?php endif; ?>
+          <button type="submit" class="btn-small btn-navy">Rechercher</button>
+          <?php if ($qStr !== '' || $status !== ''): ?>
+            <a href="gallery.php" class="btn-small btn-soft">Réinitialiser</a>
+          <?php endif; ?>
+        </form>
+        <div class="muted">Affichées : <strong><?= count($images) ?></strong> / <?= $totGalAll ?></div>
+      </div>
+
+      <!-- STATUS FILTER PILLS -->
+      <div style="margin:0 0 18px;">
+        <?php admin_render_status_filter($status, 'gallery.php', ['q' => $qStr], [
+            ['value' => '',        'label' => 'Toutes'],
+            ['value' => 'actif',   'label' => 'Actives'],
+            ['value' => 'inactif', 'label' => 'Inactives'],
+        ]); ?>
       </div>
 
       <?php if (empty($images)): ?>

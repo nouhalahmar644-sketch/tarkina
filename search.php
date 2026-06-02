@@ -6,7 +6,7 @@ require_once __DIR__ . '/includes/i18n.php';
 $L_ALL = [
     'fr' => [
         'page_title'    => 'Résultats de recherche – Tarkina',
-        'back'          => '← Retour',
+        'back'          => 'Retour',
         'header_for'    => 'Résultats pour',
         'all_tunisia'   => 'Toute la Tunisie',
         'svc_found'     => 'service(s) trouvé(s)',
@@ -31,7 +31,7 @@ $L_ALL = [
     ],
     'ar' => [
         'page_title'    => 'نتائج البحث – تاركينا',
-        'back'          => '← رجوع',
+        'back'          => 'رجوع',
         'header_for'    => 'النتائج لـ',
         'all_tunisia'   => 'كامل تونس',
         'svc_found'     => 'خدمة/خدمات تمّ العثور عليها',
@@ -56,7 +56,7 @@ $L_ALL = [
     ],
     'en' => [
         'page_title'    => 'Search results – Tarkina',
-        'back'          => '← Back',
+        'back'          => 'Back',
         'header_for'    => 'Results for',
         'all_tunisia'   => 'All of Tunisia',
         'svc_found'     => 'service(s) found',
@@ -225,9 +225,10 @@ $page_title = $L['page_title'];
 </head>
 <body>
 
-<?php include 'navbar.php'; ?>
+<?php $navLight = true; include 'navbar.php'; ?>
+<link rel="stylesheet" href="assets/css/service-page.css">
 
-<button onclick="history.back()" class="back-btn"><?= htmlspecialchars($L['back']) ?></button>
+<button onclick="history.back()" class="tk-back-fab">&#8592; <?= htmlspecialchars($L['back']) ?></button>
 
 <div class="search-header">
     <h1><?= htmlspecialchars($L['header_for']) ?> "<?= htmlspecialchars($destination ?: $L['all_tunisia']) ?>"</h1>

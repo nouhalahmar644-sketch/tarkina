@@ -14,8 +14,8 @@ if (isset($_GET['lang']) && in_array($_GET['lang'], ['fr', 'en', 'ar'])) {
 $lang = $_SESSION['lang'] ?? 'fr';
 $t = [
     'fr' => ['home'=>'Accueil', 'explore'=>'Explorer', 'blog'=>'Blog', 'about'=>'À propos', 'contact'=>'Contact', 'profile'=>'Mon Profil', 'logout'=>'Déconnexion', 'login'=>'Connexion', 'register'=>"S'inscrire", 'search_title'=>'Rechercher', 'search_placeholder'=>'Rechercher...', 'search_btn'=>'Chercher', 'profile_title'=>'Profil', 'dashboard'=>'Dashboard'],
-    'en' => ['home'=>'Home', 'explore'=>'Explore', 'blog'=>'Blog', 'about'=>'About', 'contact'=>'Contact', 'profile'=>'My Profile', 'logout'=>'Logout', 'login'=>'Login', 'register'=>'Sign up', 'search_title'=>'Search', 'search_placeholder'=>'Search...', 'search_btn'=>'Search', 'profile_title'=>'Profile', 'dashboard'=>'Dashboard'],
-    'ar' => ['home'=>'الرئيسية', 'explore'=>'استكشف', 'blog'=>'المدونة', 'about'=>'من نحن', 'contact'=>'اتصل بنا', 'profile'=>'ملفي', 'logout'=>'تسجيل الخروج', 'login'=>'تسجيل الدخول', 'register'=>'إنشاء حساب', 'search_title'=>'ابحث', 'search_placeholder'=>'ابحث...', 'search_btn'=>'بحث', 'profile_title'=>'الملف الشخصي', 'dashboard'=>'لوحة التحكم']
+    'en' => ['home'=>'Accueil', 'explore'=>'Explore', 'blog'=>'Blog', 'about'=>'About', 'contact'=>'Contact', 'profile'=>'My Profile', 'logout'=>'Logout', 'login'=>'Login', 'register'=>'Sign up', 'search_title'=>'Search', 'search_placeholder'=>'Search...', 'search_btn'=>'Search', 'profile_title'=>'Profile', 'dashboard'=>'Dashboard'],
+    'ar' => ['home'=>'Accueil', 'explore'=>'استكشف', 'blog'=>'المدونة', 'about'=>'من نحن', 'contact'=>'اتصل بنا', 'profile'=>'ملفي', 'logout'=>'تسجيل الخروج', 'login'=>'تسجيل الدخول', 'register'=>'إنشاء حساب', 'search_title'=>'ابحث', 'search_placeholder'=>'ابحث...', 'search_btn'=>'بحث', 'profile_title'=>'الملف الشخصي', 'dashboard'=>'لوحة التحكم']
 ][$lang];
 $navDir = ($lang === 'ar') ? 'dir="rtl"' : '';
 
@@ -137,7 +137,7 @@ $tk_active = function (string $f) use ($__tkCur) {
     </div>
   </div>
 </nav>
-<div class="tk-nav-spacer<?= !empty($navTransparent) ? ' tk-nav-spacer--none' : '' ?>"></div>
+<div class="tk-nav-spacer<?= (!empty($navTransparent) || !empty($navOverlay)) ? ' tk-nav-spacer--none' : '' ?>"></div>
 <script>
 (function(){
   var nav=document.getElementById('tkNav');

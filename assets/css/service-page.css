@@ -15,16 +15,18 @@ body.service-page {
 .service-gallery-full {
   display: flex;
   gap: 10px;
-  height: 500px;
+  height: 460px;
   background: #fff;
   padding: 0 10px;
+  margin: 0 auto 24px;
+  max-width: 1240px;
 }
 
 .service-gallery-main {
-  flex: 1 1 50%;
+  flex: 0 0 58%;
   min-width: 0;
   overflow: hidden;
-  border-radius: 12px;
+  border-radius: 14px;
 }
 
 .service-gallery-main img,
@@ -46,13 +48,14 @@ body.service-page {
 }
 
 .service-gallery-side {
-  flex: 1 1 50%;
+  flex: 0 0 calc(42% - 10px);
   display: grid;
   grid-template-columns: 1fr 1fr;
   grid-template-rows: 1fr 1fr;
   gap: 10px;
   min-width: 0;
 }
+.service-gallery-side img { border-radius: 14px; }
 
 .service-gallery-asym {
   display: flex;
@@ -121,6 +124,38 @@ body.service-page {
   background: rgba(255, 255, 255, .28);
   transform: scale(1.06);
 }
+
+/* ── Floating back button used by region/service detail pages ──
+   Sits absolutely positioned just under the (overlay) navbar so the page
+   content (gallery / hero) can start at y=0 without a white gap.            */
+.tk-back-fab {
+  position: absolute;
+  top: 80px;
+  left: 20px;
+  z-index: 60;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255,255,255,.95);
+  border: 1px solid rgba(11,28,48,.10);
+  border-radius: 50px;
+  padding: 8px 16px;
+  color: #0b1c30;
+  font-family: inherit;
+  font-weight: 600;
+  font-size: .9rem;
+  cursor: pointer;
+  text-decoration: none;
+  box-shadow: 0 4px 14px rgba(0,0,0,.10);
+  transition: border-color .2s, color .2s, background .2s, transform .15s;
+}
+.tk-back-fab:hover {
+  border-color: var(--primary, #f16e22);
+  color: var(--primary, #f16e22);
+  background: #fff;
+  transform: translateY(-1px);
+}
+[dir="rtl"] .tk-back-fab { left: auto; right: 20px; }
 
 .service-back {
   padding: 16px 0;

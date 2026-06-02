@@ -50,6 +50,9 @@ if (!isset($activePage)) {
     <a href="messages.php" class="sidebar-link <?php echo $activePage === 'messages' ? 'active' : ''; ?>">
       <i class="bi bi-chat-left-text-fill"></i> Messages
     </a>
+    <a href="newsletter.php" class="sidebar-link <?php echo $activePage === 'newsletter' ? 'active' : ''; ?>">
+      <i class="bi bi-envelope-paper-fill"></i> Newsletter
+    </a>
     <a href="logout.php" class="sidebar-link" style="margin-top: auto;">
       <i class="bi bi-box-arrow-right"></i> Déconnexion
     </a>

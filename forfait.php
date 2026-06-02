@@ -13,7 +13,7 @@ $L_ALL = [
         'page_title'   => 'Forfait — Tarkina',
         'err_invalid'  => 'Forfait invalide.',
         'err_notfound' => 'Forfait introuvable.',
-        'back'         => '← Retour',
+        'back'         => 'Retour',
         'cat_label'    => 'PACK · TUNISIE',
         'in_region'    => 'À',
         'about_title'  => 'À propos de ce pack',
@@ -48,7 +48,7 @@ $L_ALL = [
         'page_title'   => 'باقة — تاركينا',
         'err_invalid'  => 'الباقة غير صالحة.',
         'err_notfound' => 'الباقة غير موجودة.',
-        'back'         => '← رجوع',
+        'back'         => 'رجوع',
         'cat_label'    => 'باقة · تونس',
         'in_region'    => 'في',
         'about_title'  => 'حول هذه الباقة',
@@ -83,7 +83,7 @@ $L_ALL = [
         'page_title'   => 'Pack — Tarkina',
         'err_invalid'  => 'Invalid pack.',
         'err_notfound' => 'Pack not found.',
-        'back'         => '← Back',
+        'back'         => 'Back',
         'cat_label'    => 'PACK · TUNISIA',
         'in_region'    => 'in',
         'about_title'  => 'About this pack',
@@ -291,11 +291,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 <body class="service-page">
 
-<?php include __DIR__ . '/navbar.php'; ?>
+<?php $navLight = true; include __DIR__ . '/navbar.php'; ?>
 
-<button onclick="history.back()" style="background:none;border:none;cursor:pointer;font-size:1rem;color:#0b1c30;padding:14px 0 0 24px;display:inline-flex;align-items:center;gap:6px;font-weight:600;" onmouseover="this.style.color='#f16e22'" onmouseout="this.style.color='#0b1c30'">
-  <?= htmlspecialchars($L['back']) ?>
-</button>
+<button onclick="history.back()" class="tk-back-fab">&#8592; <?= htmlspecialchars($L['back']) ?></button>
 
 <div class="service-gallery-full">
   <div class="service-gallery-main"><img src="<?= htmlspecialchars($heroImg) ?>" alt="<?= htmlspecialchars($pack['titre']) ?>" onerror="this.src='<?= htmlspecialchars($fallbackHero) ?>'"></div>

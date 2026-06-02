@@ -11,7 +11,7 @@ $L_ALL = [
     'fr' => [
         'err_invalid'    => 'Région invalide.',
         'err_notfound'   => 'Région introuvable.',
-        'back'           => '← Retour',
+        'back'           => 'Retour',
         'tag_label'      => 'TUNISIE · DESTINATION',
         'a_savoir'       => 'À savoir',
         'best_season'    => 'Meilleure saison',
@@ -42,7 +42,7 @@ $L_ALL = [
     'ar' => [
         'err_invalid'    => 'الجهة غير صالحة.',
         'err_notfound'   => 'الجهة غير موجودة.',
-        'back'           => '← رجوع',
+        'back'           => 'رجوع',
         'tag_label'      => 'تونس · وجهة',
         'a_savoir'       => 'معلومات مفيدة',
         'best_season'    => 'أفضل موسم',
@@ -73,7 +73,7 @@ $L_ALL = [
     'en' => [
         'err_invalid'    => 'Invalid region.',
         'err_notfound'   => 'Region not found.',
-        'back'           => '← Back',
+        'back'           => 'Back',
         'tag_label'      => 'TUNISIA · DESTINATION',
         'a_savoir'       => 'Good to know',
         'best_season'    => 'Best season',
@@ -228,11 +228,8 @@ function tk_stable_rating(int $id): array {
 body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--text);margin:0;}
 a{color:inherit;}
 
-.back-btn{display:inline-flex;align-items:center;gap:6px;background:none;border:none;cursor:pointer;color:var(--navy);font-size:.95rem;font-weight:600;padding:14px 0 0 24px;}
-.back-btn:hover{color:var(--coral);}
-
 /* ── GALLERY ── */
-.gallery{display:grid;grid-template-columns:1.45fr 1fr;gap:10px;max-width:1240px;margin:48px auto 0;padding:0 20px;height:360px;overflow:hidden;}
+.gallery{display:grid;grid-template-columns:1.45fr 1fr;gap:10px;max-width:1240px;margin:24px auto 0;padding:0 20px;height:360px;overflow:hidden;}
 .gallery-main{border-radius:18px;overflow:hidden;min-height:0;}
 .gallery-main img{width:100%;height:100%;object-fit:cover;display:block;}
 .gallery-thumbs{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:10px;min-height:0;}
@@ -290,9 +287,10 @@ a{color:inherit;}
 </head>
 <body>
 
-<?php include 'navbar.php'; ?>
+<?php $navLight = true; include 'navbar.php'; ?>
+<link rel="stylesheet" href="assets/css/service-page.css">
 
-<button onclick="history.back()" class="back-btn"><?= htmlspecialchars($L['back']) ?></button>
+<button onclick="history.back()" class="tk-back-fab">&#8592; <?= htmlspecialchars($L['back']) ?></button>
 
 <!-- GALLERY -->
 <section class="gallery">

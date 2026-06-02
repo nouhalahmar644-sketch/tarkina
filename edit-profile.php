@@ -279,15 +279,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </style>
 </head>
 <body>
-<?php include 'navbar.php'; ?>
+<?php $navLight = true; include 'navbar.php'; ?>
+<link rel="stylesheet" href="assets/css/service-page.css">
 
-<button onclick="history.back()" 
-  style="background:none;border:none;cursor:pointer;font-size:1.3rem;
-  color:#0b1c30;padding:14px 0 0 24px;display:flex;align-items:center;gap:6px;"
-  onmouseover="this.style.color='#f16e22'" 
-  onmouseout="this.style.color='#0b1c30'">
-  &#8592;
-</button>
+<button onclick="history.back()" class="tk-back-fab">&#8592; <?= htmlspecialchars($L['back'] ?? 'Retour') ?></button>
 
 <div class="edit-profile-wrap">
     <div class="edit-card">

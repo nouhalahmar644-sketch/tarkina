@@ -135,9 +135,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// ---------- GET : search / pagination ----------
+// ---------- GET : search / pagination / status filter ----------
 $search  = isset($_GET['q'])    ? trim((string)$_GET['q'])        : '';
 $page    = isset($_GET['page']) ? max(1, (int)$_GET['page'])      : 1;
+$status  = isset($_GET['statut']) ? trim((string)$_GET['statut']) : '';
 $perPage = 8;
 $offset  = ($page - 1) * $perPage;
 
@@ -159,13 +160,23 @@ if ($editId > 0) {
     }
 }
 
-$where = ''; $like = '';
-if ($search !== '') { $where = ' WHERE titre LIKE ? OR localisation LIKE ? OR statut LIKE ?'; $like = '%'.$search.'%'; }
+// Build dynamic WHERE: optional text search + optional status filter
+$whereParts = []; $types = ''; $args = [];
+if ($search !== '') {
+    $whereParts[] = '(titre LIKE ? OR localisation LIKE ? OR statut LIKE ?)';
+    $like = '%' . $search . '%';
+    $types .= 'sss'; $args[] = $like; $args[] = $like; $args[] = $like;
+}
+if ($status !== '') {
+    $whereParts[] = 'statut = ?';
+    $types .= 's'; $args[] = $status;
+}
+$where = $whereParts ? ' WHERE ' . implode(' AND ', $whereParts) : '';
 
 $totalItems = 0;
-$cst = mysqli_prepare($conn, 'SELECT COUNT(*) FROM evenement'.$where);
+$cst = mysqli_prepare($conn, 'SELECT COUNT(*) FROM evenement' . $where);
 if ($cst) {
-    if ($search !== '') mysqli_stmt_bind_param($cst,'sss',$like,$like,$like);
+    if ($types !== '') mysqli_stmt_bind_param($cst, $types, ...$args);
     mysqli_stmt_execute($cst);
     mysqli_stmt_bind_result($cst,$cdb);
     if (mysqli_stmt_fetch($cst)) $totalItems = (int)$cdb;
@@ -178,8 +189,8 @@ if ($totalPages > 0 && $page > $totalPages) { $page = $totalPages; $offset = ($p
 $items = [];
 $lst = mysqli_prepare($conn,'SELECT id,titre,localisation,prix,capacite,date_debut,date_fin,statut,photo_principale,region_id FROM evenement'.$where.' ORDER BY id DESC LIMIT ? OFFSET ?');
 if ($lst) {
-    if ($search !== '') mysqli_stmt_bind_param($lst,'sssii',$like,$like,$like,$perPage,$offset);
-    else               mysqli_stmt_bind_param($lst,'ii',$perPage,$offset);
+    $allTypes = $types . 'ii'; $allArgs = $args; $allArgs[] = $perPage; $allArgs[] = $offset;
+    mysqli_stmt_bind_param($lst, $allTypes, ...$allArgs);
     mysqli_stmt_execute($lst);
     mysqli_stmt_bind_result($lst,$iid,$itit,$iloc,$iprix,$icap,$idd,$idf,$istat,$iphoto,$ireg);
     while (mysqli_stmt_fetch($lst)) {
@@ -206,6 +217,7 @@ $showForm = isset($_GET['add']) || $editItem !== null;
 
 require_once __DIR__ . '/includes/header.php';
 require_once __DIR__ . '/includes/sidebar.php';
+require_once __DIR__ . '/includes/stats_helpers.php';
 ?>
 <main class="admin-content">
   <div class="content-wrap">
@@ -220,6 +232,14 @@ require_once __DIR__ . '/includes/sidebar.php';
       <?php endif; ?>
       <?php if ($flashError !== ''): ?>
         <div class="flash error"><?php echo htmlspecialchars($flashError); ?></div>
+      <?php endif; ?>
+
+      <?php if (!$showForm): ?>
+        <?php admin_render_service_stats($conn, [
+            'table' => 'evenement',
+            'label' => 'événements',
+            'icon_total' => 'bi-stars',
+        ]); ?>
       <?php endif; ?>
 
       <?php if ($showForm): ?>
@@ -373,13 +393,21 @@ require_once __DIR__ . '/includes/sidebar.php';
               <input type="text" name="q" class="search-input"
                      value="<?php echo htmlspecialchars($search); ?>"
                      placeholder="Rechercher titre, localisation, statut...">
+              <?php if ($status !== ''): ?>
+                <input type="hidden" name="statut" value="<?= htmlspecialchars($status) ?>">
+              <?php endif; ?>
               <button type="submit" class="btn-small btn-navy">Rechercher</button>
-              <?php if ($search !== ''): ?>
+              <?php if ($search !== '' || $status !== ''): ?>
                 <a href="evenement.php" class="btn-small btn-soft">Réinitialiser</a>
               <?php endif; ?>
             </form>
         </div>
         <div class="muted">Total événements : <?php echo (int)$totalItems; ?></div>
+      </div>
+
+      <!-- STATUS FILTER PILLS -->
+      <div style="margin:0 0 18px;">
+        <?php admin_render_status_filter($status, 'evenement.php', ['q' => $search]); ?>
       </div>
 
       <!-- CARDS preview -->

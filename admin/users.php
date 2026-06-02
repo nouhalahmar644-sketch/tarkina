@@ -92,29 +92,44 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $search = isset($_GET['q']) ? trim((string) $_GET['q']) : '';
 $page = isset($_GET['page']) ? (int) $_GET['page'] : 1;
 $page = max(1, $page);
+$role = isset($_GET['role']) ? trim((string) $_GET['role']) : '';
+if (!in_array($role, ['', 'admin', 'utilisateur'], true)) $role = '';
 $perPage = 10;
 $offset = ($page - 1) * $perPage;
 
-$whereSql = '';
-$searchTerm = '';
+// Dynamic WHERE
+$whereParts = []; $bindTypes = ''; $bindArgs = [];
 if ($search !== '') {
-    $whereSql = ' WHERE nom LIKE ? OR prenom LIKE ? OR email LIKE ? OR role LIKE ?';
+    $whereParts[] = '(nom LIKE ? OR prenom LIKE ? OR email LIKE ? OR role LIKE ?)';
     $searchTerm = '%' . $search . '%';
+    $bindTypes .= 'ssss'; $bindArgs[] = $searchTerm; $bindArgs[] = $searchTerm; $bindArgs[] = $searchTerm; $bindArgs[] = $searchTerm;
 }
+if ($role !== '') {
+    $whereParts[] = 'role = ?';
+    $bindTypes .= 's'; $bindArgs[] = $role;
+}
+$whereSql = $whereParts ? ' WHERE ' . implode(' AND ', $whereParts) : '';
 
 $countSql = 'SELECT COUNT(*) FROM utilisateur' . $whereSql;
 $countStmt = mysqli_prepare($conn, $countSql);
 $totalUsers = 0;
 if ($countStmt !== false) {
-    if ($search !== '') {
-        mysqli_stmt_bind_param($countStmt, 'ssss', $searchTerm, $searchTerm, $searchTerm, $searchTerm);
-    }
+    if ($bindTypes !== '') mysqli_stmt_bind_param($countStmt, $bindTypes, ...$bindArgs);
     mysqli_stmt_execute($countStmt);
     mysqli_stmt_bind_result($countStmt, $totalUsersDb);
     if (mysqli_stmt_fetch($countStmt)) {
         $totalUsers = (int) $totalUsersDb;
     }
     mysqli_stmt_close($countStmt);
+}
+
+// Per-role totals for the mini-stats (independent of the active filter)
+$totUsersAll = 0; $totUsersAdmins = 0; $totUsersClients = 0;
+$statRes = mysqli_query($conn, "SELECT COUNT(*) AS total, SUM(role = 'admin') AS admins, SUM(role <> 'admin') AS clients FROM utilisateur");
+if ($statRes && $sr = mysqli_fetch_assoc($statRes)) {
+    $totUsersAll     = (int) $sr['total'];
+    $totUsersAdmins  = (int) $sr['admins'];
+    $totUsersClients = (int) $sr['clients'];
 }
 
 $totalPages = (int) ceil($totalUsers / $perPage);
@@ -127,11 +142,9 @@ $listSql = 'SELECT id, nom, prenom, email, adresse, role FROM utilisateur' . $wh
 $listStmt = mysqli_prepare($conn, $listSql);
 $users = [];
 if ($listStmt !== false) {
-    if ($search !== '') {
-        mysqli_stmt_bind_param($listStmt, 'ssssii', $searchTerm, $searchTerm, $searchTerm, $searchTerm, $perPage, $offset);
-    } else {
-        mysqli_stmt_bind_param($listStmt, 'ii', $perPage, $offset);
-    }
+    $allTypes = $bindTypes . 'ii';
+    $allArgs  = $bindArgs; $allArgs[] = $perPage; $allArgs[] = $offset;
+    mysqli_stmt_bind_param($listStmt, $allTypes, ...$allArgs);
     mysqli_stmt_execute($listStmt);
     mysqli_stmt_bind_result($listStmt, $idDb, $nomDb, $prenomDb, $emailDb, $adresseDb, $roleDb);
     while (mysqli_stmt_fetch($listStmt)) {
@@ -153,6 +166,7 @@ $activePage = 'users';
 
 require_once __DIR__ . '/includes/header.php';
 require_once __DIR__ . '/includes/sidebar.php';
+require_once __DIR__ . '/includes/stats_helpers.php';
 ?>
 <main class="admin-content">
   <div class="content-wrap">
@@ -168,15 +182,59 @@ require_once __DIR__ . '/includes/sidebar.php';
         <div class="flash error"><?php echo htmlspecialchars($flashError); ?></div>
       <?php endif; ?>
 
+      <?php admin_stats_css(); ?>
+      <div class="mini-stat-row">
+        <div class="mini-stat-card">
+          <div class="msi navy"><i class="bi bi-people-fill"></i></div>
+          <div class="msl">TOTAL UTILISATEURS</div>
+          <div class="msv"><?= $totUsersAll ?></div>
+          <hr class="msd">
+          <div class="mss"><?= $totUsersAll ?> compte(s) enregistré(s)</div>
+        </div>
+        <div class="mini-stat-card">
+          <div class="msi orange"><i class="bi bi-shield-lock"></i></div>
+          <div class="msl">ADMINISTRATEURS</div>
+          <div class="msv"><?= $totUsersAdmins ?></div>
+          <hr class="msd">
+          <div class="mss pos"><?= $totUsersAll > 0 ? round($totUsersAdmins / $totUsersAll * 100) : 0 ?>% des comptes</div>
+        </div>
+        <div class="mini-stat-card">
+          <div class="msi green"><i class="bi bi-person-check"></i></div>
+          <div class="msl">UTILISATEURS</div>
+          <div class="msv"><?= $totUsersClients ?></div>
+          <hr class="msd">
+          <div class="mss pos">Comptes voyageurs</div>
+        </div>
+        <div class="mini-stat-card">
+          <div class="msi purple"><i class="bi bi-search"></i></div>
+          <div class="msl">RÉSULTATS AFFICHÉS</div>
+          <div class="msv"><?= (int) $totalUsers ?></div>
+          <hr class="msd">
+          <div class="mss"><?= $search !== '' || $role !== '' ? 'Filtres actifs' : 'Aucun filtre' ?></div>
+        </div>
+      </div>
+
       <div class="toolbar">
         <form method="get" action="users.php" class="search-form">
           <input type="text" name="q" class="search-input" placeholder="Rechercher nom, prénom, e-mail, rôle..." value="<?php echo htmlspecialchars($search); ?>">
+          <?php if ($role !== ''): ?>
+            <input type="hidden" name="role" value="<?= htmlspecialchars($role) ?>">
+          <?php endif; ?>
           <button type="submit" class="btn-small btn-navy">Rechercher</button>
-          <?php if ($search !== ''): ?>
+          <?php if ($search !== '' || $role !== ''): ?>
             <a href="users.php" class="btn-small btn-soft">Réinitialiser</a>
           <?php endif; ?>
         </form>
         <div class="muted">Total: <?php echo (int) $totalUsers; ?> utilisateur(s)</div>
+      </div>
+
+      <!-- ROLE FILTER PILLS -->
+      <div style="margin:0 0 18px;">
+        <?php admin_render_status_filter($role, 'users.php', ['q' => $search], [
+            ['value' => '',            'label' => 'Tous'],
+            ['value' => 'admin',       'label' => 'Administrateurs'],
+            ['value' => 'utilisateur', 'label' => 'Utilisateurs'],
+        ], 'role'); ?>
       </div>
 
       <div class="table-wrap">
