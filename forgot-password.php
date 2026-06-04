@@ -348,22 +348,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     .form-group input.is-invalid {
-      border-color: #b43737;
-      background: #fff9f9;
+      border-color: #c0392b;
+      background: #fff5f5;
     }
 
     .field-error {
       margin-top: 6px;
-      color: #b43737;
-      font-size: 12px;
+      color: #c0392b;
+      font-size: 12.5px;
+      font-weight: 600;
       line-height: 1.4;
     }
 
     .form-alert {
       margin-top: 12px;
+      padding: 10px 14px;
+      border-radius: 8px;
+      background: #fff1f1;
+      border: 1px solid #f3c2c2;
       font-size: 13px;
-      line-height: 1.4;
-      color: #b43737;
+      font-weight: 600;
+      line-height: 1.5;
+      color: #c0392b;
     }
 
     .btn-submit {

@@ -864,7 +864,6 @@ $fpLocale = ($lang === 'ar') ? 'ar' : (($lang === 'en') ? 'default' : 'fr');
                   <div class="flip-caption"><?= htmlspecialchars($alt) ?></div>
                 </div>
                 <div class="flip-card-back">
-                  <div class="fb-icon"><?= $meta['icon'] ?></div>
                   <div class="fb-title"><?= htmlspecialchars($alt) ?></div>
                   <div class="fb-sub"><?= htmlspecialchars($meta['sub']) ?></div>
                 </div>

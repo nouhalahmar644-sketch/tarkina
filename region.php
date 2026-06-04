@@ -212,6 +212,24 @@ foreach ($categories as $cat) {
 }
 $total = array_sum($counts);
 
+// ----- Existing favoris for the current user (to pre-fill heart state) -----
+$userFavs = ['hebergement' => [], 'repas' => [], 'guide' => [], 'evenement' => [], 'artisanat' => []];
+if (!empty($_SESSION['user_id'])) {
+    $uid = (int) $_SESSION['user_id'];
+    $favRes = mysqli_query($conn, "SELECT hebergement_id, repas_id, guide_id, evenement_id, artisanat_id
+                                    FROM favoris WHERE utilisateur_id = $uid");
+    if ($favRes) {
+        while ($f = mysqli_fetch_assoc($favRes)) {
+            if (!empty($f['hebergement_id'])) $userFavs['hebergement'][] = (int) $f['hebergement_id'];
+            if (!empty($f['repas_id']))       $userFavs['repas'][]       = (int) $f['repas_id'];
+            if (!empty($f['guide_id']))       $userFavs['guide'][]       = (int) $f['guide_id'];
+            if (!empty($f['evenement_id']))   $userFavs['evenement'][]   = (int) $f['evenement_id'];
+            if (!empty($f['artisanat_id']))   $userFavs['artisanat'][]   = (int) $f['artisanat_id'];
+        }
+    }
+}
+$isLogged = !empty($_SESSION['user_id']);
+
 // ----- Fetch packs available in this region -----
 // (auto-create the tables so the page never errors on a fresh install)
 mysqli_query($conn, "CREATE TABLE IF NOT EXISTS packs (
@@ -275,14 +293,13 @@ function tk_stable_rating(int $id): array {
 body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--text);margin:0;}
 a{color:inherit;}
 
-/* ── GALLERY ── */
-.gallery{display:grid;grid-template-columns:1.45fr 1fr;gap:10px;max-width:1240px;margin:24px auto 0;padding:0 20px;height:360px;overflow:hidden;}
-.gallery-main{border-radius:18px;overflow:hidden;min-height:0;}
-.gallery-main img{width:100%;height:100%;object-fit:cover;display:block;}
-.gallery-thumbs{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:10px;min-height:0;}
-.gallery-thumb{border-radius:18px;overflow:hidden;min-height:0;}
-.gallery-thumb img{width:100%;height:100%;object-fit:cover;display:block;}
-@media(max-width:760px){.gallery{min-height:auto;grid-template-columns:1fr;}.gallery-main{height:280px;}.gallery-thumbs{grid-template-rows:120px 120px;}}
+/* ── HERO IMAGE (full-width, comme sur la page d'accueil) ── */
+.region-hero{max-width:1240px;margin:24px auto 0;padding:0 20px;}
+.region-hero__wrap{position:relative;height:420px;border-radius:18px;overflow:hidden;box-shadow:0 14px 40px rgba(11,28,48,.10);}
+.region-hero__wrap img{width:100%;height:100%;object-fit:cover;display:block;}
+.region-hero__wrap::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg, rgba(0,0,0,0) 55%, rgba(11,28,48,.55) 100%);pointer-events:none;}
+.region-hero__label{position:absolute;left:24px;bottom:22px;color:#fff;font-family:'Playfair Display',serif;font-weight:800;font-size:clamp(1.6rem,3.6vw,2.6rem);text-shadow:0 2px 12px rgba(0,0,0,.35);}
+@media(max-width:760px){.region-hero__wrap{height:280px;}}
 
 /* ── REGION HEADER ── */
 .region-header{display:grid;grid-template-columns:1.6fr 1fr;gap:60px;max-width:1240px;margin:48px auto;padding:0 20px;align-items:start;}
@@ -359,15 +376,11 @@ a{color:inherit;}
 
 <button onclick="history.back()" class="tk-back-fab">&#8592; <?= htmlspecialchars($L['back']) ?></button>
 
-<!-- GALLERY -->
-<section class="gallery">
-  <div class="gallery-main">
+<!-- HERO IMAGE -->
+<section class="region-hero">
+  <div class="region-hero__wrap">
     <img src="<?= htmlspecialchars($mainPhoto) ?>" alt="<?= htmlspecialchars($regionNom, ENT_QUOTES, 'UTF-8') ?>" onerror="this.src='<?= htmlspecialchars($fallbackImg) ?>'">
-  </div>
-  <div class="gallery-thumbs">
-    <?php foreach ($secPhotos as $thumb): ?>
-      <div class="gallery-thumb"><img src="<?= htmlspecialchars($thumb) ?>" alt="" onerror="this.src='<?= htmlspecialchars($fallbackImg) ?>'"></div>
-    <?php endforeach; ?>
+    <span class="region-hero__label"><?= htmlspecialchars($regionNom, ENT_QUOTES, 'UTF-8') ?></span>
   </div>
 </section>
 
@@ -486,6 +499,13 @@ a{color:inherit;}
           <img src="<?= htmlspecialchars($img) ?>" alt="<?= htmlspecialchars($title, ENT_QUOTES, 'UTF-8') ?>" loading="lazy" onerror="this.src='<?= htmlspecialchars($svcFallback) ?>'">
           <span class="svc-badge"><?= htmlspecialchars($badge) ?></span>
           <span class="svc-rating"><span class="star">★</span><?= $rating ?> <span style="color:#888;font-weight:500;">(<?= $nbAvis ?>)</span></span>
+          <?php $isFav = in_array((int) $item['id'], $userFavs[$cat] ?? [], true); ?>
+          <button type="button" class="fav-btn <?= $isFav ? 'is-fav' : '' ?>"
+                  data-type="<?= htmlspecialchars($cat) ?>" data-id="<?= (int) $item['id'] ?>"
+                  data-logged="<?= $isLogged ? '1' : '0' ?>"
+                  title="<?= $isFav ? 'Retirer des favoris' : 'Ajouter aux favoris' ?>" aria-label="Favori">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-7-4.534-7-10a4.5 4.5 0 0 1 8-2.83A4.5 4.5 0 0 1 19 11c0 5.466-7 10-7 10z"/></svg>
+          </button>
         </div>
         <div class="svc-body">
           <p class="svc-title"><?= htmlspecialchars($title, ENT_QUOTES, 'UTF-8') ?></p>

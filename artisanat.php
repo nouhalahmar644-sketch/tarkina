@@ -163,29 +163,54 @@ $allPhotos = array_unique(array_filter($allPhotos));
     <div class="col-lg-5">
       <div class="booking-card">
         <div class="booking-price"><?= number_format($prix, 0) ?> TND</div>
-        <?php if ($successMsg): ?><div class="flash-ok"><?= htmlspecialchars($successMsg) ?></div><?php endif; ?>
         <?php if ($errorMsg): ?><div class="flash-err"><?= htmlspecialchars($errorMsg) ?></div><?php endif; ?>
 
-        <?php if (empty($_SESSION['user_id'])): ?>
+        <?php if ($successMsg): ?>
+          <div class="booking-done">
+            <div class="booking-done__icon">✓</div>
+            <h3 class="booking-done__title">Paiement réussi !</h3>
+            <p class="booking-done__msg">Votre commande a bien été enregistrée. Vous recevrez un e-mail de confirmation très prochainement.</p>
+            <a class="booking-done__link" href="mes-reservations.php">Voir mes commandes</a>
+          </div>
+        <?php elseif (empty($_SESSION['user_id'])): ?>
           <div class="login-prompt"><p><?= htmlspecialchars($L['login_to_order']) ?></p><a href="login.php"><?= htmlspecialchars($L['login']) ?></a> · <a href="register.php"><?= htmlspecialchars($L['create_account']) ?></a></div>
         <?php else: ?>
-        <form method="post">
+        <form method="post" class="booking-flow">
           <hr class="booking-sep">
-          <label class="form-label small fw-bold"><?= htmlspecialchars($L['quantity']) ?></label>
-          <div class="qty-wrap mb-3">
-            <button type="button" class="qty-btn" id="qtyMinus">−</button>
-            <span class="qty-val" id="qtyVal">1</span>
-            <input type="hidden" name="quantite" id="quantite" value="1">
-            <button type="button" class="qty-btn" id="qtyPlus">+</button>
+          <div class="bk-step bk-step--info">
+            <div class="bk-step-head"><span class="bk-step-head__num">1</span> Vos informations</div>
+            <label class="form-label small fw-bold"><?= htmlspecialchars($L['quantity']) ?></label>
+            <div class="qty-wrap mb-3">
+              <button type="button" class="qty-btn" id="qtyMinus">−</button>
+              <span class="qty-val" id="qtyVal">1</span>
+              <input type="hidden" name="quantite" id="quantite" value="1">
+              <button type="button" class="qty-btn" id="qtyPlus">+</button>
+            </div>
+            <div class="row g-2 mb-3">
+              <div class="col-6"><label class="form-label small fw-bold"><?= htmlspecialchars($L['name']) ?></label><input type="text" name="nom" class="form-control" value="<?= htmlspecialchars($_SESSION['user_name'] ?? '') ?>" required></div>
+              <div class="col-6"><label class="form-label small fw-bold"><?= htmlspecialchars($L['email']) ?></label><input type="email" name="email" class="form-control" required></div>
+            </div>
+            <div class="mb-3"><label class="form-label small fw-bold"><?= htmlspecialchars($L['delivery_address']) ?></label><input type="text" name="adresse" class="form-control" required></div>
+            <hr class="booking-sep">
+            <div class="booking-total-row"><span><?= htmlspecialchars($L['total']) ?></span><span id="totalDisplay"><?= number_format($prix, 0) ?> TND</span></div>
+            <button type="button" class="btn-book bk-next">Continuer vers le paiement →</button>
           </div>
-          <div class="row g-2 mb-3">
-            <div class="col-6"><label class="form-label small fw-bold"><?= htmlspecialchars($L['name']) ?></label><input type="text" name="nom" class="form-control" value="<?= htmlspecialchars($_SESSION['user_name'] ?? '') ?>" required></div>
-            <div class="col-6"><label class="form-label small fw-bold"><?= htmlspecialchars($L['email']) ?></label><input type="email" name="email" class="form-control" required></div>
+
+          <div class="bk-step bk-step--payment" hidden>
+            <button type="button" class="bk-back">← Retour aux informations</button>
+            <div class="bk-step-head"><span class="bk-step-head__num">2</span> Paiement sécurisé</div>
+            <div class="pay-box">
+              <div class="mb-2"><label class="form-label small fw-bold">Numéro de carte</label><input type="text" inputmode="numeric" class="form-control" placeholder="1234 5678 9012 3456" maxlength="19" required></div>
+              <div class="row g-2 mb-2">
+                <div class="col-7"><label class="form-label small fw-bold">Expiration</label><input type="text" inputmode="numeric" class="form-control" placeholder="MM/AA" maxlength="5" required></div>
+                <div class="col-5"><label class="form-label small fw-bold">CVC</label><input type="text" inputmode="numeric" class="form-control" placeholder="123" maxlength="4" required></div>
+              </div>
+              <div><label class="form-label small fw-bold">Titulaire</label><input type="text" class="form-control" placeholder="Nom sur la carte" required></div>
+            </div>
+            <hr class="booking-sep">
+            <div class="booking-total-row"><span><?= htmlspecialchars($L['total']) ?></span><span id="totalDisplay2"><?= number_format($prix, 0) ?> TND</span></div>
+            <button type="submit" class="btn-book">Payer</button>
           </div>
-          <div class="mb-3"><label class="form-label small fw-bold"><?= htmlspecialchars($L['delivery_address']) ?></label><input type="text" name="adresse" class="form-control" required></div>
-          <hr class="booking-sep">
-          <div class="booking-total-row"><span><?= htmlspecialchars($L['total']) ?></span><span id="totalDisplay"><?= number_format($prix, 0) ?> TND</span></div>
-          <button type="submit" class="btn-book"><?= htmlspecialchars($L['order']) ?></button>
         </form>
         <?php endif; ?>
       </div>

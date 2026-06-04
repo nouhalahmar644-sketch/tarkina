@@ -131,3 +131,10 @@ $tf = [
     <span><a href="about.php"><?= $tf['legal'] ?></a> · <a href="contact.php"><?= $tf['privacy'] ?></a></span>
   </div>
 </footer>
+
+<?php if (!defined('TK_LIGHTBOX_LOADED')): define('TK_LIGHTBOX_LOADED', true); ?>
+  <link rel="stylesheet" href="assets/css/service-page.css">
+  <script src="assets/js/service-lightbox.js"></script>
+  <script src="assets/js/booking-flow.js"></script>
+  <script src="assets/js/favoris.js"></script>
+<?php endif; ?>

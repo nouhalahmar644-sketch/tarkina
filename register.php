@@ -280,27 +280,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
   .form-alert {
     margin-top: 12px;
+    padding: 10px 14px;
+    border-radius: 8px;
     font-size: 13px;
-    line-height: 1.4;
+    font-weight: 600;
+    line-height: 1.5;
   }
-
   .form-alert.error {
-    color: #b43737;
+    background: #fff1f1;
+    border: 1px solid #f3c2c2;
+    color: #c0392b;
   }
-
   .form-alert.success {
+    background: #eaf8f0;
+    border: 1px solid #b6e2c6;
     color: #1f7a43;
   }
-
   .error-text {
     display: block;
     margin-top: 6px;
-    font-size: 12px;
-    color: #b43737;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: #c0392b;
   }
-
   .input-error {
-    border-color: #b43737 !important;
+    border-color: #c0392b !important;
     background: #fff5f5;
   }
  

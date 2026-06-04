@@ -294,7 +294,7 @@ require_once __DIR__ . '/includes/stats_helpers.php';
             <!-- 4. Capacité -->
             <div class="form-field">
               <label>Capacité (personnes)</label>
-              <input type="number" min="1" max="20" name="capacite" class="form-input"
+              <input type="number" min="1" max="150" name="capacite" class="form-input"
                      value="<?php echo htmlspecialchars($editItem ? (string)$editItem['capacite'] : '1'); ?>">
             </div>
 

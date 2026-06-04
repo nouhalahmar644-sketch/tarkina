@@ -363,52 +363,76 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           </p>
         <?php endif; ?>
 
-        <?php if ($successMsg !== ''): ?>
-          <div class="flash-ok"><?= htmlspecialchars($successMsg) ?></div>
-        <?php endif; ?>
         <?php if ($errorMsg !== ''): ?>
           <div class="flash-err"><?= htmlspecialchars($errorMsg) ?></div>
         <?php endif; ?>
 
-        <?php if (empty($_SESSION['user_id'])): ?>
+        <?php if ($successMsg !== ''): ?>
+          <div class="booking-done">
+            <div class="booking-done__icon">✓</div>
+            <h3 class="booking-done__title">Paiement réussi !</h3>
+            <p class="booking-done__msg">Votre forfait a bien été réservé. Vous recevrez un e-mail de confirmation très prochainement.</p>
+            <a class="booking-done__link" href="mes-reservations.php">Voir mes réservations</a>
+          </div>
+        <?php elseif (empty($_SESSION['user_id'])): ?>
           <div class="login-prompt">
             <p><?= htmlspecialchars($L['login_to_book']) ?></p>
             <a href="login.php"><?= htmlspecialchars($L['login']) ?></a> · <a href="register.php"><?= htmlspecialchars($L['register']) ?></a>
           </div>
         <?php else: ?>
-          <form method="post" id="bookingForm">
+          <form method="post" id="bookingForm" class="booking-flow">
             <hr class="booking-sep">
-            <div class="row g-2 mb-3">
-              <div class="col-6">
-                <label class="form-label small fw-bold"><?= htmlspecialchars($L['l_arrival']) ?></label>
-                <input type="text" name="date_debut" id="date_debut" class="form-control" required>
+
+            <div class="bk-step bk-step--info">
+              <div class="bk-step-head"><span class="bk-step-head__num">1</span> Vos informations</div>
+              <div class="row g-2 mb-3">
+                <div class="col-6">
+                  <label class="form-label small fw-bold"><?= htmlspecialchars($L['l_arrival']) ?></label>
+                  <input type="text" name="date_debut" id="date_debut" class="form-control" required>
+                </div>
+                <div class="col-6">
+                  <label class="form-label small fw-bold"><?= htmlspecialchars($L['l_departure']) ?></label>
+                  <input type="text" name="date_fin" id="date_fin" class="form-control" required>
+                </div>
               </div>
-              <div class="col-6">
-                <label class="form-label small fw-bold"><?= htmlspecialchars($L['l_departure']) ?></label>
-                <input type="text" name="date_fin" id="date_fin" class="form-control" required>
+              <div class="mb-3">
+                <label class="form-label small fw-bold"><?= htmlspecialchars($L['l_persons']) ?></label>
+                <input type="number" name="nb_voyageurs" id="nb_voyageurs" class="form-control" value="1" min="1" max="20">
               </div>
+              <div class="mb-3">
+                <label class="form-label small fw-bold"><?= htmlspecialchars($L['l_name']) ?></label>
+                <input type="text" name="nom" class="form-control" value="<?= htmlspecialchars($_SESSION['user_name'] ?? '') ?>" required>
+              </div>
+              <div class="mb-3">
+                <label class="form-label small fw-bold"><?= htmlspecialchars($L['l_email']) ?></label>
+                <input type="email" name="email" class="form-control" required>
+              </div>
+              <div class="mb-3">
+                <label class="form-label small fw-bold"><?= htmlspecialchars($L['l_message']) ?></label>
+                <textarea name="message" class="form-control" rows="3"></textarea>
+              </div>
+              <hr class="booking-sep">
+              <div class="booking-calc" id="calcLine"><?= number_format($prixFinal, 0) ?> TND × 1 <?= htmlspecialchars($L['l_persons']) ?> → <span id="calcTotal"><?= number_format($prixFinal, 0) ?></span> TND</div>
+              <div class="booking-total-row"><span><?= htmlspecialchars($L['total']) ?></span><span id="totalDisplay"><?= number_format($prixFinal, 0) ?> TND</span></div>
+              <button type="button" class="btn-book bk-next">Continuer vers le paiement →</button>
             </div>
-            <div class="mb-3">
-              <label class="form-label small fw-bold"><?= htmlspecialchars($L['l_persons']) ?></label>
-              <input type="number" name="nb_voyageurs" id="nb_voyageurs" class="form-control" value="1" min="1" max="20">
+
+            <div class="bk-step bk-step--payment" hidden>
+              <button type="button" class="bk-back">← Retour aux informations</button>
+              <div class="bk-step-head"><span class="bk-step-head__num">2</span> Paiement sécurisé</div>
+              <div class="pay-box">
+                <div class="mb-2"><label class="form-label small fw-bold">Numéro de carte</label><input type="text" inputmode="numeric" class="form-control" placeholder="1234 5678 9012 3456" maxlength="19" required></div>
+                <div class="row g-2 mb-2">
+                  <div class="col-7"><label class="form-label small fw-bold">Expiration</label><input type="text" inputmode="numeric" class="form-control" placeholder="MM/AA" maxlength="5" required></div>
+                  <div class="col-5"><label class="form-label small fw-bold">CVC</label><input type="text" inputmode="numeric" class="form-control" placeholder="123" maxlength="4" required></div>
+                </div>
+                <div><label class="form-label small fw-bold">Titulaire</label><input type="text" class="form-control" placeholder="Nom sur la carte" required></div>
+              </div>
+              <hr class="booking-sep">
+              <div class="booking-total-row"><span><?= htmlspecialchars($L['total']) ?></span><span><?= number_format($prixFinal, 0) ?> TND</span></div>
+              <button type="submit" class="btn-book">Payer</button>
+              <p class="booking-note"><?= htmlspecialchars($L['no_charge']) ?></p>
             </div>
-            <div class="mb-3">
-              <label class="form-label small fw-bold"><?= htmlspecialchars($L['l_name']) ?></label>
-              <input type="text" name="nom" class="form-control" value="<?= htmlspecialchars($_SESSION['user_name'] ?? '') ?>" required>
-            </div>
-            <div class="mb-3">
-              <label class="form-label small fw-bold"><?= htmlspecialchars($L['l_email']) ?></label>
-              <input type="email" name="email" class="form-control" required>
-            </div>
-            <div class="mb-3">
-              <label class="form-label small fw-bold"><?= htmlspecialchars($L['l_message']) ?></label>
-              <textarea name="message" class="form-control" rows="3"></textarea>
-            </div>
-            <hr class="booking-sep">
-            <div class="booking-calc" id="calcLine"><?= number_format($prixFinal, 0) ?> TND × 1 <?= htmlspecialchars($L['l_persons']) ?> → <span id="calcTotal"><?= number_format($prixFinal, 0) ?></span> TND</div>
-            <div class="booking-total-row"><span><?= htmlspecialchars($L['total']) ?></span><span id="totalDisplay"><?= number_format($prixFinal, 0) ?> TND</span></div>
-            <button type="submit" class="btn-book"><?= htmlspecialchars($L['btn_book']) ?></button>
-            <p class="booking-note"><?= htmlspecialchars($L['no_charge']) ?></p>
           </form>
         <?php endif; ?>
       </div>

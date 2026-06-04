@@ -265,12 +265,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
   .form-alert {
     margin-top: 12px;
+    padding: 10px 14px;
+    border-radius: 8px;
     font-size: 13px;
-    line-height: 1.4;
-    color: #b43737;
+    font-weight: 600;
+    line-height: 1.5;
+    background: #fff1f1;
+    border: 1px solid #f3c2c2;
+    color: #c0392b;
   }
-
+  .form-alert.error {
+    background: #fff1f1;
+    border-color: #f3c2c2;
+    color: #c0392b;
+  }
   .form-alert.success {
+    background: #eaf8f0;
+    border-color: #b6e2c6;
     color: #1f7a43;
   }
  
@@ -441,7 +452,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <p class="form-alert success"><?php echo htmlspecialchars($successMessage); ?></p>
       <?php endif; ?>
       <?php if (!empty($errors)): ?>
-        <p class="form-alert">
+        <p class="form-alert error">
           <?php foreach ($errors as $e): ?>
             <?php echo htmlspecialchars($e); ?><br>
           <?php endforeach; ?>

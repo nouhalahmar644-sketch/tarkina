@@ -107,6 +107,23 @@ if (is_array($rawType)) {
 } elseif (is_string($rawType) && in_array($rawType, $allTypes, true)) {
     $typesActive = [$rawType];
 }
+
+// If the user typed a service-type word ("repas", "hebergement", "guide"...),
+// honor it by narrowing the result set to that type and clearing the text term.
+$typeAliases = [
+    'hebergement' => ['hebergement','hébergement','hebergements','hébergements','accommodation','stay','stays','إقامة'],
+    'repas'       => ['repas','meal','meals','food','dish','dinner','lunch','وجبة','وجبات'],
+    'guide'       => ['guide','guides','tour','trek','مرشد'],
+    'evenement'   => ['evenement','événement','event','events','festival','حدث','فعالية'],
+    'artisanat'   => ['artisanat','craft','crafts','handicraft','حِرف','حرف'],
+];
+if ($destination !== '' && empty($typesActive)) {
+    $needle = mb_strtolower($destination);
+    foreach ($typeAliases as $t => $words) {
+        if (in_array($needle, $words, true)) { $typesActive = [$t]; $destination = ''; break; }
+    }
+}
+
 $selectedTypes = empty($typesActive) ? $allTypes : $typesActive; // default: all
 
 $searchTerm = '%' . $destination . '%';
@@ -121,9 +138,16 @@ foreach ($selectedTypes as $t) {
     $cap = $typeMeta[$t]['cap'];
     $sql = "SELECT id, titre, prix, localisation, `$cap` AS capacite, photo_principale, region_id
             FROM `$t`
-            WHERE (localisation LIKE ? OR titre LIKE ?) AND statut IN ('publié','actif') AND `$cap` >= ?";
-    $params = [$searchTerm, $searchTerm, $personnes];
-    $ptypes = 'ssi';
+            WHERE statut IN ('publié','actif') AND `$cap` >= ?";
+    $params = [$personnes];
+    $ptypes = 'i';
+    if ($destination !== '') {
+        // Match against the title, location, AND description so service names
+        // ("Couscous", "Médina"…) surface as well as region words ("Kairouan").
+        $sql .= " AND (titre LIKE ? OR localisation LIKE ? OR description LIKE ?)";
+        $params[] = $searchTerm; $params[] = $searchTerm; $params[] = $searchTerm;
+        $ptypes .= 'sss';
+    }
     if ($regionId > 0) { $sql .= " AND region_id = ?"; $params[] = $regionId; $ptypes .= 'i'; }
     if ($prixMax > 0)  { $sql .= " AND prix <= ?";     $params[] = $prixMax;  $ptypes .= 'd'; }
     if ($t !== 'artisanat' && $dateFilter !== '') {
