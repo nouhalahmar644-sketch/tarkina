@@ -67,7 +67,6 @@ $tk_active = function (string $f) use ($__tkCur) {
 .tk-nav__toggle span{display:block;width:24px;height:2px;background:#fff;border-radius:2px;margin:5px 0;transition:.3s;}
 .tk-nav-spacer{height:68px;}
 .tk-nav-spacer.tk-nav-spacer--none{height:0;}
-}
 .tk-icon-link{color:#fff;text-decoration:none;transition:color .2s;display:flex;align-items:center;padding:4px;filter:drop-shadow(0 1px 2px rgba(0,0,0,.4));}
 .tk-icon-link svg{stroke:#fff;color:#fff;stroke-width:2.2;}
 .tk-icon-link:hover{color:#f16e22;}
