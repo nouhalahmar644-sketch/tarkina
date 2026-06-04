@@ -1,0 +1,293 @@
+/* ====================================================================
+ * Tarkina — responsive overrides
+ *
+ * Loaded site-wide via footer.php. Targets the most common public and
+ * admin layouts so the site usable on phone, tablet and small desktops.
+ * Breakpoints: 1199 / 991 / 760 / 560.
+ * ================================================================== */
+
+/* -------- Global -------- */
+html, body { -webkit-text-size-adjust: 100%; }
+img, svg, video { max-width: 100%; height: auto; }
+
+/* ================================================================== *
+ * NAVBAR — toggle the menu on touch screens
+ * ================================================================== */
+@media (max-width: 991px) {
+  .tk-nav { padding: 0 18px !important; }
+  .tk-nav__menu {
+    position: fixed;
+    inset: 68px 0 auto 0;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    background: rgba(10, 10, 10, .96);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    padding: 18px 22px 24px;
+    border-bottom: 1px solid rgba(255,255,255,.08);
+    transform: translateY(-12px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .25s ease, transform .25s ease;
+  }
+  .tk-nav.open .tk-nav__menu { opacity: 1; transform: translateY(0); pointer-events: auto; }
+  .tk-nav__links { flex-direction: column; gap: 4px; }
+  .tk-nav__links a { padding: 12px 4px !important; font-size: 1rem !important; color: #fff !important; border-bottom: 1px solid rgba(255,255,255,.06); }
+  .tk-nav-icons-auth { flex-direction: column; align-items: stretch; gap: 14px; padding-top: 8px; }
+  .tk-nav-icons { justify-content: center; margin: 0 !important; gap: 18px !important; }
+  .tk-nav__auth { flex-direction: row; justify-content: center; gap: 10px; }
+
+  .tk-nav__toggle { display: block !important; }
+
+  /* Light variant — menu still readable on white */
+  .tk-nav.tk-nav--light .tk-nav__menu { background: rgba(255,255,255,.97); border-bottom-color: rgba(11,28,48,.08); }
+  .tk-nav.tk-nav--light .tk-nav__links a { color: #0b1c30 !important; border-bottom-color: rgba(11,28,48,.06); }
+
+  /* Dropdown menus open under their icon */
+  .lang-menu, .search-menu { right: auto !important; left: 0 !important; }
+}
+
+/* ================================================================== *
+ * HOMEPAGE
+ * ================================================================== */
+@media (max-width: 991px) {
+  /* Hero */
+  .hero { min-height: 70vh !important; padding: 92px 18px 28px !important; }
+  .hero-title { font-size: clamp(1.6rem, 6vw, 2.6rem) !important; line-height: 1.15 !important; }
+
+  /* Booking-bar stacks vertically */
+  .booking-bar { flex-direction: column; max-width: 440px !important; }
+  .booking-field { border-right: none !important; border-bottom: 1px solid #eee; padding: 12px 18px !important; }
+  .booking-field:last-of-type { border-bottom: none; }
+  .booking-btn { width: 100% !important; height: 54px !important; }
+
+  /* Hero pills wrap fine — just shrink */
+  .hero-pill { font-size: .78rem !important; padding: 6px 14px !important; }
+
+  /* Section padding tightens */
+  .regions-outer, .forfaits-section, .gallery-section, .experiences-section,
+  .pourquoi-section, .temoignages-section, .newsletter-section {
+    padding-left: 18px !important; padding-right: 18px !important; padding-top: 48px !important; padding-bottom: 48px !important;
+  }
+  .regions-section, .forfaits-inner, .experiences-inner, .pourquoi-inner, .temoignages-inner {
+    padding-left: 0 !important; padding-right: 0 !important;
+  }
+  .regions-header { flex-direction: column; align-items: flex-start !important; gap: 12px; }
+  .section-heading { font-size: 1.5rem !important; }
+  .stats-bar-section { padding: 36px 0 !important; }
+  .stat-number { font-size: 2rem !important; }
+
+  /* Trust bar collapses */
+  .trust-bar { padding: 22px 18px !important; }
+  .trust-bar-inner { grid-template-columns: repeat(2, 1fr) !important; gap: 18px !important; }
+
+  /* Packs / forfaits grid */
+  .forfaits-grid { grid-template-columns: 1fr !important; gap: 18px; }
+
+  /* Experiences grid -> 2 cols */
+  .exp-grid { grid-template-columns: repeat(2, 1fr) !important; }
+  .pourquoi-grid { grid-template-columns: repeat(2, 1fr) !important; }
+  .temo-grid { grid-template-columns: 1fr !important; }
+
+  /* Gallery flip cards already responsive in their stylesheet */
+}
+@media (max-width: 560px) {
+  .trust-bar-inner { grid-template-columns: 1fr !important; }
+  .exp-grid, .pourquoi-grid { grid-template-columns: 1fr !important; }
+  .hero-pills { gap: 6px !important; }
+}
+
+/* ================================================================== *
+ * REGION DETAIL PAGE
+ * ================================================================== */
+@media (max-width: 991px) {
+  .region-hero__wrap { height: 320px !important; }
+  .region-header { grid-template-columns: 1fr !important; gap: 24px !important; padding: 0 18px !important; margin: 28px auto !important; }
+  .region-name { font-size: clamp(1.8rem, 5vw, 2.4rem) !important; }
+  .region-packs { padding: 0 18px !important; }
+  .region-packs__grid { grid-template-columns: 1fr !important; }
+  .services-section { padding: 0 18px 60px !important; }
+  .services-grid { grid-template-columns: 1fr !important; }
+}
+@media (max-width: 560px) {
+  .region-hero__wrap { height: 240px !important; }
+  .region-hero__label { font-size: 1.4rem !important; left: 16px !important; bottom: 14px !important; }
+}
+
+/* ================================================================== *
+ * SERVICE DETAIL PAGES (hebergement / repas / guide / evenement /
+ * artisanat / forfait)  → gallery + booking card stack on tablet
+ * ================================================================== */
+@media (max-width: 991px) {
+  .service-gallery-full,
+  .service-gallery-asym,
+  .service-gallery-grid6 {
+    flex-direction: column !important;
+    height: auto !important;
+    padding: 0 12px !important;
+  }
+  .service-gallery-main { flex: 0 0 auto !important; height: 260px !important; }
+  .service-gallery-side { flex: 0 0 auto !important; grid-template-columns: 1fr 1fr !important; height: 220px !important; }
+
+  .booking-card { position: static !important; top: auto !important; margin-top: 24px !important; }
+  .service-title { font-size: clamp(1.6rem, 5vw, 2.2rem) !important; }
+  .service-meta { flex-wrap: wrap; }
+  .pack-includes-grid { grid-template-columns: 1fr !important; }
+}
+@media (max-width: 560px) {
+  .service-gallery-side { grid-template-columns: 1fr !important; height: auto !important; }
+  .service-gallery-side > * { height: 180px; }
+  .booking-card { padding: 18px !important; }
+  .artisanat-thumbs { grid-template-columns: repeat(4, 1fr) !important; }
+}
+
+/* ================================================================== *
+ * BOOKING FLOW & FORMS
+ * ================================================================== */
+@media (max-width: 560px) {
+  .pay-box { padding: 12px !important; }
+  .pay-box .row.g-2 > * { min-width: 0; }
+  .bk-step-head { font-size: .72rem !important; }
+}
+
+/* ================================================================== *
+ * BLOG PAGES
+ * ================================================================== */
+@media (max-width: 991px) {
+  .blog-head { padding: 36px 18px 26px !important; }
+  .blog-head__title { font-size: clamp(1.6rem, 5vw, 2rem) !important; }
+  .blog-wrap { padding: 24px 18px 60px !important; }
+  .blog-toolbar { flex-direction: column; align-items: stretch !important; gap: 14px; }
+  .blog-grid { grid-template-columns: 1fr !important; }
+  .blog-sidebar { position: static !important; }
+  .post-wrap { padding: 22px 18px 60px !important; }
+  .post-body { padding: 22px 18px !important; }
+  .post-title { font-size: clamp(1.5rem, 5vw, 1.9rem) !important; }
+  .comments { padding: 0 18px !important; }
+}
+
+/* ================================================================== *
+ * EXPLORER (map + scrollable region sections)
+ * ================================================================== */
+@media (max-width: 991px) {
+  .fixed-map-wrapper { display: none !important; }
+  .overview-section .discover-header { margin-top: 80px !important; padding: 0 18px !important; }
+  .section-content-wrapper { margin-inline-start: 0 !important; padding: 0 18px !important; }
+  .details-card { padding: 22px !important; max-width: 100% !important; }
+  .details-card h2 { font-size: clamp(1.6rem, 5vw, 2rem) !important; }
+}
+
+/* ================================================================== *
+ * SEARCH RESULTS
+ * ================================================================== */
+@media (max-width: 991px) {
+  .search-layout { flex-direction: column !important; padding: 24px 18px !important; }
+  .filter-sidebar { width: 100% !important; position: static !important; }
+  .results-grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)) !important; }
+}
+
+/* ================================================================== *
+ * PROFILE / MES-FAVORIS / MES-RESERVATIONS
+ * ================================================================== */
+@media (max-width: 991px) {
+  .profile-banner { padding: 30px 22px !important; padding-top: 96px !important; }
+  .profile-banner-inner { flex-direction: column !important; align-items: flex-start !important; gap: 18px; }
+  .profile-banner-left { gap: 14px !important; }
+  .profile-card, .sidebar-card { padding: 18px !important; }
+  .fav-wrap { padding: 40px 18px 60px !important; }
+  .fav-grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)) !important; }
+}
+@media (max-width: 560px) {
+  .profile-avatar { width: 60px !important; height: 60px !important; font-size: 1.1rem !important; }
+  .fav-card__img { height: 150px !important; }
+}
+
+/* ================================================================== *
+ * AUTH PAGES
+ * ================================================================== */
+@media (max-width: 991px) {
+  .auth-image { display: none !important; }
+  .auth-form-section, .auth-form { width: 100% !important; max-width: 100% !important; padding: 32px 22px !important; }
+  .auth-container, .signin-container, .signup-container, .reset-container { grid-template-columns: 1fr !important; flex-direction: column !important; }
+}
+
+/* ================================================================== *
+ * FOOTER
+ * ================================================================== */
+@media (max-width: 560px) {
+  .tkf { padding: 36px 22px 22px !important; }
+  .tkf__grid { grid-template-columns: 1fr !important; gap: 24px !important; }
+  .tkf__brand-desc { max-width: 100% !important; }
+}
+
+/* ================================================================== *
+ * ADMIN — sidebar collapses, content scrolls
+ * ================================================================== */
+@media (max-width: 991px) {
+  .admin-shell { flex-direction: column !important; }
+  .admin-sidebar {
+    width: 100% !important;
+    flex-direction: row !important;
+    overflow-x: auto !important;
+    padding: 14px !important;
+    border-right: none !important;
+    border-bottom: 1px solid rgba(255,255,255,.05);
+  }
+  .admin-sidebar .brand { margin: 0 14px 0 4px !important; flex-shrink: 0; }
+  .admin-sidebar .sidebar-nav { flex-direction: row !important; gap: 4px !important; flex: 1; flex-wrap: nowrap !important; overflow-x: auto !important; }
+  .admin-sidebar .sidebar-link {
+    padding: 8px 14px !important;
+    border-radius: 50px !important;
+    font-size: 13px !important;
+    white-space: nowrap;
+    flex-shrink: 0;
+    margin: 0 !important;
+  }
+  .admin-sidebar .sidebar-link i { font-size: 14px !important; }
+  .admin-sidebar .upgrade-card { display: none !important; }
+
+  .admin-content { width: 100% !important; }
+  .content-wrap { padding: 18px !important; }
+  .topbar { flex-direction: column !important; align-items: flex-start !important; gap: 8px; }
+
+  .mini-stat-row { grid-template-columns: repeat(2, 1fr) !important; gap: 12px !important; }
+  .mini-stat-card { padding: 16px 14px 12px !important; }
+  .msv { font-size: 22px !important; }
+
+  .toolbar { flex-direction: column !important; align-items: stretch !important; gap: 12px !important; }
+  .search-form { flex-direction: row !important; flex-wrap: wrap; gap: 8px !important; }
+  .search-form .search-input { flex: 1 1 200px !important; }
+
+  /* Tables horizontally scroll */
+  .table-wrap { overflow-x: auto !important; -webkit-overflow-scrolling: touch; }
+  .data-table { min-width: 600px !important; }
+
+  .form-grid { grid-template-columns: 1fr !important; }
+  .dashboard-layout { flex-direction: column !important; }
+  .dashboard-sidebar { width: 100% !important; }
+  .promo-banner h2 { font-size: 22px !important; }
+  .promo-banner p { max-width: 100% !important; font-size: 13px; }
+  .promo-image { display: none !important; }
+}
+@media (max-width: 560px) {
+  .mini-stat-row { grid-template-columns: 1fr !important; }
+  .data-table { min-width: 520px !important; font-size: 13px; }
+}
+
+/* ================================================================== *
+ * LIGHTBOX on small screens
+ * ================================================================== */
+@media (max-width: 560px) {
+  .svc-lightbox__nav { width: 38px !important; height: 38px !important; font-size: 1.5rem !important; }
+  .svc-lightbox__nav--prev { left: 8px !important; }
+  .svc-lightbox__nav--next { right: 8px !important; }
+  .svc-lightbox__close { top: 14px !important; right: 14px !important; width: 38px !important; height: 38px !important; }
+}
+
+/* ================================================================== *
+ * FLOATING BACK BUTTON
+ * ================================================================== */
+@media (max-width: 560px) {
+  .tk-back-fab { top: 76px !important; left: 12px !important; padding: 6px 12px !important; font-size: .82rem !important; }
+}

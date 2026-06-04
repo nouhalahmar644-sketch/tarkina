@@ -134,6 +134,7 @@ $tf = [
 
 <?php if (!defined('TK_LIGHTBOX_LOADED')): define('TK_LIGHTBOX_LOADED', true); ?>
   <link rel="stylesheet" href="assets/css/service-page.css">
+  <link rel="stylesheet" href="assets/css/responsive.css">
   <script src="assets/js/service-lightbox.js"></script>
   <script src="assets/js/booking-flow.js"></script>
   <script src="assets/js/favoris.js"></script>
