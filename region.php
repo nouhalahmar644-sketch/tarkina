@@ -38,6 +38,11 @@ $L_ALL = [
         'in_stock'       => 'en stock',
         'none_in_region' => 'Aucun service disponible dans cette région pour le moment.',
         'no_desc'        => 'Une expérience authentique à découvrir.',
+        'packs_title'    => 'Packs disponibles dans cette région',
+        'packs_sub'      => 'Des forfaits prêts à réserver, pensés autour de cette destination.',
+        'pack_from'      => 'À partir de',
+        'pack_save'      => 'Économie',
+        'pack_reserve'   => 'Réserver ce pack',
     ],
     'ar' => [
         'err_invalid'    => 'الجهة غير صالحة.',
@@ -69,6 +74,11 @@ $L_ALL = [
         'in_stock'       => 'متوفّر',
         'none_in_region' => 'لا توجد خدمات متاحة في هذه الجهة حالياً.',
         'no_desc'        => 'تجربة أصيلة في انتظار اكتشافك.',
+        'packs_title'    => 'الباقات المتاحة في هذه الجهة',
+        'packs_sub'      => 'باقات جاهزة للحجز مصمَّمة خصيصاً لهذه الوجهة.',
+        'pack_from'      => 'ابتداءً من',
+        'pack_save'      => 'توفير',
+        'pack_reserve'   => 'احجز هذه الباقة',
     ],
     'en' => [
         'err_invalid'    => 'Invalid region.',
@@ -100,6 +110,11 @@ $L_ALL = [
         'in_stock'       => 'in stock',
         'none_in_region' => 'No services available in this region at the moment.',
         'no_desc'        => 'An authentic experience to discover.',
+        'packs_title'    => 'Packs available in this region',
+        'packs_sub'      => 'Ready-to-book packages curated around this destination.',
+        'pack_from'      => 'From',
+        'pack_save'      => 'Save',
+        'pack_reserve'   => 'Book this pack',
     ],
 ];
 $L = $L_ALL[$lang] ?? $L_ALL['fr'];
@@ -197,6 +212,38 @@ foreach ($categories as $cat) {
 }
 $total = array_sum($counts);
 
+// ----- Fetch packs available in this region -----
+// (auto-create the tables so the page never errors on a fresh install)
+mysqli_query($conn, "CREATE TABLE IF NOT EXISTS packs (
+    id INT AUTO_INCREMENT PRIMARY KEY, titre VARCHAR(255) NOT NULL,
+    slogan VARCHAR(500) NOT NULL DEFAULT '', region_id INT NOT NULL,
+    image_path VARCHAR(500) NOT NULL DEFAULT '',
+    prix_original DECIMAL(10,2) NOT NULL DEFAULT 0,
+    prix_final DECIMAL(10,2) NOT NULL DEFAULT 0,
+    statut VARCHAR(20) NOT NULL DEFAULT 'actif', position INT NOT NULL DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci");
+
+$regionPacks = [];
+if ($pq = mysqli_prepare($conn, "SELECT id, titre, slogan, image_path, prix_original, prix_final
+                                  FROM packs WHERE region_id = ? AND statut = 'actif'
+                                  ORDER BY position ASC, id DESC")) {
+    mysqli_stmt_bind_param($pq, 'i', $region_id);
+    mysqli_stmt_execute($pq);
+    $pr = mysqli_stmt_get_result($pq);
+    while ($prow = mysqli_fetch_assoc($pr)) { $regionPacks[] = $prow; }
+    mysqli_stmt_close($pq);
+}
+
+function tk_pack_image(string $path, string $fallback): string {
+    $path = trim($path);
+    if ($path === '') return $fallback;
+    if (stripos($path, 'http') === 0) return $path;
+    if (str_starts_with($path, 'uploads/') || str_starts_with($path, 'images/')) return $path;
+    return 'uploads/packs/' . ltrim($path, '/');
+}
+
 function tk_service_image($path, $cat, $fallback) {
     if (empty($path)) return $fallback;
     if (strpos($path, 'http') === 0) return $path;
@@ -252,6 +299,26 @@ a{color:inherit;}
 .info-value{color:var(--navy);font-weight:700;text-align:right;}
 
 @media(max-width:900px){.region-header{grid-template-columns:1fr;gap:30px;}.info-card{margin-top:0;}}
+
+/* ── REGION PACKS ── */
+.region-packs{max-width:1240px;margin:24px auto 0;padding:0 20px;}
+.region-packs__title{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:800;color:var(--navy);margin:0 0 6px;}
+.region-packs__sub{color:var(--muted);font-size:.92rem;margin:0 0 22px;}
+.region-packs__grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:22px;}
+.region-pack-card{background:#fff;border:1px solid var(--border);border-radius:16px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 4px 18px rgba(17,17,17,.05);transition:transform .2s,box-shadow .2s;}
+.region-pack-card:hover{transform:translateY(-4px);box-shadow:0 16px 36px rgba(17,17,17,.10);}
+.region-pack-card__img{position:relative;height:170px;overflow:hidden;}
+.region-pack-card__img img{width:100%;height:100%;object-fit:cover;display:block;}
+.region-pack-card__badge{position:absolute;top:12px;left:12px;background:var(--coral);color:#fff;padding:5px 13px;border-radius:50px;font-size:11px;font-weight:800;letter-spacing:.6px;}
+.region-pack-card__body{padding:18px 18px 0;flex:1;display:flex;flex-direction:column;}
+.region-pack-card__title{font-family:'Playfair Display',serif;font-weight:700;font-size:1.1rem;color:var(--navy);margin:0 0 8px;}
+.region-pack-card__slogan{color:#555;font-size:.86rem;line-height:1.55;margin:0 0 14px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.region-pack-card__foot{margin-top:auto;border-top:1px solid #f1f1f1;padding:14px 18px;display:flex;flex-direction:column;gap:10px;}
+.region-pack-card__price{display:flex;align-items:baseline;gap:6px;font-size:.85rem;color:var(--muted);}
+.region-pack-card__price strong{color:var(--navy);font-size:1.2rem;font-weight:800;}
+.region-pack-card__price del{color:#bbb;font-size:.85rem;}
+.region-pack-card__cta{display:inline-flex;align-items:center;justify-content:center;gap:6px;background:var(--coral);color:#fff;text-decoration:none;padding:10px 14px;border-radius:50px;font-weight:700;font-size:.88rem;transition:background .2s;}
+.region-pack-card__cta:hover{background:#d95716;color:#fff;}
 
 /* ── SERVICES ── */
 .services-section{max-width:1240px;margin:48px auto 0;padding:0 20px 80px;}
@@ -340,6 +407,49 @@ a{color:inherit;}
     <div class="info-row"><span class="info-label"><?= htmlspecialchars($L['services_count']) ?></span><span class="info-value"><?= (int) $total ?></span></div>
   </aside>
 </section>
+
+<?php if (!empty($regionPacks)): ?>
+<!-- PACKS DISPONIBLES DANS LA RÉGION -->
+<section class="region-packs">
+  <h2 class="region-packs__title"><?= htmlspecialchars($L['packs_title']) ?></h2>
+  <p class="region-packs__sub"><?= htmlspecialchars($L['packs_sub']) ?></p>
+  <div class="region-packs__grid">
+    <?php foreach ($regionPacks as $pk):
+      $pkImg     = tk_pack_image((string) $pk['image_path'], $fallbackImg);
+      $pkFinal   = (float) $pk['prix_final'];
+      $pkOrig    = (float) $pk['prix_original'];
+      $hasSaving = $pkOrig > $pkFinal && $pkOrig > 0;
+      $saving    = $hasSaving ? (int) round((($pkOrig - $pkFinal) / $pkOrig) * 100) : 0;
+    ?>
+    <article class="region-pack-card">
+      <div class="region-pack-card__img">
+        <img src="<?= htmlspecialchars($pkImg) ?>" alt="<?= htmlspecialchars($pk['titre']) ?>" loading="lazy" onerror="this.src='<?= htmlspecialchars($fallbackImg) ?>'">
+        <?php if ($hasSaving): ?>
+          <span class="region-pack-card__badge">-<?= $saving ?>%</span>
+        <?php endif; ?>
+      </div>
+      <div class="region-pack-card__body">
+        <h3 class="region-pack-card__title"><?= htmlspecialchars($pk['titre']) ?></h3>
+        <?php if (!empty($pk['slogan'])): ?>
+          <p class="region-pack-card__slogan"><?= htmlspecialchars($pk['slogan']) ?></p>
+        <?php endif; ?>
+      </div>
+      <div class="region-pack-card__foot">
+        <div class="region-pack-card__price">
+          <?= htmlspecialchars($L['pack_from']) ?>&nbsp;<strong><?= number_format($pkFinal, 0) ?> TND</strong>
+          <?php if ($hasSaving): ?>
+            <del><?= number_format($pkOrig, 0) ?> TND</del>
+          <?php endif; ?>
+        </div>
+        <a class="region-pack-card__cta" href="forfait.php?id=<?= (int) $pk['id'] ?>">
+          <?= htmlspecialchars($L['pack_reserve']) ?> →
+        </a>
+      </div>
+    </article>
+    <?php endforeach; ?>
+  </div>
+</section>
+<?php endif; ?>
 
 <!-- SERVICES -->
 <section class="services-section">

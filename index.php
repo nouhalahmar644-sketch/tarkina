@@ -9,7 +9,7 @@ require_once __DIR__ . '/includes/region_photo.php'; // manifest fallback for ad
 $L_ALL = [
     'fr' => [
         'page_title' => 'Tarkina — Voyagez autrement en Tunisie',
-        'hero_full'  => "VIVEZ LA TUNISIE <span style=\"color:var(--primary)\">AUTREMENT</span>.<br>AU PLUS PRÈS DE SES HABITANTS.",
+        'hero_full'  => "Osez les <span style=\"color:var(--primary)\">chemins de traverse</span>,<br>goûtez à l'âme tunisienne.",
         'hero_sub'   => "Découvrez l'autre Tunisie. Des régions inexplorées, des rencontres authentiques.",
         'bk_destination' => 'Destination',  'bk_where'       => 'Où allez-vous ?',
         'bk_arrival'     => 'Arrivée',      'bk_departure'   => 'Départ',
@@ -43,7 +43,7 @@ $L_ALL = [
         'stat_lodge' => 'Hébergements', 'stat_sat' => 'Satisfaction moyenne',
         'gal_title' => 'La Tunisie en Images', 'gal_cta' => 'Explorer toutes les régions →',
         'exp_label' => 'Expériences',
-        'exp_h_pre' => 'Trouvez votre ', 'exp_h_em' => 'expérience idéale',
+        'exp_h_pre' => 'Ce que nous vous ', 'exp_h_em' => 'offrons',
         'exp_sub' => 'Cinq façons de vivre la Tunisie autrement',
         'exp1_adj' => 'Authentique', 'exp1_t' => 'Séjours',         'exp1_d' => "Dormez chez l'habitant au cœur des régions",
         'exp2_adj' => 'Savoureux',   'exp2_t' => 'Repas maison',    'exp2_d' => 'Tables familiales et cuisine traditionnelle',
@@ -78,7 +78,7 @@ $L_ALL = [
     ],
     'ar' => [
         'page_title' => 'تاركينا — سافر إلى تونس بطريقة مختلفة',
-        'hero_full'  => "عِش تونس <span style=\"color:var(--primary)\">بطريقة مختلفة</span>.<br>على مقربةٍ من أهلها.",
+        'hero_full'  => "اسلك <span style=\"color:var(--primary)\">دروب الجانب</span>،<br>وذُق روح تونس.",
         'hero_sub'   => "اكتشف وجه تونس الآخر. جهات لم تُستكشف ولقاءات أصيلة.",
         'bk_destination' => 'الوجهة',  'bk_where' => 'إلى أين تذهب؟',
         'bk_arrival' => 'الوصول',      'bk_departure' => 'المغادرة',
@@ -112,7 +112,7 @@ $L_ALL = [
         'stat_lodge' => 'أماكن إقامة', 'stat_sat' => 'متوسط الرضا',
         'gal_title' => 'تونس بالصور', 'gal_cta' => '← استكشف كل الجهات',
         'exp_label' => 'تجارب',
-        'exp_h_pre' => 'اعثر على ', 'exp_h_em' => 'تجربتك المثالية',
+        'exp_h_pre' => 'ما ', 'exp_h_em' => 'نقدّمه لكم',
         'exp_sub' => 'خمس طرق لعيش تونس بشكل مختلف',
         'exp1_adj' => 'أصيل',    'exp1_t' => 'إقامات',     'exp1_d' => 'بِت عند الأهالي في قلب الجهات',
         'exp2_adj' => 'شهيّ',    'exp2_t' => 'وجبات منزلية','exp2_d' => 'موائد عائلية ومطبخ تقليدي',
@@ -147,7 +147,7 @@ $L_ALL = [
     ],
     'en' => [
         'page_title' => 'Tarkina — Travel Tunisia differently',
-        'hero_full'  => "LIVE TUNISIA <span style=\"color:var(--primary)\">DIFFERENTLY</span>.<br>CLOSER TO ITS PEOPLE.",
+        'hero_full'  => "Take the <span style=\"color:var(--primary)\">road less travelled</span>,<br>taste the soul of Tunisia.",
         'hero_sub'   => "Discover the other Tunisia. Unexplored regions, authentic encounters.",
         'bk_destination' => 'Destination', 'bk_where' => 'Where to?',
         'bk_arrival' => 'Check-in', 'bk_departure' => 'Check-out',
@@ -181,7 +181,7 @@ $L_ALL = [
         'stat_lodge' => 'Stays', 'stat_sat' => 'Average rating',
         'gal_title' => 'Tunisia in Images', 'gal_cta' => 'Explore all regions →',
         'exp_label' => 'Experiences',
-        'exp_h_pre' => 'Find your ', 'exp_h_em' => 'ideal experience',
+        'exp_h_pre' => 'What we ', 'exp_h_em' => 'offer you',
         'exp_sub' => 'Five ways to live Tunisia differently',
         'exp1_adj' => 'Authentic',   'exp1_t' => 'Stays',          'exp1_d' => 'Sleep with locals at the heart of regions',
         'exp2_adj' => 'Savoury',     'exp2_t' => 'Home meals',     'exp2_d' => 'Family tables and traditional cuisine',

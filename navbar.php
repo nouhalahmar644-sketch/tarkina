@@ -125,10 +125,12 @@ $tk_active = function (string $f) use ($__tkCur) {
       </div>
       <div class="tk-nav__auth">
         <?php if ($__tkLoggedIn): ?>
-          <?php if ($__tkIsAdmin): ?>
-            <a href="admin/dashboard.php" class="tk-btn tk-btn--outline"><?= $t['dashboard'] ?></a>
+          <?php if ($__tkCur === 'profile.php'): ?>
+            <?php if ($__tkIsAdmin): ?>
+              <a href="admin/dashboard.php" class="tk-btn tk-btn--outline"><?= $t['dashboard'] ?></a>
+            <?php endif; ?>
+            <a href="logout.php" class="tk-btn tk-btn--outline"><?= $t['logout'] ?></a>
           <?php endif; ?>
-          <a href="logout.php" class="tk-btn tk-btn--outline"><?= $t['logout'] ?></a>
         <?php else: ?>
           <a href="login.php" class="tk-btn tk-btn--outline"><?= $t['login'] ?></a>
           <a href="register.php" class="tk-btn tk-btn--solid"><?= $t['register'] ?></a>
