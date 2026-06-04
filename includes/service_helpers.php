@@ -75,7 +75,7 @@ function service_photo_url($path, $fallback = '')
     if (strpos($path, 'http') === 0) {
         return $path;
     }
-    if (strpos($path, 'uploads/') === 0) {
+    if (strpos($path, 'uploads/') === 0 || strpos($path, 'images/') === 0) {
         return $path;
     }
     return 'uploads/' . ltrim($path, '/');

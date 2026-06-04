@@ -180,7 +180,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     content: '';
     position: absolute;
     inset: 0;
-    background: url('https://images.unsplash.com/photo-1592743263126-bb241ee76ac7?auto=format&fit=crop&w=1400&q=80') center center / cover no-repeat;
+    background: url('https://images.unsplash.com/photo-1605649487212-47bdab064df7?auto=format&fit=crop&w=1400&q=80') center center / cover no-repeat;
     transform: scale(1.02);
   }
  

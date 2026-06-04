@@ -250,14 +250,14 @@ if (count($descParts) < 2) {
   <!-- Single image: full-width hero -->
   <div class="service-gallery-full" style="height:480px;">
     <div style="width:100%;height:100%;">
-      <img src="<?= htmlspecialchars($row['image'] ?? $row['photo'] ?? $row['photo_principale'] ?? '') ?>" alt="<?= htmlspecialchars($item['titre']) ?>" style="width:100%;height:100%;object-fit:cover;display:block;" onerror="this.src='images/placeholder.jpg'">
+      <img src="<?= htmlspecialchars($mainPhoto) ?>" alt="<?= htmlspecialchars($item['titre']) ?>" style="width:100%;height:100%;object-fit:cover;display:block;" onerror="this.src='images/placeholder.jpg'">
     </div>
   </div>
 
 <?php else: ?>
   <div class="service-gallery-full">
     <div class="service-gallery-main">
-      <img src="<?= htmlspecialchars($row['image'] ?? $row['photo'] ?? $row['photo_principale'] ?? '') ?>" alt="<?= htmlspecialchars($item['titre']) ?>" onerror="this.src='images/placeholder.jpg'">
+      <img src="<?= htmlspecialchars($mainPhoto) ?>" alt="<?= htmlspecialchars($item['titre']) ?>" onerror="this.src='images/placeholder.jpg'">
     </div>
     <div class="service-gallery-side"
          style="grid-template-rows: repeat(<?= $sideCount <= 2 ? $sideCount : 2 ?>, 1fr);

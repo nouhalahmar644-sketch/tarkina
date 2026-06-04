@@ -47,7 +47,6 @@ $tk_active = function (string $f) use ($__tkCur) {
 .tk-btn--outline:hover{background:#111111;color:#fff;}
 .tk-nav__toggle{display:none;background:none;border:none;cursor:pointer;padding:8px;margin:-8px;}
 .tk-nav__toggle span{display:block;width:24px;height:2px;background:#111111;border-radius:2px;margin:5px 0;transition:.3s;}
-}
 .tk-nav-spacer{height:68px;}
 .tk-icon-link{color:#111111;text-decoration:none;transition:color .2s;display:flex;align-items:center;padding:4px;}
 .tk-icon-link:hover{color:#1B6B45;}

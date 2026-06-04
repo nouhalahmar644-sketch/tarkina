@@ -56,17 +56,45 @@ if (!empty($_SESSION['content_flash_error']))   { $flashError   = (string)$_SESS
 function moveUploadedImage(string $name, int $idx = -1): string {
     global $uploadBase;
     if ($idx >= 0) {
-        if (!isset($_FILES[$name]['error'][$idx]) || $_FILES[$name]['error'][$idx] !== UPLOAD_ERR_OK) return '';
+        if (!isset($_FILES[$name]['error'][$idx])) return '';
+        if ($_FILES[$name]['error'][$idx] !== UPLOAD_ERR_OK) {
+            if ($_FILES[$name]['error'][$idx] !== UPLOAD_ERR_NO_FILE) {
+                $_SESSION['content_flash_error'] = "Erreur upload ($name [$idx]): code " . $_FILES[$name]['error'][$idx];
+            }
+            return '';
+        }
         $tmp = $_FILES[$name]['tmp_name'][$idx]; $orig = $_FILES[$name]['name'][$idx];
     } else {
-        if (!isset($_FILES[$name]) || $_FILES[$name]['error'] !== UPLOAD_ERR_OK) return '';
+        if (!isset($_FILES[$name])) return '';
+        if ($_FILES[$name]['error'] !== UPLOAD_ERR_OK) {
+            if ($_FILES[$name]['error'] !== UPLOAD_ERR_NO_FILE) {
+                $_SESSION['content_flash_error'] = "Erreur upload ($name): code " . $_FILES[$name]['error'];
+            }
+            return '';
+        }
         $tmp = $_FILES[$name]['tmp_name']; $orig = $_FILES[$name]['name'];
     }
+    
+    $mime = @mime_content_type($tmp);
+    if (!$mime) {
+        // Fallback to file extension if mime_content_type fails
+        $mime = $_FILES[$name]['type'] ?? '';
+    }
+    
     $allowed = ['image/jpeg','image/png','image/webp','image/gif'];
-    if (!in_array(@mime_content_type($tmp), $allowed, true)) return '';
+    if (!in_array($mime, $allowed, true)) {
+        $_SESSION['content_flash_error'] = "Type de fichier non autorisé: " . htmlspecialchars($mime);
+        return '';
+    }
+    
     $ext  = strtolower(pathinfo($orig, PATHINFO_EXTENSION));
     $file = uniqid('heb_', true) . '.' . $ext;
-    if (!move_uploaded_file($tmp, $uploadBase . DIRECTORY_SEPARATOR . $file)) return '';
+    $target = $uploadBase . DIRECTORY_SEPARATOR . $file;
+    
+    if (!move_uploaded_file($tmp, $target)) {
+        $_SESSION['content_flash_error'] = "Erreur move_uploaded_file vers " . htmlspecialchars($target);
+        return '';
+    }
     return 'uploads/hebergements/' . $file;
 }
 
@@ -100,6 +128,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // SAVE
     if ($action === 'save') {
+        if (isset($_POST['debug_upload'])) {
+            echo "<pre>FILES:\n"; var_dump($_FILES);
+            echo "\nPOST:\n"; var_dump($_POST);
+            exit;
+        }
+
         $titre        = trim((string)($_POST['titre']        ?? ''));
         $localisation = trim((string)($_POST['localisation'] ?? ''));
         $prixRaw      = trim((string)($_POST['prix']         ?? '0'));
@@ -132,29 +166,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $photoP      = moveUploadedImage('photo_principale');
         $photosSec   = [];
         for ($i = 0; $i < 4; $i++) { $p = moveUploadedImage('photos_secondaires', $i); if ($p !== '') $photosSec[] = $p; }
-        $photosSecJs = json_encode($photosSec, JSON_UNESCAPED_UNICODE);
 
         if ($hebergementId > 0) {
+            $updates = [
+                'titre=?', 'localisation=?', 'prix=?', 'capacite=?', 
+                'date_debut=?', 'date_fin=?', 'description=?', 'inclus=?',
+                'statut=?', 'region_id=?'
+            ];
+            $types = 'ssdisssssi';
+            $params = [$titre, $localisation, $prix, $capacite, $ddVal, $dfVal, $description, $inclusJs, $statut, $regionId];
+
             if ($photoP !== '') {
-                // UPDATE with new photo
-                $sql = 'UPDATE hebergement SET titre=?,localisation=?,prix=?,capacite=?,date_debut=?,date_fin=?,description=?,inclus=?,photo_principale=?,photos_sec=?,statut=?,region_id=? WHERE id=? LIMIT 1';
-                $st  = mysqli_prepare($conn, $sql);
-                if ($st) {
-                    mysqli_stmt_bind_param($st,'ssdisssssssii',$titre,$localisation,$prix,$capacite,$ddVal,$dfVal,$description,$inclusJs,$photoP,$photosSecJs,$statut,$regionId,$hebergementId);
-                    mysqli_stmt_execute($st); mysqli_stmt_close($st);
-                    $_SESSION['content_flash_success'] = 'Hébergement mis à jour.';
-                } else { $_SESSION['content_flash_error'] = 'Modification impossible.'; }
-            } else {
-                // UPDATE without photo
-                $sql = 'UPDATE hebergement SET titre=?,localisation=?,prix=?,capacite=?,date_debut=?,date_fin=?,description=?,inclus=?,statut=?,region_id=? WHERE id=? LIMIT 1';
-                $st  = mysqli_prepare($conn, $sql);
-                if ($st) {
-                    mysqli_stmt_bind_param($st,'ssdisssssii',$titre,$localisation,$prix,$capacite,$ddVal,$dfVal,$description,$inclusJs,$statut,$regionId,$hebergementId);
-                    mysqli_stmt_execute($st); mysqli_stmt_close($st);
-                    $_SESSION['content_flash_success'] = 'Hébergement mis à jour.';
-                } else { $_SESSION['content_flash_error'] = 'Modification impossible.'; }
+                $updates[] = 'photo_principale=?';
+                $types .= 's';
+                $params[] = $photoP;
             }
+            if (!empty($photosSec)) {
+                $updates[] = 'photos_sec=?';
+                $types .= 's';
+                $params[] = json_encode($photosSec, JSON_UNESCAPED_UNICODE);
+            }
+
+            $types .= 'i';
+            $params[] = $hebergementId;
+
+            $sql = 'UPDATE hebergement SET ' . implode(',', $updates) . ' WHERE id=? LIMIT 1';
+            $st  = mysqli_prepare($conn, $sql);
+            if ($st) {
+                mysqli_stmt_bind_param($st, $types, ...$params);
+                mysqli_stmt_execute($st); mysqli_stmt_close($st);
+                $_SESSION['content_flash_success'] = 'Hébergement mis à jour.';
+            } else { $_SESSION['content_flash_error'] = 'Modification impossible.'; }
+
         } else {
+            $photosSecJs = json_encode($photosSec, JSON_UNESCAPED_UNICODE);
             $sql = 'INSERT INTO hebergement (titre,localisation,prix,capacite,date_debut,date_fin,description,inclus,photo_principale,photos_sec,statut,region_id) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)';
             $st  = mysqli_prepare($conn, $sql);
             if ($st) {
@@ -431,7 +476,7 @@ require_once __DIR__ . '/includes/sidebar.php';
                   if (!empty($item['photo_principale'])) {
                       if (strpos($item['photo_principale'], 'http') === 0) {
                           $img = $item['photo_principale'];
-                      } elseif (strpos($item['photo_principale'], 'uploads/') === 0) {
+                      } elseif (strpos($item['photo_principale'], 'uploads/') === 0 || strpos($item['photo_principale'], 'images/') === 0) {
                           $img = '../' . $item['photo_principale'];
                       } else {
                           $img = '../uploads/' . $item['photo_principale'];
