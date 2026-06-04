@@ -120,9 +120,9 @@ $desc = trim((string) ($item['description'] ?? $L['desc_default']));
   <link rel="stylesheet" href="assets/css/rtl.css">
 </head>
 <body class="service-page">
-<?php include __DIR__ . '/navbar.php'; ?>
+<?php $navLight = true; include __DIR__ . '/navbar.php'; ?>
 
-<button onclick="history.back()" style="display:inline-flex;align-items:center;gap:8px;margin:14px 0 0 24px;background:#fff;border:1.5px solid #e2ddd8;border-radius:50px;padding:8px 18px;color:#111111;cursor:pointer;font-weight:600;font-size:.9rem;font-family:inherit;transition:all .2s;" onmouseover="this.style.borderColor='#1B6B45';this.style.color='#1B6B45'" onmouseout="this.style.borderColor='#e2ddd8';this.style.color='#111111'">&#8592; <?= htmlspecialchars($L['back']) ?></button>
+<button onclick="history.back()" class="tk-back-fab">&#8592; <?php echo htmlspecialchars($L['back']) ?></button>
 
 <?php
 $allPhotos = array_merge([$mainPhoto], $thumbs);
@@ -211,6 +211,7 @@ document.querySelectorAll('.thumb-img').forEach(img=>{
   });
 });
 </script>
+<script src="assets/js/service-lightbox.js"></script>
 </body>
 </html>
 

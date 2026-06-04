@@ -6,7 +6,7 @@ require_once __DIR__ . '/includes/i18n.php';
 $L_ALL = [
     'fr' => [
         'page_title'    => 'Résultats de recherche – Tarkina',
-        'back'          => '← Retour',
+        'back'          => 'Retour',
         'header_for'    => 'Résultats pour',
         'all_tunisia'   => 'Toute la Tunisie',
         'svc_found'     => 'service(s) trouvé(s)',
@@ -31,7 +31,7 @@ $L_ALL = [
     ],
     'ar' => [
         'page_title'    => 'نتائج البحث – تاركينا',
-        'back'          => '← رجوع',
+        'back'          => 'رجوع',
         'header_for'    => 'النتائج لـ',
         'all_tunisia'   => 'كامل تونس',
         'svc_found'     => 'خدمة/خدمات تمّ العثور عليها',
@@ -56,7 +56,7 @@ $L_ALL = [
     ],
     'en' => [
         'page_title'    => 'Search results – Tarkina',
-        'back'          => '← Back',
+        'back'          => 'Back',
         'header_for'    => 'Results for',
         'all_tunisia'   => 'All of Tunisia',
         'svc_found'     => 'service(s) found',
@@ -170,7 +170,7 @@ $page_title = $L['page_title'];
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Lato:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         *, *::before, *::after { box-sizing: border-box; }
-        :root { --cream:#FFFFFF; --dark:#1c1c2e; --navy:#111111; --orange:#1B6B45; --muted:#6b6b6b; --border:#e0dbd4; --white:#fff; --radius:14px; }
+        :root { --cream:#FFFFFF; --dark:#1c1c2e; --navy:#0b1c30; --orange:#f16e22; --muted:#6b6b6b; --border:#e0dbd4; --white:#fff; --radius:14px; }
         body { font-family:'Lato',sans-serif; background:var(--cream); color:var(--dark); line-height:1.6; }
 
         .search-header { background:var(--navy); color:var(--white); padding:36px 56px; text-align:center; }
@@ -189,11 +189,11 @@ $page_title = $L['page_title'];
         .filter-check:last-child { margin-bottom:0; }
         .filter-check input { accent-color:var(--orange); width:16px; height:16px; cursor:pointer; }
         .filter-field { width:100%; padding:10px 12px; border:1px solid var(--border); border-radius:9px; font-family:inherit; font-size:14px; background:var(--white); color:var(--dark); outline:none; }
-        .filter-field:focus { border-color:var(--orange); box-shadow:0 0 0 3px rgba(27, 107, 69,.12); }
+        .filter-field:focus { border-color:var(--orange); box-shadow:0 0 0 3px rgba(241, 110, 34,.12); }
         input[type=range].filter-field { padding:0; accent-color:var(--orange); height:6px; }
         .filter-range-val { font-weight:700; color:var(--orange); }
         .btn-filter { width:100%; background:var(--orange); color:#fff; border:none; border-radius:9px; padding:12px; font-weight:700; cursor:pointer; font-size:14px; transition:background .2s; }
-        .btn-filter:hover { background:#155a38; }
+        .btn-filter:hover { background:#d95716; }
         .btn-reset { display:block; text-align:center; margin-top:10px; color:var(--muted); font-size:13px; text-decoration:none; }
         .btn-reset:hover { color:var(--orange); }
 
@@ -225,9 +225,10 @@ $page_title = $L['page_title'];
 </head>
 <body>
 
-<?php include 'navbar.php'; ?>
+<?php $navLight = true; include 'navbar.php'; ?>
+<link rel="stylesheet" href="assets/css/service-page.css">
 
-<button onclick="history.back()" class="back-btn"><?= htmlspecialchars($L['back']) ?></button>
+<button onclick="history.back()" class="tk-back-fab">&#8592; <?= htmlspecialchars($L['back']) ?></button>
 
 <div class="search-header">
     <h1><?= htmlspecialchars($L['header_for']) ?> "<?= htmlspecialchars($destination ?: $L['all_tunisia']) ?>"</h1>
@@ -240,7 +241,7 @@ $page_title = $L['page_title'];
     <aside class="filter-sidebar">
         <form method="get" action="search.php">
             <h3>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1B6B45" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f16e22" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
                 <?= htmlspecialchars($L['filters']) ?>
             </h3>
 

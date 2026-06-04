@@ -69,13 +69,13 @@ $tf = [
 ][$__fLang] ?? [];
 ?>
 <style>
-.tkf{background:#111111;color:#fff;padding:56px clamp(20px,5vw,60px) 26px;margin-top:60px;font-family:'Lato','Segoe UI',system-ui,sans-serif;}
+.tkf{background:#0a0a0a;color:#fff;padding:56px clamp(20px,5vw,60px) 26px;margin-top:60px;font-family:'Lato','Segoe UI',system-ui,sans-serif;}
 .tkf__grid{display:grid;grid-template-columns:1.6fr 1fr 1fr 1.2fr;gap:40px;max-width:1200px;margin:0 auto 40px;}
 .tkf__brand-name{font-family:'Playfair Display',Georgia,serif;font-size:1.6rem;font-weight:800;margin-bottom:12px;}
 .tkf__brand-desc{color:rgba(255,255,255,.6);font-size:.9rem;line-height:1.75;margin-bottom:18px;max-width:300px;}
 .tkf__socials{display:flex;gap:10px;}
 .tkf__socials a{width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;color:#fff;text-decoration:none;font-size:.8rem;font-weight:700;transition:background .2s;}
-.tkf__socials a:hover{background:#1B6B45;}
+.tkf__socials a:hover{background:#f16e22;}
 .tkf__col h4{font-size:.72rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.45);margin:0 0 16px;}
 .tkf__col ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px;}
 .tkf__col a{color:rgba(255,255,255,.72);text-decoration:none;font-size:.9rem;transition:color .2s;}
@@ -89,7 +89,11 @@ $tf = [
 <footer class="tkf">
   <div class="tkf__grid">
     <div>
-      <div class="tkf__brand-name">Tarkina</div>
+      <div class="tkf__brand-name" style="margin-bottom: 16px;">
+        <a href="index.php" style="display: inline-block;">
+          <img src="images/tarkinalogo.png" alt="Tarkina" style="height: 32px; max-height: 32px; filter: brightness(0) invert(1); display: block;">
+        </a>
+      </div>
       <p class="tkf__brand-desc"><?= $tf['brand_desc'] ?></p>
       <div class="tkf__socials">
         <a href="https://instagram.com" target="_blank" rel="noopener" title="Instagram">ig</a>

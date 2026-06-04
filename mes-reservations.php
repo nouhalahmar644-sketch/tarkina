@@ -223,9 +223,9 @@ foreach ($reservations as $r) {
     :root {
       --cream: #FFFFFF;
       --dark: #1c1c2e;
-      --navy: #111111;
-      --orange: #1B6B45;
-      --coral: #1B6B45;
+      --navy: #0b1c30;
+      --orange: #f16e22;
+      --coral: #f16e22;
       --white: #ffffff;
       --border: #e0dbd4;
       --radius: 14px;
@@ -294,7 +294,7 @@ foreach ($reservations as $r) {
     .res-title { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 800; color: var(--dark); line-height: 1.2; }
     
     .badge { padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 700; text-transform: uppercase; border: none; display: inline-block; }
-    .badge-en_attente { background: rgba(27, 107, 69, 0.1); color: var(--coral); }
+    .badge-en_attente { background: rgba(241,110,34,0.1); color: var(--coral); }
     .badge-confirmee { background: rgba(46, 204, 113, 0.1); color: var(--green); }
     .badge-annulee { background: rgba(231, 76, 60, 0.1); color: var(--red); }
     .badge-terminee { background: rgba(107, 107, 107, 0.1); color: var(--muted); }
@@ -346,7 +346,7 @@ foreach ($reservations as $r) {
       padding: 0 24px 24px;
     }
     #btnConfirmCancel {
-      background: #1B6B45;
+      background: #f16e22;
       color: #fff;
       border: none;
       border-radius: 8px;
@@ -356,9 +356,9 @@ foreach ($reservations as $r) {
       transition: background .2s;
       flex: 1;
     }
-    #btnConfirmCancel:hover { background: #155a38; }
+    #btnConfirmCancel:hover { background: #d95716; }
     #btnKeepReservation {
-      background: #111111;
+      background: #0b1c30;
       color: #fff;
       border: none;
       border-radius: 8px;
@@ -368,12 +368,12 @@ foreach ($reservations as $r) {
       transition: background .2s;
       flex: 1;
     }
-    #btnKeepReservation:hover { background: #132b39; }
+    #btnKeepReservation:hover { background: #0d2440; }
   </style>
 </head>
 <body>
 
-<?php include 'navbar.php'; ?>
+<?php $navLight = true; include 'navbar.php'; ?>
 
 <div class="main-container">
   <div class="page-header">

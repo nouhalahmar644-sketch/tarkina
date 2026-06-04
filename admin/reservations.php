@@ -1,6 +1,21 @@
 <?php
 require_once __DIR__ . '/includes/auth_admin.php';
 
+// Make sure the `packs` table exists (auto-created elsewhere) before we LEFT-JOIN it.
+mysqli_query($conn, "CREATE TABLE IF NOT EXISTS packs (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    titre VARCHAR(255) NOT NULL,
+    slogan VARCHAR(500) NOT NULL DEFAULT '',
+    region_id INT NOT NULL,
+    image_path VARCHAR(500) NOT NULL DEFAULT '',
+    prix_original DECIMAL(10,2) NOT NULL DEFAULT 0,
+    prix_final DECIMAL(10,2) NOT NULL DEFAULT 0,
+    statut VARCHAR(20) NOT NULL DEFAULT 'actif',
+    position INT NOT NULL DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci");
+
 $flashSuccess = '';
 $flashError = '';
 
@@ -50,7 +65,9 @@ $page = max(1, $page);
 $perPage = 15;
 $offset = ($page - 1) * $perPage;
 
-$countSql = "SELECT COUNT(*) FROM reservations WHERE type_service IN ('hebergement', 'guide', 'evenement')";
+// Show ALL service-types in the master reservations view so admins see every booking
+// (hebergement, repas, guide, evenement, artisanat, forfait).
+$countSql = "SELECT COUNT(*) FROM reservations";
 $countRes = mysqli_query($conn, $countSql);
 $totalReservations = 0;
 if ($countRes) {
@@ -64,21 +81,45 @@ if ($totalPages > 0 && $page > $totalPages) {
     $offset = ($page - 1) * $perPage;
 }
 
+// ── Mini-stat counts ──
+$resEnAttente = 0; $resConfirmees = 0; $resTerminees = 0; $resAnnulees = 0; $resCA = 0.0; $resDerniereConf = null;
+$statRes = mysqli_query($conn, "SELECT
+    SUM(statut IN ('en_attente','pending')) AS en_attente,
+    SUM(statut IN ('confirmé','confirmed','confirmee','accepté')) AS confirmees,
+    SUM(statut IN ('terminé','terminee','termine')) AS terminees,
+    SUM(statut IN ('annulée','annulee','cancelled')) AS annulees,
+    SUM(CASE WHEN statut NOT IN ('annulée','annulee','cancelled') THEN prix_total ELSE 0 END) AS ca,
+    MAX(CASE WHEN statut IN ('confirmé','confirmed','confirmee','accepté') THEN created_at ELSE NULL END) AS derniere_conf
+    FROM reservations");
+if ($statRes && $sr = mysqli_fetch_assoc($statRes)) {
+    $resEnAttente   = (int)($sr['en_attente'] ?? 0);
+    $resConfirmees  = (int)($sr['confirmees'] ?? 0);
+    $resTerminees   = (int)($sr['terminees'] ?? 0);
+    $resAnnulees    = (int)($sr['annulees'] ?? 0);
+    $resCA          = (float)($sr['ca'] ?? 0);
+    $resDerniereConf = $sr['derniere_conf'] ?? null;
+}
+
 $listSql = "
     SELECT r.*,
            u.nom AS user_nom, u.prenom AS user_prenom,
            CASE r.type_service
                WHEN 'hebergement' THEN h.titre
+               WHEN 'repas'       THEN rp.titre
                WHEN 'guide'       THEN g.titre
                WHEN 'evenement'   THEN e.titre
+               WHEN 'artisanat'   THEN a.titre
+               WHEN 'forfait'     THEN p.titre
                ELSE NULL
            END AS service_titre
     FROM reservations r
     LEFT JOIN utilisateur u  ON r.user_id = u.id
     LEFT JOIN hebergement h  ON r.type_service = 'hebergement' AND r.service_id = h.id
+    LEFT JOIN repas rp       ON r.type_service = 'repas'       AND r.service_id = rp.id
     LEFT JOIN guide g        ON r.type_service = 'guide'       AND r.service_id = g.id
     LEFT JOIN evenement e    ON r.type_service = 'evenement'   AND r.service_id = e.id
-    WHERE r.type_service IN ('hebergement', 'guide', 'evenement')
+    LEFT JOIN artisanat a    ON r.type_service = 'artisanat'   AND r.service_id = a.id
+    LEFT JOIN packs p        ON r.type_service = 'forfait'     AND r.service_id = p.id
     ORDER BY r.created_at DESC
     LIMIT ? OFFSET ?
 ";
@@ -114,6 +155,54 @@ require_once __DIR__ . '/includes/sidebar.php';
       <?php if ($flashError !== ''): ?>
         <div class="flash error"><?php echo htmlspecialchars($flashError); ?></div>
       <?php endif; ?>
+
+      <!-- ── Mini stats ── -->
+      <style>
+        .mini-stat-row { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:28px; }
+        @media(max-width:900px){ .mini-stat-row { grid-template-columns:repeat(2,1fr); } }
+        .mini-stat-card { background:var(--white); border-radius:16px; border:1px solid var(--border); padding:20px 18px 16px; box-shadow:0 4px 14px rgba(0,0,0,0.04); transition:transform .2s,box-shadow .2s; }
+        .mini-stat-card:hover { transform:translateY(-3px); box-shadow:0 8px 22px rgba(0,0,0,0.08); }
+        .msi { width:34px; height:34px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:17px; margin-bottom:12px; }
+        .msi.navy  { background:#eef0f6; color:var(--navy); }
+        .msi.orange{ background:#fff4eb; color:var(--coral); }
+        .msi.green { background:#eef6ee; color:#2e7d32; }
+        .msi.red   { background:#fdecea; color:#c0392b; }
+        .msl { font-size:10px; font-weight:800; letter-spacing:1.5px; text-transform:uppercase; color:#8892a4; margin-bottom:5px; }
+        .msv { font-size:26px; font-weight:800; color:var(--navy); line-height:1; margin-bottom:10px; }
+        .msd { border:none; border-top:1px solid var(--border); margin:0 0 8px; }
+        .mss { font-size:11px; color:#8892a4; line-height:1.5; }
+        .mss.pos { color:#2e7d32; } .mss.neg { color:#c0392b; }
+      </style>
+      <div class="mini-stat-row">
+        <div class="mini-stat-card">
+          <div class="msi navy"><i class="bi bi-clipboard-check"></i></div>
+          <div class="msl">EN ATTENTE</div>
+          <div class="msv"><?= $resEnAttente ?></div>
+          <hr class="msd">
+          <div class="mss"><?= $resEnAttente + $resConfirmees > 0 ? round($resEnAttente / ($resEnAttente + $resConfirmees) * 100) : 0 ?>% du volume actif</div>
+        </div>
+        <div class="mini-stat-card">
+          <div class="msi orange"><i class="bi bi-check-circle"></i></div>
+          <div class="msl">CONFIRMÉES</div>
+          <div class="msv"><?= $resConfirmees ?></div>
+          <hr class="msd">
+          <div class="mss"><?php if ($resDerniereConf): $diff = round((time() - strtotime($resDerniereConf)) / 3600); echo 'Dernière il y a ' . $diff . 'h'; else: echo 'Aucune encore'; endif; ?></div>
+        </div>
+        <div class="mini-stat-card">
+          <div class="msi red"><i class="bi bi-x-circle"></i></div>
+          <div class="msl">ANNULÉES</div>
+          <div class="msv"><?= $resAnnulees ?></div>
+          <hr class="msd">
+          <div class="mss neg"><?= $resTerminees ?> terminée(s)</div>
+        </div>
+        <div class="mini-stat-card">
+          <div class="msi green"><i class="bi bi-cash-coin"></i></div>
+          <div class="msl">CHIFFRE D'AFFAIRES</div>
+          <div class="msv" style="font-size:18px;"><?= number_format($resCA, 2, '.', ' ') ?> TND</div>
+          <hr class="msd">
+          <div class="mss pos">Hors annulées</div>
+        </div>
+      </div>
 
       <div class="toolbar">
         <div></div>

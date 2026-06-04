@@ -230,19 +230,17 @@ if (count($descParts) < 2) {
   <link rel="stylesheet" href="assets/css/service-page.css">
   <link rel="stylesheet" href="assets/css/rtl.css">
   <style>
-    .back-btn{display:inline-flex;align-items:center;gap:8px;margin:14px 0 0 24px;background:#fff;border:1.5px solid #e2ddd8;border-radius:50px;padding:8px 18px;color:#111111;cursor:pointer;font-weight:600;font-size:.9rem;font-family:inherit;text-decoration:none;transition:all .2s;}
-    .back-btn:hover{border-color:#1B6B45;color:#1B6B45;}
     .pay-box{background:#FFFFFF;border:1px solid #ece7e1;border-radius:12px;padding:14px;margin-top:4px;}
-    .pay-head{font-weight:700;color:#111111;font-size:.9rem;margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+    .pay-head{font-weight:700;color:#0b1c30;font-size:.9rem;margin-bottom:10px;display:flex;align-items:center;gap:6px;}
     .pay-box .form-control{font-size:.9rem;}
     .pay-badges{font-size:.72rem;color:#8a8a8a;margin-top:8px;letter-spacing:.3px;}
   </style>
 </head>
 <body class="service-page">
 
-<?php include __DIR__ . '/navbar.php'; ?>
+<?php $navLight = true; include __DIR__ . '/navbar.php'; ?>
 
-<button onclick="history.back()" class="back-btn">&#8592; <?= htmlspecialchars($L['back']) ?></button>
+<button onclick="history.back()" class="tk-back-fab">&#8592; <?= htmlspecialchars($L['back']) ?></button>
 
 <?php $sideCount = count($sidePhotos); ?>
 
@@ -420,6 +418,7 @@ if (count($descParts) < 2) {
   if(e)e.addEventListener('input',function(){var v=this.value.replace(/\D/g,'');if(v.length>=3)v=v.slice(0,2)+'/'+v.slice(2,4);this.value=v;});
 })();
 </script>
+<script src="assets/js/service-lightbox.js"></script>
 </body>
 </html>
 

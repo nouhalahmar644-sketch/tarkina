@@ -72,6 +72,29 @@ while ($row = mysqli_fetch_assoc($cr)) { $comments[] = $row; }
 mysqli_stmt_close($cs);
 
 $isOwner = isset($_SESSION['user_id']) && (int)$_SESSION['user_id'] === (int)$post['utilisateur_id'];
+
+// Is the visitor already a liker of this post? (uses the auto-created blog_user_likes table)
+$userLiked = false;
+if (isset($_SESSION['user_id'])) {
+    mysqli_query($conn, "CREATE TABLE IF NOT EXISTS blog_user_likes (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        blog_id INT NOT NULL,
+        user_id INT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE KEY uniq_blog_user (blog_id, user_id),
+        INDEX idx_blog (blog_id),
+        INDEX idx_user (user_id)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+    $uid = (int) $_SESSION['user_id'];
+    if ($lk = mysqli_prepare($conn, "SELECT 1 FROM blog_user_likes WHERE blog_id = ? AND user_id = ? LIMIT 1")) {
+        mysqli_stmt_bind_param($lk, 'ii', $id, $uid);
+        mysqli_stmt_execute($lk);
+        mysqli_stmt_store_result($lk);
+        $userLiked = mysqli_stmt_num_rows($lk) > 0;
+        mysqli_stmt_close($lk);
+    }
+}
+
 function bi2($p,$n){ return strtoupper(mb_substr((string)$p,0,1).mb_substr((string)$n,0,1)); }
 /**
  * Resolve a blog photo to a usable src, repairing legacy/corrupted values
@@ -111,7 +134,7 @@ $cover = post_photo_src($post['photo'] ?? '', 'https://images.unsplash.com/photo
   <link rel="stylesheet" href="assets/css/blog.css">
 </head>
 <body class="blog-page">
-<?php include 'navbar.php'; ?>
+<?php $navLight = true; include 'navbar.php'; ?>
 
 <div class="post-wrap">
   <a href="blogs.php" class="post-back"><i class="bi bi-arrow-left"></i> <?= htmlspecialchars($L['back']) ?></a>
@@ -139,7 +162,9 @@ $cover = post_photo_src($post['photo'] ?? '', 'https://images.unsplash.com/photo
       <?php endif; ?>
 
       <div class="post-actions">
-        <button type="button" class="btn-like" id="likeBtn" data-id="<?= (int)$post['id'] ?>">
+        <button type="button" class="btn-like<?= $userLiked ? ' liked' : '' ?>" id="likeBtn"
+                data-id="<?= (int)$post['id'] ?>"
+                data-logged="<?= isset($_SESSION['user_id']) ? '1' : '0' ?>">
           <i class="bi bi-heart-fill"></i> <span id="likeCount"><?= (int)$post['likes'] ?></span> <?= htmlspecialchars($L['like']) ?>
         </button>
         <?php if ($isOwner): ?>
@@ -187,9 +212,25 @@ $cover = post_photo_src($post['photo'] ?? '', 'https://images.unsplash.com/photo
   var btn = document.getElementById('likeBtn');
   if(!btn) return;
   btn.addEventListener('click', function(){
+    if (btn.getAttribute('data-logged') !== '1') {
+      window.location.href = 'login.php';
+      return;
+    }
+    if (btn.dataset.busy === '1') return;
+    btn.dataset.busy = '1';
     var id = btn.getAttribute('data-id');
     fetch('blog-like.php', {method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body:'id='+encodeURIComponent(id)})
-      .then(r=>r.json()).then(d=>{ if(d.success){ document.getElementById('likeCount').textContent = d.likes; } });
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        if (d && d.success) {
+          document.getElementById('likeCount').textContent = d.likes;
+          btn.classList.toggle('liked', !!d.liked);
+        } else if (d && d.error === 'auth_required') {
+          window.location.href = 'login.php';
+        }
+      })
+      .catch(function(){})
+      .then(function(){ btn.dataset.busy = '0'; });
   });
 })();
 </script>

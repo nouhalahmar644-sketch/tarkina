@@ -93,7 +93,7 @@ $L = $L_ALL[$lang] ?? $L_ALL['fr'];
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="stylesheet" href="assets/css/rtl.css">
     <style>
-        :root { --primary: #1B6B45; --navy: #111111; --light-bg: #FFFFFF; --text-dark: #1a1a1a; --text-muted: #6b7280; --border: #e5e7eb; }
+        :root { --primary: #f16e22; --navy: #0b1c30; --light-bg: #FFFFFF; --text-dark: #1a1a1a; --text-muted: #6b7280; --border: #e5e7eb; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', system-ui, sans-serif; background: #fff; color: var(--text-dark); }
         .about-hero { padding: 80px 60px 80px; display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; max-width: 1200px; margin: 0 auto; }
@@ -102,7 +102,7 @@ $L = $L_ALL[$lang] ?? $L_ALL['fr'];
         .about-desc { font-size: 1rem; color: var(--text-muted); line-height: 1.75; margin-bottom: 36px; }
         .about-buttons { display: flex; gap: 16px; flex-wrap: wrap; }
         .btn-primary-solid { padding: 13px 28px; background: var(--primary); color: #fff; border-radius: 50px; text-decoration: none; font-weight: 700; font-size: 0.95rem; transition: background .2s; display: inline-flex; align-items: center; gap: 8px; }
-        .btn-primary-solid:hover { background: #155a38; }
+        .btn-primary-solid:hover { background: #d95716; }
         .btn-outline-dark { padding: 13px 28px; border: 2px solid var(--text-dark); color: var(--text-dark); border-radius: 50px; text-decoration: none; font-weight: 700; font-size: 0.95rem; transition: all .2s; }
         .btn-outline-dark:hover { background: var(--text-dark); color: #fff; }
         .about-images { position: relative; height: 420px; }
@@ -133,7 +133,7 @@ $L = $L_ALL[$lang] ?? $L_ALL['fr'];
     </style>
 </head>
 <body>
-<?php include 'navbar.php'; ?>
+<?php $navLight = true; include 'navbar.php'; ?>
 
 <section style="padding-top:0;">
     <div class="about-hero">

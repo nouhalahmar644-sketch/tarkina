@@ -206,8 +206,17 @@ if (!empty($packs)) {
 
 $showAdd       = isset($_GET['add']);
 $preRegion     = isset($_GET['region']) ? (int) $_GET['region'] : 0;
+
+// ── Pack stats ──
+$packsTotal = count($packs);
+$packsActifs = 0; $packsInactifs = 0; $packsCA = 0.0;
+foreach ($packs as $pk) {
+    if ($pk['statut'] === 'actif') $packsActifs++; else $packsInactifs++;
+    $packsCA += (float)$pk['prix_final'];
+}
+
 $pageTitle     = 'Packs';
-$pageHeading   = 'Packs « Partez l\'esprit tranquille »';
+$pageHeading   = "Packs « Partez l'esprit tranquille »";
 $activePage    = 'packs';
 
 require_once __DIR__ . '/includes/header.php';
@@ -223,6 +232,56 @@ require_once __DIR__ . '/includes/sidebar.php';
 
       <?php if ($flashSuccess !== ''): ?><div class="flash success"><?= htmlspecialchars($flashSuccess) ?></div><?php endif; ?>
       <?php if ($flashError !== ''): ?><div class="flash error"><?= htmlspecialchars($flashError) ?></div><?php endif; ?>
+
+      <?php if (!$showAdd): ?>
+      <!-- ── Mini stats (list view only) ── -->
+      <style>
+        .mini-stat-row { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:28px; }
+        @media(max-width:900px){ .mini-stat-row { grid-template-columns:repeat(2,1fr); } }
+        .mini-stat-card { background:var(--white); border-radius:16px; border:1px solid var(--border); padding:20px 18px 16px; box-shadow:0 4px 14px rgba(0,0,0,0.04); transition:transform .2s,box-shadow .2s; }
+        .mini-stat-card:hover { transform:translateY(-3px); box-shadow:0 8px 22px rgba(0,0,0,0.08); }
+        .msi { width:34px; height:34px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:17px; margin-bottom:12px; }
+        .msi.navy  { background:#eef0f6; color:var(--navy); }
+        .msi.orange{ background:#fff4eb; color:var(--coral); }
+        .msi.green { background:#eef6ee; color:#2e7d32; }
+        .msi.red   { background:#fdecea; color:#c0392b; }
+        .msl { font-size:10px; font-weight:800; letter-spacing:1.5px; text-transform:uppercase; color:#8892a4; margin-bottom:5px; }
+        .msv { font-size:26px; font-weight:800; color:var(--navy); line-height:1; margin-bottom:10px; }
+        .msd { border:none; border-top:1px solid var(--border); margin:0 0 8px; }
+        .mss { font-size:11px; color:#8892a4; line-height:1.5; }
+        .mss.pos { color:#2e7d32; } .mss.neg { color:#c0392b; }
+      </style>
+      <div class="mini-stat-row">
+        <div class="mini-stat-card">
+          <div class="msi navy"><i class="bi bi-box-seam"></i></div>
+          <div class="msl">TOTAL PACKS</div>
+          <div class="msv"><?= $packsTotal ?></div>
+          <hr class="msd">
+          <div class="mss"><?= $packsTotal ?> pack(s) créé(s)</div>
+        </div>
+        <div class="mini-stat-card">
+          <div class="msi orange"><i class="bi bi-eye"></i></div>
+          <div class="msl">ACTIFS</div>
+          <div class="msv"><?= $packsActifs ?></div>
+          <hr class="msd">
+          <div class="mss pos"><?= $packsTotal > 0 ? round($packsActifs / $packsTotal * 100) : 0 ?>% publiés</div>
+        </div>
+        <div class="mini-stat-card">
+          <div class="msi red"><i class="bi bi-eye-slash"></i></div>
+          <div class="msl">INACTIFS</div>
+          <div class="msv"><?= $packsInactifs ?></div>
+          <hr class="msd">
+          <div class="mss neg">Non publiés</div>
+        </div>
+        <div class="mini-stat-card">
+          <div class="msi green"><i class="bi bi-cash-coin"></i></div>
+          <div class="msl">VALEUR CATALOGUE</div>
+          <div class="msv" style="font-size:18px;"><?= number_format($packsCA, 2, '.', ' ') ?> TND</div>
+          <hr class="msd">
+          <div class="mss pos">Prix finaux cumulés</div>
+        </div>
+      </div>
+      <?php endif; ?>
 
       <?php if ($showAdd): ?>
         <!-- ======= ADD FORM ======= -->
@@ -288,7 +347,7 @@ require_once __DIR__ . '/includes/sidebar.php';
             </div>
 
             <div class="actions" style="margin-top: 14px;">
-              <button type="submit" id="saveBtn" class="btn-small btn-coral" disabled>Créer le pack</button>
+              <button type="submit" id="saveBtn" class="btn-small btn-coral">Créer le pack</button>
               <a href="packs.php" class="btn-small btn-soft">Annuler</a>
             </div>
           </form>
@@ -358,7 +417,12 @@ require_once __DIR__ . '/includes/sidebar.php';
             } else {
               econ.textContent = 'Économie pour le client : —';
             }
-            saveBtn.disabled = !(n >= 2 && n <= 5 && final > 0 && sel.value);
+            // Visual hint only — keep button enabled so click always submits; server validates strictly.
+            if (n >= 2 && n <= 5 && final > 0 && sel.value) {
+              saveBtn.style.opacity = '1'; saveBtn.title = '';
+            } else {
+              saveBtn.style.opacity = '0.7'; saveBtn.title = 'Choisissez une région, 2-5 services, et un prix final.';
+            }
           }
 
           sel.addEventListener('change', renderServices);

@@ -148,8 +148,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
  
   :root {
-    --navy: #111111;
-    --coral: #1B6B45;
+    --navy: #0b1c30;
+    --coral: #f16e22;
     --coral-light: #f07355;
     --cream: #FFFFFF;
     --charcoal: #2D2D2D;
@@ -412,7 +412,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     background: var(--coral);
     color: var(--white);
     border: none;
-    border-radius: 10px;
+    border-radius: 50px;
     font-family: 'DM Sans', sans-serif;
     font-size: 15px;
     font-weight: 600;

@@ -225,7 +225,7 @@ if ($commande_id > 0) {
 </head>
 <body>
 
-<?php include 'navbar.php'; ?>
+<?php $navLight = true; include 'navbar.php'; ?>
 
 <div class="main-container">
   <div class="merci-card">

@@ -40,23 +40,47 @@ $L_ALL = [
 ];
 $L = $L_ALL[$lang] ?? $L_ALL['fr'];
 
+// Per-language hero copy + search placeholder/button label
+$L_HERO = [
+    'fr' => ['title' => 'Le Blog des Voyageurs', 'tag' => 'Blog',     'ph' => 'Rechercher un article…',  'search' => 'Rechercher'],
+    'ar' => ['title' => 'مدونة المسافرين',      'tag' => 'المدونة', 'ph' => 'ابحث عن مقال…',          'search' => 'بحث'],
+    'en' => ['title' => 'The Travellers\' Blog', 'tag' => 'Blog',     'ph' => 'Search articles…',         'search' => 'Search'],
+];
+$LH = $L_HERO[$lang] ?? $L_HERO['fr'];
+
 $regionFilter = isset($_GET['region']) ? (int) $_GET['region'] : 0;
+$searchTerm   = isset($_GET['search']) ? trim((string) $_GET['search']) : '';
 
 // Regions for the filter bar
 $regions = [];
 $rq = mysqli_query($conn, "SELECT id, nom FROM region ORDER BY nom ASC");
 while ($rq && $row = mysqli_fetch_assoc($rq)) { $regions[] = $row; }
 
-// Posts
+// Posts — filter by region + free-text search on title/content/recommendation
+$where  = [];
+$params = [];
+$types  = '';
+if ($regionFilter > 0) { $where[] = 'b.region_id = ?'; $params[] = $regionFilter; $types .= 'i'; }
+if ($searchTerm !== '') {
+    $where[] = '(b.titre LIKE ? OR b.contenu LIKE ? OR b.recommandation LIKE ?)';
+    $like = '%' . $searchTerm . '%';
+    $params[] = $like; $params[] = $like; $params[] = $like;
+    $types .= 'sss';
+}
 $sql = "SELECT b.*, u.prenom, u.nom, r.nom AS region_nom
         FROM blogs b
         JOIN utilisateur u ON b.utilisateur_id = u.id
-        LEFT JOIN region r ON b.region_id = r.id";
-if ($regionFilter > 0) { $sql .= " WHERE b.region_id = " . $regionFilter; }
-$sql .= " ORDER BY b.created_at DESC";
+        LEFT JOIN region r ON b.region_id = r.id"
+       . ($where ? ' WHERE ' . implode(' AND ', $where) : '')
+       . ' ORDER BY b.created_at DESC';
 $posts = [];
-$pr = mysqli_query($conn, $sql);
-while ($pr && $row = mysqli_fetch_assoc($pr)) { $posts[] = $row; }
+if ($pst = mysqli_prepare($conn, $sql)) {
+    if ($params) { mysqli_stmt_bind_param($pst, $types, ...$params); }
+    mysqli_stmt_execute($pst);
+    $pr = mysqli_stmt_get_result($pst);
+    while ($pr && $row = mysqli_fetch_assoc($pr)) { $posts[] = $row; }
+    mysqli_stmt_close($pst);
+}
 
 function blog_excerpt($text, $len = 130) {
     $text = trim((string) $text);
@@ -106,18 +130,28 @@ function blog_date_fr($datetime, $lang = 'fr') {
   <link rel="stylesheet" href="assets/css/blog.css">
 </head>
 <body class="blog-page">
-<?php include 'navbar.php'; ?>
+<?php $navLight = true; include 'navbar.php'; ?>
 
-<section class="blog-hero">
-  <span class="blog-hero__label">Blog</span>
-  <h1 class="blog-hero__title">Le Blog des Voyageurs</h1>
-  <p class="blog-hero__sub"><?= htmlspecialchars($L['hero_sub']) ?></p>
-  <form class="blog-search-form" method="get" action="blogs.php">
-    <div class="blog-search-group">
-      <input type="text" name="search" class="blog-search-input" placeholder="Rechercher un article...">
-      <button type="submit" class="blog-search-btn">Rechercher</button>
-    </div>
-  </form>
+<section class="blog-head">
+  <div class="blog-head__inner">
+    <span class="blog-head__tag"><?= htmlspecialchars($LH['tag']) ?></span>
+    <h1 class="blog-head__title"><?= htmlspecialchars($LH['title']) ?></h1>
+    <p class="blog-head__sub"><?= htmlspecialchars($L['hero_sub']) ?></p>
+    <form class="blog-search" method="get" action="blogs.php" role="search">
+      <?php if ($regionFilter > 0): ?>
+        <input type="hidden" name="region" value="<?= (int)$regionFilter ?>">
+      <?php endif; ?>
+      <i class="bi bi-search blog-search__icon" aria-hidden="true"></i>
+      <input type="text" name="search" class="blog-search__input"
+             value="<?= htmlspecialchars($searchTerm) ?>"
+             placeholder="<?= htmlspecialchars($LH['ph']) ?>">
+      <?php if ($searchTerm !== ''): ?>
+        <a href="blogs.php<?= $regionFilter ? '?region=' . (int)$regionFilter : '' ?>"
+           class="blog-search__clear" aria-label="Clear"><i class="bi bi-x-lg"></i></a>
+      <?php endif; ?>
+      <button type="submit" class="blog-search__btn"><?= htmlspecialchars($LH['search']) ?></button>
+    </form>
+  </div>
 </section>
 
 <div class="blog-wrap">

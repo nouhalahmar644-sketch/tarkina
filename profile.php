@@ -131,13 +131,33 @@ if ($res2) {
     }
 }
 
-// Fetch favorites count
-$res3 = mysqli_query($conn, "SELECT COUNT(*) FROM favoris WHERE user_id = $user_id");
+// Fetch favorites count — the column is `utilisateur_id` in the legacy schema
+// but some installs may use `user_id`. Try both, swallow errors so the page never crashes.
 $favoris_count = 0;
-if ($res3) {
-    $row = mysqli_fetch_row($res3);
-    $favoris_count = $row[0] ?? 0;
+try {
+    $stmt3 = mysqli_prepare($conn, "SELECT COUNT(*) FROM favoris WHERE utilisateur_id = ?");
+    if ($stmt3) {
+        mysqli_stmt_bind_param($stmt3, 'i', $user_id);
+        mysqli_stmt_execute($stmt3);
+        mysqli_stmt_bind_result($stmt3, $favoris_count);
+        mysqli_stmt_fetch($stmt3);
+        mysqli_stmt_close($stmt3);
+    }
+} catch (\Throwable $e) {
+    try {
+        $stmt3b = mysqli_prepare($conn, "SELECT COUNT(*) FROM favoris WHERE user_id = ?");
+        if ($stmt3b) {
+            mysqli_stmt_bind_param($stmt3b, 'i', $user_id);
+            mysqli_stmt_execute($stmt3b);
+            mysqli_stmt_bind_result($stmt3b, $favoris_count);
+            mysqli_stmt_fetch($stmt3b);
+            mysqli_stmt_close($stmt3b);
+        }
+    } catch (\Throwable $e2) {
+        $favoris_count = 0;
+    }
 }
+$favoris_count = (int) $favoris_count;
 ?>
 <!DOCTYPE html>
 <html lang="<?= htmlspecialchars($lang) ?>" dir="<?= htmlspecialchars($dir) ?>">
@@ -148,7 +168,7 @@ if ($res3) {
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="stylesheet" href="assets/css/rtl.css">
     <style>
-        :root { --primary: #1B6B45; --navy: #111111; --light-bg: #FFFFFF; --text-dark: #1a1a1a; --text-muted: #6b7280; --border: #e5e7eb; }
+        :root { --primary: #f16e22; --navy: #0b1c30; --light-bg: #FFFFFF; --text-dark: #1a1a1a; --text-muted: #6b7280; --border: #e5e7eb; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--light-bg); color: var(--text-dark); }
         .navbar { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background: #fff; border-bottom: 1px solid var(--border); padding: 0 60px; height: 70px; display: flex; align-items: center; justify-content: space-between; }
@@ -161,7 +181,9 @@ if ($res3) {
         .btn-nav-outline { padding: 8px 20px; border: 1.5px solid var(--navy); border-radius: 50px; color: var(--navy); text-decoration: none; font-size: 0.9rem; font-weight: 600; transition: all .2s; }
         .btn-nav-outline:hover { background: var(--navy); color: #fff; }
         .btn-nav-primary { padding: 8px 20px; background: var(--primary); border-radius: 50px; color: #fff; text-decoration: none; font-size: 0.9rem; font-weight: 600; }
-        .profile-banner { background: var(--navy); padding: 48px 60px 36px; margin-top: 70px; }
+        .profile-banner { background: var(--navy); padding: 48px 60px 36px; }
+        .profile-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+        .profile-avatar { overflow: hidden; }
         .profile-banner-inner { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; }
         .profile-banner-left { display: flex; align-items: center; gap: 24px; }
         .profile-avatar { width: 72px; height: 72px; border-radius: 50%; background: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 1.6rem; font-weight: 800; color: #fff; flex-shrink: 0; }
@@ -170,7 +192,7 @@ if ($res3) {
         .profile-meta { display: flex; align-items: center; gap: 20px; }
         .profile-meta-item { display: flex; align-items: center; gap: 6px; color: rgba(255,255,255,0.6); font-size: 0.88rem; }
         .btn-edit { display: flex; align-items: center; gap: 8px; padding: 10px 22px; background: var(--primary); border-radius: 50px; color: #fff; text-decoration: none; font-size: 0.9rem; font-weight: 700; transition: background .2s; }
-        .btn-edit:hover { background: #155a38; }
+        .btn-edit:hover { background: #d95716; }
         .profile-body { max-width: 1100px; margin: 32px auto; padding: 0 60px; display: grid; grid-template-columns: 260px 1fr; gap: 28px; }
         .profile-sidebar { display: flex; flex-direction: column; gap: 20px; }
         .sidebar-card { background: #fff; border: 1px solid var(--border); border-radius: 16px; padding: 24px; }
@@ -215,21 +237,36 @@ if ($res3) {
 <body>
 
 <!-- NAVBAR -->
-<?php include 'navbar.php'; ?>
+<?php $navLight = true; $navOverlay = true; include 'navbar.php'; ?>
+<link rel="stylesheet" href="assets/css/service-page.css">
 
-<button onclick="history.back()" 
-  style="background:none;border:none;cursor:pointer;font-size:1.3rem;
-  color:#111111;padding:14px 0 0 24px;display:flex;align-items:center;gap:6px;"
-  onmouseover="this.style.color='#1B6B45'" 
-  onmouseout="this.style.color='#111111'">
-  &#8592;
-</button>
+<button onclick="history.back()" class="tk-back-fab">&#8592; <?= htmlspecialchars($L['back']) ?></button>
 
 <!-- PROFILE BANNER -->
-<div class="profile-banner">
+<div class="profile-banner" style="padding-top:108px;">
     <div class="profile-banner-inner">
         <div class="profile-banner-left">
-            <div class="profile-avatar"><?= $initiales ?></div>
+            <?php
+              // Show the user's uploaded profile photo if any, otherwise their initials
+              $profilePhoto = trim((string) ($user['photo_profil'] ?? ''));
+              $profileImg = '';
+              if ($profilePhoto !== '') {
+                  if (strpos($profilePhoto, 'http') === 0 || strpos($profilePhoto, 'uploads/') === 0 || strpos($profilePhoto, 'images/') === 0) {
+                      $profileImg = $profilePhoto;
+                  } elseif (file_exists('uploads/profils/' . $profilePhoto)) {
+                      $profileImg = 'uploads/profils/' . $profilePhoto;
+                  } elseif (file_exists('uploads/' . $profilePhoto)) {
+                      $profileImg = 'uploads/' . $profilePhoto;
+                  }
+              }
+            ?>
+            <div class="profile-avatar">
+              <?php if ($profileImg !== ''): ?>
+                <img src="<?= htmlspecialchars($profileImg) ?>" alt="<?= htmlspecialchars($nom_complet) ?>" onerror="this.style.display='none';this.parentElement.innerText='<?= htmlspecialchars($initiales) ?>';this.parentElement.style.display='flex';">
+              <?php else: ?>
+                <?= $initiales ?>
+              <?php endif; ?>
+            </div>
             <div>
                 <p class="profile-label"><?= htmlspecialchars($L['profile_label']) ?></p>
                 <h1 class="profile-name"><?= $nom_complet ?></h1>
@@ -301,11 +338,17 @@ if ($res3) {
                 <?php foreach($reservations as $res): ?>
                 <a href="<?= !empty($res['type_service']) ? htmlspecialchars($res['type_service']) . '.php?id=' . (int)($res['service_id'] ?? 0) : 'mes-reservations.php' ?>" class="res-card">
                     <?php
-                    $img = !empty($res['service_photo'])
-                        ? 'uploads/' . $res['service_photo']
-                        : 'https://images.unsplash.com/photo-1539650116574-75c0c6d73f6e?w=400&fit=crop';
+                    // Resolve service photo: respect paths already starting with http/uploads/images.
+                    $sp = trim((string) ($res['service_photo'] ?? ''));
+                    if ($sp === '') {
+                        $img = 'https://images.unsplash.com/photo-1539650116574-75c0c6d73f6e?w=400&fit=crop';
+                    } elseif (strpos($sp, 'http') === 0 || strpos($sp, 'uploads/') === 0 || strpos($sp, 'images/') === 0) {
+                        $img = $sp;
+                    } else {
+                        $img = 'uploads/' . ($res['type_service'] ?? '') . '/' . ltrim($sp, '/');
+                    }
                     ?>
-                    <img src="<?= htmlspecialchars($img) ?>" alt="<?= htmlspecialchars($res['service_titre'] ?? '') ?>">
+                    <img src="<?= htmlspecialchars($img) ?>" alt="<?= htmlspecialchars($res['service_titre'] ?? '') ?>" onerror="this.src='https://images.unsplash.com/photo-1539650116574-75c0c6d73f6e?w=400&fit=crop'">
                     <div class="res-card-body">
                         <p class="res-card-region"><?= htmlspecialchars($res['service_region'] ?? $L['tunisie']) ?></p>
                         <p class="res-card-title"><?= htmlspecialchars($res['service_titre'] ?? $L['service']) ?></p>

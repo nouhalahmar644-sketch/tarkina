@@ -1,6 +1,6 @@
 :root {
-  --primary: #1B6B45;
-  --navy: #111111;
+  --primary: #f16e22;
+  --navy: #0b1c30;
   --light-bg: #FFFFFF;
   --border: #E2DDD6;
   --muted: #6B7280;
@@ -14,56 +14,148 @@ body.service-page {
 
 .service-gallery-full {
   display: flex;
-  height: 500px;
-  overflow: hidden;
-  background: #ddd;
+  gap: 10px;
+  height: 460px;
+  background: #fff;
+  padding: 0 10px;
+  margin: 0 auto 24px;
+  max-width: 1240px;
 }
 
 .service-gallery-main {
-  flex: 1 1 50%;
+  flex: 0 0 58%;
   min-width: 0;
+  overflow: hidden;
+  border-radius: 14px;
 }
 
 .service-gallery-main img,
-.service-gallery-side img {
+.service-gallery-side img,
+.service-gallery-asym img,
+.service-gallery-grid6 img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
+  border-radius: 12px;
+  transition: transform .35s ease, box-shadow .25s ease;
+}
+.service-gallery-full img:hover,
+.service-gallery-asym img:hover,
+.service-gallery-grid6 img:hover {
+  transform: scale(1.02);
+  box-shadow: 0 8px 22px rgba(11,28,48,.18);
 }
 
 .service-gallery-side {
-  flex: 1 1 50%;
+  flex: 0 0 calc(42% - 10px);
   display: grid;
   grid-template-columns: 1fr 1fr;
   grid-template-rows: 1fr 1fr;
+  gap: 10px;
   min-width: 0;
 }
+.service-gallery-side img { border-radius: 14px; }
 
 .service-gallery-asym {
   display: flex;
+  gap: 10px;
   height: 420px;
-  overflow: hidden;
+  padding: 0 10px;
 }
 
+.service-gallery-asym .col-a,
+.service-gallery-asym .col-b { overflow: hidden; border-radius: 12px; }
 .service-gallery-asym .col-a { flex: 0 0 40%; }
 .service-gallery-asym .col-b { flex: 0 0 30%; }
-.service-gallery-asym .col-c { flex: 0 0 30%; display: flex; flex-direction: column; }
+.service-gallery-asym .col-c { flex: 0 0 30%; display: flex; flex-direction: column; gap: 10px; }
 .service-gallery-asym .col-c img { flex: 1; }
 
 .service-gallery-grid6 {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   grid-template-rows: repeat(2, 1fr);
+  gap: 10px;
   height: 500px;
-  overflow: hidden;
+  padding: 0 10px;
 }
 
-.service-gallery-grid6 img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+/* ── Lightbox overlay for service galleries ── */
+.svc-lightbox {
+  position: fixed;
+  inset: 0;
+  background: rgba(7, 14, 24, 0.92);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 5000;
+  padding: 40px;
+  opacity: 0;
+  transition: opacity .25s ease;
 }
+.svc-lightbox.is-open {
+  display: flex;
+  opacity: 1;
+}
+.svc-lightbox__img {
+  max-width: 92vw;
+  max-height: 88vh;
+  border-radius: 12px;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, .55);
+  object-fit: contain;
+  background: #111;
+}
+.svc-lightbox__close {
+  position: absolute;
+  top: 22px;
+  right: 22px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .15);
+  color: #fff;
+  border: 0;
+  font-size: 1.8rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: background .15s ease, transform .15s ease;
+}
+.svc-lightbox__close:hover {
+  background: rgba(255, 255, 255, .28);
+  transform: scale(1.06);
+}
+
+/* ── Floating back button used by region/service detail pages ──
+   Sits absolutely positioned just under the (overlay) navbar so the page
+   content (gallery / hero) can start at y=0 without a white gap.            */
+.tk-back-fab {
+  position: absolute;
+  top: 80px;
+  left: 20px;
+  z-index: 60;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255,255,255,.95);
+  border: 1px solid rgba(11,28,48,.10);
+  border-radius: 50px;
+  padding: 8px 16px;
+  color: #0b1c30;
+  font-family: inherit;
+  font-weight: 600;
+  font-size: .9rem;
+  cursor: pointer;
+  text-decoration: none;
+  box-shadow: 0 4px 14px rgba(0,0,0,.10);
+  transition: border-color .2s, color .2s, background .2s, transform .15s;
+}
+.tk-back-fab:hover {
+  border-color: var(--primary, #f16e22);
+  color: var(--primary, #f16e22);
+  background: #fff;
+  transform: translateY(-1px);
+}
+[dir="rtl"] .tk-back-fab { left: auto; right: 20px; }
 
 .service-back {
   padding: 16px 0;
@@ -211,7 +303,7 @@ body.service-page {
   margin-top: 8px;
 }
 
-.btn-book:hover { background: #155a38; color: #fff; }
+.btn-book:hover { background: #d95716; color: #fff; }
 
 .booking-note {
   text-align: center;

@@ -166,6 +166,24 @@ if ($lst) {
     mysqli_stmt_close($lst);
 }
 
+// Global counts for the mini-stats (independent of the active filter)
+$totRegAll = 0; $totRegPhoto = 0; $totRegServices = 0;
+$rstat = mysqli_query($conn, "SELECT
+    (SELECT COUNT(*) FROM region) AS total,
+    (SELECT COUNT(*) FROM region WHERE photo_principale IS NOT NULL AND photo_principale <> '') AS photo,
+    (SELECT
+        (SELECT COUNT(*) FROM hebergement WHERE statut IN ('publié','actif')) +
+        (SELECT COUNT(*) FROM repas       WHERE statut IN ('publié','actif')) +
+        (SELECT COUNT(*) FROM guide       WHERE statut IN ('publié','actif')) +
+        (SELECT COUNT(*) FROM evenement   WHERE statut IN ('publié','actif')) +
+        (SELECT COUNT(*) FROM artisanat   WHERE statut IN ('publié','actif'))
+    ) AS services");
+if ($rstat && $sr = mysqli_fetch_assoc($rstat)) {
+    $totRegAll      = (int) $sr['total'];
+    $totRegPhoto    = (int) $sr['photo'];
+    $totRegServices = (int) $sr['services'];
+}
+
 $pageTitle   = 'Régions';
 $pageHeading = 'Régions';
 $activePage  = 'region';
@@ -174,6 +192,7 @@ $showForm = isset($_GET['add']) || $editItem !== null;
 
 require_once __DIR__ . '/includes/header.php';
 require_once __DIR__ . '/includes/sidebar.php';
+require_once __DIR__ . '/includes/stats_helpers.php';
 ?>
 <main class="admin-content">
   <div class="content-wrap">
@@ -188,6 +207,39 @@ require_once __DIR__ . '/includes/sidebar.php';
       <?php endif; ?>
       <?php if ($flashError !== ''): ?>
         <div class="flash error"><?php echo htmlspecialchars($flashError); ?></div>
+      <?php endif; ?>
+
+      <?php if (!$showForm): admin_stats_css(); ?>
+      <div class="mini-stat-row">
+        <div class="mini-stat-card">
+          <div class="msi navy"><i class="bi bi-map"></i></div>
+          <div class="msl">TOTAL RÉGIONS</div>
+          <div class="msv"><?= $totRegAll ?></div>
+          <hr class="msd">
+          <div class="mss"><?= $totRegAll ?> région(s) couverte(s)</div>
+        </div>
+        <div class="mini-stat-card">
+          <div class="msi orange"><i class="bi bi-image"></i></div>
+          <div class="msl">AVEC PHOTO</div>
+          <div class="msv"><?= $totRegPhoto ?></div>
+          <hr class="msd">
+          <div class="mss pos"><?= $totRegAll > 0 ? round($totRegPhoto / $totRegAll * 100) : 0 ?>% illustrées</div>
+        </div>
+        <div class="mini-stat-card">
+          <div class="msi green"><i class="bi bi-grid-3x3-gap"></i></div>
+          <div class="msl">SERVICES LIÉS</div>
+          <div class="msv"><?= $totRegServices ?></div>
+          <hr class="msd">
+          <div class="mss pos">Publiés sur les régions</div>
+        </div>
+        <div class="mini-stat-card">
+          <div class="msi purple"><i class="bi bi-bar-chart"></i></div>
+          <div class="msl">MOYENNE / RÉGION</div>
+          <div class="msv"><?= $totRegAll > 0 ? number_format($totRegServices / $totRegAll, 1, '.', '') : '0' ?></div>
+          <hr class="msd">
+          <div class="mss">Services par région</div>
+        </div>
+      </div>
       <?php endif; ?>
 
       <?php if ($showForm): ?>

@@ -103,17 +103,32 @@ if ($listStmt !== false) {
     mysqli_stmt_close($listStmt);
 }
 
+// Per-period totals for the mini-stats (ignore the active filter)
+$totMsgAll = 0; $totMsg7d = 0; $totMsg30d = 0; $lastMsg = null;
+$sres = mysqli_query($conn, "SELECT COUNT(*) AS total,
+    SUM(created_at >= (NOW() - INTERVAL 7 DAY)) AS last7,
+    SUM(created_at >= (NOW() - INTERVAL 30 DAY)) AS last30,
+    MAX(created_at) AS last
+    FROM messages");
+if ($sres && $sr = mysqli_fetch_assoc($sres)) {
+    $totMsgAll = (int) $sr['total'];
+    $totMsg7d  = (int) $sr['last7'];
+    $totMsg30d = (int) $sr['last30'];
+    $lastMsg   = $sr['last'];
+}
+
 $pageTitle = 'Messages Reçus';
 $pageHeading = 'Messages Reçus';
 $activePage = 'messages';
 
 require_once __DIR__ . '/includes/header.php';
 require_once __DIR__ . '/includes/sidebar.php';
+require_once __DIR__ . '/includes/stats_helpers.php';
 ?>
 <style>
   :root {
-    --navy: #111111 !important;
-    --coral: #1B6B45 !important;
+    --navy: #0b1c30 !important;
+    --coral: #f16e22 !important;
   }
 </style>
 <main class="admin-content">
@@ -130,6 +145,38 @@ require_once __DIR__ . '/includes/sidebar.php';
       <?php if ($flashError !== ''): ?>
         <div class="flash error"><?php echo htmlspecialchars($flashError); ?></div>
       <?php endif; ?>
+
+      <?php admin_stats_css(); ?>
+      <div class="mini-stat-row">
+        <div class="mini-stat-card">
+          <div class="msi navy"><i class="bi bi-envelope"></i></div>
+          <div class="msl">TOTAL MESSAGES</div>
+          <div class="msv"><?= $totMsgAll ?></div>
+          <hr class="msd">
+          <div class="mss"><?= $totMsgAll ?> reçu(s) au total</div>
+        </div>
+        <div class="mini-stat-card">
+          <div class="msi orange"><i class="bi bi-clock-history"></i></div>
+          <div class="msl">7 DERNIERS JOURS</div>
+          <div class="msv"><?= $totMsg7d ?></div>
+          <hr class="msd">
+          <div class="mss pos">Activité récente</div>
+        </div>
+        <div class="mini-stat-card">
+          <div class="msi green"><i class="bi bi-calendar3"></i></div>
+          <div class="msl">30 DERNIERS JOURS</div>
+          <div class="msv"><?= $totMsg30d ?></div>
+          <hr class="msd">
+          <div class="mss pos">Tendance mensuelle</div>
+        </div>
+        <div class="mini-stat-card">
+          <div class="msi purple"><i class="bi bi-envelope-paper"></i></div>
+          <div class="msl">DERNIER MESSAGE</div>
+          <div class="msv" style="font-size:18px;"><?= $lastMsg ? date('d/m/Y', strtotime($lastMsg)) : '—' ?></div>
+          <hr class="msd">
+          <div class="mss"><?= $lastMsg ? 'Reçu à ' . date('H:i', strtotime($lastMsg)) : 'Aucun message' ?></div>
+        </div>
+      </div>
 
       <div class="toolbar">
         <form method="get" action="messages.php" class="search-form">

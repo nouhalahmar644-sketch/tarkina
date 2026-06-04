@@ -35,6 +35,7 @@ $totalGuides = table_count($conn, 'guide');
 $totalEvenements = table_count($conn, 'evenement');
 $totalArtisanat = table_count($conn, 'artisanat');
 
+
 $contentCount = $totalHebergements;
 $contentLabel = 'Total hébergements';
 
@@ -79,7 +80,10 @@ require_once __DIR__ . '/includes/sidebar.php';
   }
   .promo-banner h2 { font-size: 28px; margin-bottom: 8px; font-family: 'Playfair Display', serif; }
   .promo-banner p { font-size: 14px; opacity: 0.9; max-width: 60%; line-height: 1.5; }
-  .promo-image { position: absolute; right: 0; top: -20px; height: 130%; opacity: 0.9; }
+  .promo-image { position: absolute; right: 24px; top: 50%; transform: translateY(-50%); height: 90%; opacity: 0.95; pointer-events: none; }
+  .promo-image svg { height: 100%; width: auto; display: block; }
+  .promo-image svg .tn-shape { fill: rgba(255,255,255,.18); stroke: #fff; stroke-width: 1.4; }
+  .promo-image svg .tn-pin { fill: #fff; }
 
   /* Categories */
   .section-title { font-size: 18px; font-weight: 700; color: var(--navy); margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; }
@@ -196,6 +200,7 @@ require_once __DIR__ . '/includes/sidebar.php';
   
   .order-total { margin-top: 24px; padding-top: 16px; border-top: 1px dashed var(--border); display: flex; justify-content: space-between; align-items: center; font-size: 16px; font-weight: 700; color: var(--navy); margin-bottom: 20px; }
   .btn-checkout { width: 100%; background: var(--coral); color: #fff; border: none; padding: 14px; border-radius: 12px; font-size: 14px; font-weight: 700; cursor: pointer; transition: opacity 0.2s; }
+
   .btn-checkout:hover { opacity: 0.9; }
 
   @media (max-width: 1100px) {
@@ -296,7 +301,42 @@ require_once __DIR__ . '/includes/sidebar.php';
         <div class="promo-banner">
           <h2>Gérez Tarkina<br>Simplement</h2>
           <p>Bienvenue sur votre tableau de bord. Retrouvez ici un aperçu de toutes les activités de la plateforme.</p>
-          <img src="https://images.unsplash.com/photo-1548690312-e3b507d8c110?auto=format&fit=crop&w=600&q=80" class="promo-image" alt="Promo">
+          <div class="promo-image" aria-hidden="true">
+            <svg viewBox="0 0 250 489" xmlns="http://www.w3.org/2000/svg">
+              <!-- Tunisia outline assembled from the explorer-page polygons -->
+              <g class="tn-shape">
+                <polygon points="161,21 155,22 148,34 147,38 152,41 168,36 158,27"/>
+                <polygon points="98,17 92,20 88,27 98,59 95,68 100,72 109,71 119,66 125,69 134,66 141,59 137,51 125,40 117,46 103,27 98,24"/>
+                <polygon points="163,44 173,48 168,65 164,67 156,57 147,53 160,49"/>
+                <polygon points="99,17 130,6 140,7 143,13 153,11 164,17 157,21 148,33 140,31 124,39 117,45 103,26 98,24"/>
+                <polygon points="58,65 58,73 70,69 85,70 92,65 95,66 98,59 88,27 83,31 72,32 73,40 64,46 63,52 48,59 48,64"/>
+                <polygon points="58,73 55,78 52,113 56,121 63,118 69,120 73,119 74,110 84,112 94,117 96,104 103,94 95,81 90,67 84,70 70,69"/>
+                <polygon points="125,41 136,49 141,59 148,52 153,50 149,43 152,41 146,38 148,33 140,31 126,38"/>
+                <polygon points="173,48 180,45 181,37 207,22 212,36 199,51 194,66 179,72 169,71 168,64"/>
+                <polygon points="89,67 95,83 103,94 95,106 93,118 112,131 119,130 107,115 117,116 122,113 120,101 135,91 135,84 128,83 125,78 132,76 135,69 134,66 124,69 119,65 108,72 99,72 95,68 94,65"/>
+                <polygon points="168,36 170,38 165,45 163,44 160,49 153,51 149,43 152,41"/>
+                <polygon points="147,53 134,66 135,69 132,76 125,78 128,83 135,84 135,91 144,91 151,96 170,79 170,72 168,65 164,67 156,57"/>
+                <polygon points="162,153 159,139 166,124 158,107 164,96 159,88 151,96 144,91 134,91 120,102 121,114 116,116 107,115 121,133 121,141 140,154 148,153 151,164 158,154"/>
+                <polygon points="56,121 55,139 59,151 54,160 52,180 68,185 83,180 93,175 99,164 108,160 108,150 101,146 103,140 112,132 109,128 93,117 88,116 80,111 73,111 72,120 67,120 63,118"/>
+                <polygon points="205,126 194,133 169,127 166,124 159,138 162,153 172,157 182,151 183,147 195,150 206,158 213,147 206,142 209,130"/>
+                <polygon points="188,110 183,114 186,120 178,129 194,133 205,126 208,120 197,117"/>
+                <polygon points="217,175 222,176 222,181 212,186 211,185 217,175 201,168 190,187 170,203 150,219 145,220 135,215 134,206 152,198 151,192 138,190 151,164 158,154 162,153 172,157 182,152 183,147 195,150 206,158 201,168"/>
+                <polygon points="119,130 111,131 101,146 108,151 108,160 98,165 93,175 83,180 107,187 110,196 125,206 124,214 129,212 135,215 134,206 152,198 151,192 137,190 151,164 148,153 140,154 121,141 121,133"/>
+                <polygon points="179,71 175,82 176,95 188,111 183,114 186,120 178,129 170,127 166,124 158,106 164,96 159,88 170,79 170,71"/>
+                <polygon points="149,218 145,220 129,211 120,216 109,216 108,229 113,247 126,257 125,266 136,279 151,276 162,269 174,254 162,247 151,232"/>
+                <polygon points="53,180 67,186 83,181 107,186 110,195 125,207 124,213 119,216 96,218 93,224 57,224 54,218 51,218 39,210 44,204 44,195 50,186"/>
+                <polygon points="22,269 22,283 42,291 54,310 57,331 92,321 105,321 124,316 129,311 136,311 145,322 149,322 143,312 149,299 144,295 145,284 135,279 124,265 125,258 113,247 107,229 109,217 96,218 94,224 74,224 73,230 51,250 29,268"/>
+                <polygon points="174,254 178,255 188,250 190,236 202,238 210,244 207,256 213,262 211,278 219,285 236,286 231,324 238,331 237,337 216,348 225,331 211,320 207,295 191,287 183,280 157,287 153,292 144,293 146,284 135,280 151,276 164,267"/>
+                <polygon points="57,331 97,359 123,484 138,478 143,477 167,441 156,404 166,383 173,383 177,385 180,380 199,356 216,348 225,331 210,319 207,295 191,287 183,280 165,285 157,287 154,292 144,293 148,299 143,312 149,322 144,322 136,311 128,311 124,316 105,321 90,321"/>
+                <polygon points="44,194 44,204 39,210 49,218 54,218 58,224 74,224 72,232 48,252 28,269 21,269 12,251 8,238 10,223 18,216 25,215 27,203"/>
+              </g>
+              <!-- Decorative pins -->
+              <circle class="tn-pin" cx="160" cy="40" r="4"/>
+              <circle class="tn-pin" cx="150" cy="160" r="4"/>
+              <circle class="tn-pin" cx="170" cy="260" r="4"/>
+              <circle class="tn-pin" cx="120" cy="430" r="4"/>
+            </svg>
+          </div>
         </div>
 
         <div class="section-title">
