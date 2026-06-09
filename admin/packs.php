@@ -86,6 +86,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if ($action === 'save') {
+        $editingId = isset($_POST['pack_id']) ? (int) $_POST['pack_id'] : 0;
         $titre = trim((string) ($_POST['titre'] ?? ''));
         $slogan = trim((string) ($_POST['slogan'] ?? ''));
         $regionId = (int) ($_POST['region_id'] ?? 0);
@@ -102,10 +103,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
         $nServices = count($servicesClean);
-        if ($titre === '') { $_SESSION['pack_flash_error'] = 'Le titre est obligatoire.'; header('Location: packs.php?add=1'); exit; }
-        if ($regionId <= 0) { $_SESSION['pack_flash_error'] = 'Veuillez choisir une région.'; header('Location: packs.php?add=1'); exit; }
-        if ($nServices < 2 || $nServices > 5) { $_SESSION['pack_flash_error'] = 'Vous devez sélectionner entre 2 et 5 services.'; header('Location: packs.php?add=1&region=' . $regionId); exit; }
-        if ($prixFinal <= 0) { $_SESSION['pack_flash_error'] = 'Veuillez indiquer un prix final supérieur à 0.'; header('Location: packs.php?add=1&region=' . $regionId); exit; }
+        $editRedirect = $editingId > 0 ? "packs.php?edit={$editingId}" : 'packs.php?add=1';
+        if ($titre === '') { $_SESSION['pack_flash_error'] = 'Le titre est obligatoire.'; header('Location: ' . $editRedirect); exit; }
+        if ($regionId <= 0) { $_SESSION['pack_flash_error'] = 'Veuillez choisir une région.'; header('Location: ' . $editRedirect); exit; }
+        if ($nServices < 2 || $nServices > 5) { $_SESSION['pack_flash_error'] = 'Vous devez sélectionner entre 2 et 5 services.'; header('Location: ' . $editRedirect . '&region=' . $regionId); exit; }
+        if ($prixFinal <= 0) { $_SESSION['pack_flash_error'] = 'Veuillez indiquer un prix final supérieur à 0.'; header('Location: ' . $editRedirect . '&region=' . $regionId); exit; }
 
         // Verify each selected service belongs to the chosen region and fetch prices
         $prixOriginal = 0.0;
@@ -123,7 +125,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (!$f) { $okAll = false; break; }
             $prixOriginal += (float) $prx;
         }
-        if (!$okAll) { $_SESSION['pack_flash_error'] = 'Un ou plusieurs services sélectionnés ne sont pas valides.'; header('Location: packs.php?add=1&region=' . $regionId); exit; }
+        if (!$okAll) { $_SESSION['pack_flash_error'] = 'Un ou plusieurs services sélectionnés ne sont pas valides.'; header('Location: ' . $editRedirect . '&region=' . $regionId); exit; }
 
         $imgPath = pack_upload_image();
         if ($imgPath === '') {
@@ -137,14 +139,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             mysqli_stmt_close($st);
         }
 
-        // Insert pack
-        $st = mysqli_prepare($conn, "INSERT INTO packs (titre, slogan, region_id, image_path, prix_original, prix_final) VALUES (?, ?, ?, ?, ?, ?)");
-        mysqli_stmt_bind_param($st, 'ssisdd', $titre, $slogan, $regionId, $imgPath, $prixOriginal, $prixFinal);
-        mysqli_stmt_execute($st);
-        $packId = mysqli_insert_id($conn);
-        mysqli_stmt_close($st);
+        if ($editingId > 0) {
+            // UPDATE existing pack
+            if ($imgPath !== '') {
+                $st = mysqli_prepare($conn, "UPDATE packs SET titre = ?, slogan = ?, region_id = ?, image_path = ?, prix_original = ?, prix_final = ? WHERE id = ?");
+                mysqli_stmt_bind_param($st, 'ssisddi', $titre, $slogan, $regionId, $imgPath, $prixOriginal, $prixFinal, $editingId);
+            } else {
+                $st = mysqli_prepare($conn, "UPDATE packs SET titre = ?, slogan = ?, region_id = ?, prix_original = ?, prix_final = ? WHERE id = ?");
+                mysqli_stmt_bind_param($st, 'ssiddi', $titre, $slogan, $regionId, $prixOriginal, $prixFinal, $editingId);
+            }
+            mysqli_stmt_execute($st);
+            mysqli_stmt_close($st);
+            $packId = $editingId;
 
-        // Insert services
+            // Refresh service links
+            mysqli_query($conn, "DELETE FROM pack_services WHERE pack_id = $packId");
+            $_SESSION['pack_flash_success'] = 'Pack mis à jour avec succès.';
+        } else {
+            // INSERT new pack
+            $st = mysqli_prepare($conn, "INSERT INTO packs (titre, slogan, region_id, image_path, prix_original, prix_final) VALUES (?, ?, ?, ?, ?, ?)");
+            mysqli_stmt_bind_param($st, 'ssisdd', $titre, $slogan, $regionId, $imgPath, $prixOriginal, $prixFinal);
+            mysqli_stmt_execute($st);
+            $packId = mysqli_insert_id($conn);
+            mysqli_stmt_close($st);
+            $_SESSION['pack_flash_success'] = 'Pack créé avec succès.';
+        }
+
+        // (Re)insert pack→service links
         $linkSt = mysqli_prepare($conn, "INSERT INTO pack_services (pack_id, service_type, service_id) VALUES (?, ?, ?)");
         foreach ($servicesClean as $sv) {
             mysqli_stmt_bind_param($linkSt, 'isi', $packId, $sv['type'], $sv['id']);
@@ -152,7 +173,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         mysqli_stmt_close($linkSt);
 
-        $_SESSION['pack_flash_success'] = 'Pack créé avec succès.';
         header('Location: packs.php'); exit;
     }
 }
@@ -204,8 +224,16 @@ if (!empty($packs)) {
     }
 }
 
-$showAdd       = isset($_GET['add']);
-$preRegion     = isset($_GET['region']) ? (int) $_GET['region'] : 0;
+$editId        = isset($_GET['edit']) ? (int) $_GET['edit'] : 0;
+$editPack      = $editId > 0 && isset($packs[$editId]) ? $packs[$editId] : null;
+$showAdd       = isset($_GET['add']) || $editPack !== null;
+$preRegion     = $editPack ? (int) $editPack['region_id'] : (isset($_GET['region']) ? (int) $_GET['region'] : 0);
+$editServiceIds = [];
+if ($editPack) {
+    foreach ($editPack['services'] as $sv) {
+        $editServiceIds[] = $sv['type'] . ':' . $sv['id'];
+    }
+}
 
 // ── Pack stats ──
 $packsTotal = count($packs);
@@ -284,19 +312,22 @@ require_once __DIR__ . '/includes/sidebar.php';
       <?php endif; ?>
 
       <?php if ($showAdd): ?>
-        <!-- ======= ADD FORM ======= -->
+        <!-- ======= ADD / EDIT FORM ======= -->
         <div class="form-card">
-          <div class="stat-label">Créer un nouveau pack</div>
+          <div class="stat-label"><?= $editPack ? 'Modifier le pack' : 'Créer un nouveau pack' ?></div>
           <p class="muted" style="font-size: 13px; margin: 8px 0 16px;">
             Choisissez une région, sélectionnez <strong>2 à 5 services</strong> de cette région, et fixez le prix final du pack. Le prix « avant » est calculé automatiquement à partir des services sélectionnés.
           </p>
           <form method="post" action="packs.php" enctype="multipart/form-data" id="packForm">
             <input type="hidden" name="action" value="save">
+            <?php if ($editPack): ?>
+              <input type="hidden" name="pack_id" value="<?= (int) $editPack['id'] ?>">
+            <?php endif; ?>
             <div class="form-grid">
 
               <div class="form-field">
                 <label>Titre du pack</label>
-                <input type="text" name="titre" class="form-input" placeholder="Ex : Escapade Saharienne" required maxlength="255">
+                <input type="text" name="titre" class="form-input" placeholder="Ex : Escapade Saharienne" required maxlength="255" value="<?= htmlspecialchars($editPack['titre'] ?? '') ?>">
               </div>
 
               <div class="form-field">
@@ -311,11 +342,14 @@ require_once __DIR__ . '/includes/sidebar.php';
 
               <div class="form-field" style="grid-column: 1 / -1;">
                 <label>Slogan / description courte</label>
-                <input type="text" name="slogan" class="form-input" placeholder="Ex : 4 jours dans le désert, hébergement, guide et repas inclus" maxlength="500">
+                <input type="text" name="slogan" class="form-input" placeholder="Ex : 4 jours dans le désert, hébergement, guide et repas inclus" maxlength="500" value="<?= htmlspecialchars($editPack['slogan'] ?? '') ?>">
               </div>
 
               <div class="form-field" style="grid-column: 1 / -1;">
-                <label>Image principale (JPG / PNG / WebP, max 6 Mo) — si vide, l'image du premier service sera utilisée</label>
+                <label>Image principale (JPG / PNG / WebP, max 6 Mo) — <?= $editPack && $editPack['image_path'] ? 'laisser vide pour conserver l\'image actuelle' : 'si vide, l\'image du premier service sera utilisée' ?></label>
+                <?php if ($editPack && !empty($editPack['image_path'])): ?>
+                  <p style="font-size: 12px; color: #666; margin-bottom: 6px;">Image actuelle : <a href="../<?= htmlspecialchars($editPack['image_path']) ?>" target="_blank">voir</a></p>
+                <?php endif; ?>
                 <div class="custom-file-wrap">
                   <input type="file" id="image" name="image" accept="image/*" onchange="this.parentElement.querySelector('.custom-file-name').textContent = this.files[0] ? this.files[0].name : 'Aucun fichier choisi'">
                   <label for="image" class="custom-file-btn">Choisir un fichier</label>
@@ -337,7 +371,7 @@ require_once __DIR__ . '/includes/sidebar.php';
 
               <div class="form-field">
                 <label>Prix final du pack (TND)</label>
-                <input type="number" name="prix_final" id="prixFinalInput" class="form-input" placeholder="Ex : 350" min="1" step="0.01" required>
+                <input type="number" name="prix_final" id="prixFinalInput" class="form-input" placeholder="Ex : 350" min="1" step="0.01" required value="<?= $editPack ? htmlspecialchars((string) $editPack['prix_final']) : '' ?>">
               </div>
 
               <div class="form-field" style="grid-column: 1 / -1;">
@@ -347,7 +381,7 @@ require_once __DIR__ . '/includes/sidebar.php';
             </div>
 
             <div class="actions" style="margin-top: 14px;">
-              <button type="submit" id="saveBtn" class="btn-small btn-coral">Créer le pack</button>
+              <button type="submit" id="saveBtn" class="btn-small btn-coral"><?= $editPack ? 'Enregistrer les modifications' : 'Créer le pack' ?></button>
               <a href="packs.php" class="btn-small btn-soft">Annuler</a>
             </div>
           </form>
@@ -356,6 +390,7 @@ require_once __DIR__ . '/includes/sidebar.php';
         <!-- All services payload for JS filtering -->
         <script>
           const ALL_SERVICES = <?= json_encode($servicesByRegion, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_QUOT) ?>;
+          const PRESELECTED  = <?= json_encode($editServiceIds, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_QUOT) ?>;
           const LABELS = {
             hebergement: '🏠 Hébergement', repas: '🍽️ Repas', guide: '🧭 Guide', evenement: '🎉 Événement', artisanat: '💎 Artisanat'
           };
@@ -376,10 +411,12 @@ require_once __DIR__ . '/includes/sidebar.php';
             msg.innerHTML = 'Cochez entre <strong>2 et 5</strong> services à inclure dans le pack. <span id="countLive">0 sélectionné(s)</span>';
             list.forEach(s => {
               const id = 'svc_' + s.type + '_' + s.id;
+              const valKey = s.type + ':' + s.id;
+              const checked = PRESELECTED.indexOf(valKey) !== -1 ? 'checked' : '';
               const wrap = document.createElement('label');
               wrap.style.cssText = 'display:flex; gap:10px; align-items:flex-start; padding:10px 12px; border:1.5px solid var(--border); border-radius:10px; cursor:pointer; background:#fff;';
               wrap.innerHTML = `
-                <input type="checkbox" class="svc-cb" name="services[]" value="${s.type}:${s.id}" data-price="${s.prix}" id="${id}" style="margin-top:3px;">
+                <input type="checkbox" class="svc-cb" name="services[]" value="${valKey}" data-price="${s.prix}" id="${id}" ${checked} style="margin-top:3px;">
                 <div style="flex:1;">
                   <div style="font-weight:700; font-size:13px; color:var(--navy);">${LABELS[s.type] || s.type}</div>
                   <div style="font-size:13px; color:#333; margin: 2px 0;">${escapeHtml(s.titre)}</div>
@@ -479,7 +516,8 @@ require_once __DIR__ . '/includes/sidebar.php';
                       </span>
                     <?php endforeach; ?>
                   </div>
-                  <div class="actions">
+                  <div class="actions pack-actions">
+                    <a href="packs.php?edit=<?= (int) $p['id'] ?>" class="btn-small btn-coral" title="Modifier"><i class="bi bi-pencil-square"></i> Modifier</a>
                     <a href="../forfait.php?id=<?= (int) $p['id'] ?>" target="_blank" rel="noopener" class="btn-small btn-soft" title="Voir sur le site"><i class="bi bi-box-arrow-up-right"></i></a>
                     <form method="post" action="packs.php" class="inline-form">
                       <input type="hidden" name="action" value="toggle_status">

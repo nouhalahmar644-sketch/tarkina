@@ -283,3 +283,24 @@ function service_insert_reservation($conn, array $data, &$errorMessage = null)
     mysqli_stmt_close($stmt);
     return $id > 0 ? $id : false;
 }
+
+/**
+ * Returns true if the given user has already reserved this service.
+ * Ignores annulée/cancelled rows.
+ */
+function service_user_has_reservation($conn, int $userId, string $type, int $serviceId): bool
+{
+    if ($userId <= 0 || $serviceId <= 0 || $type === '') return false;
+    service_ensure_reservations_table($conn);
+    $sql = "SELECT 1 FROM reservations
+            WHERE user_id = ? AND type_service = ? AND service_id = ?
+              AND statut NOT IN ('annulée','annulee','cancelled')
+            LIMIT 1";
+    if (!$st = mysqli_prepare($conn, $sql)) return false;
+    mysqli_stmt_bind_param($st, 'isi', $userId, $type, $serviceId);
+    mysqli_stmt_execute($st);
+    mysqli_stmt_store_result($st);
+    $exists = mysqli_stmt_num_rows($st) > 0;
+    mysqli_stmt_close($st);
+    return $exists;
+}

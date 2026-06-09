@@ -86,11 +86,11 @@
       imgs.forEach(function (img, i) {
         img.style.cursor = 'zoom-in';
         img.addEventListener('click', function (e) {
-          // Don't hijack clicks on images wrapped in active links/buttons —
-          // user probably wants navigation, not the lightbox.
-          var anchor = img.closest('a[href]');
-          if (anchor && anchor.getAttribute('href') && anchor.getAttribute('href') !== '#') return;
+          // Always preview the image. If it sits inside a card linked to a
+          // detail page, the rest of the card (title, body, footer) still
+          // navigates — only the image opens the lightbox.
           e.preventDefault();
+          e.stopPropagation();
           var list = imgs.map(function (im) {
             return { src: im.currentSrc || im.src, alt: im.alt };
           });

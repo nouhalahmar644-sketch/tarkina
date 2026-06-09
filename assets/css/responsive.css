@@ -1,4 +1,139 @@
 /* ====================================================================
+ * Tarkina — dark theme (toggled from the navbar)
+ * ================================================================== */
+:root[data-theme="dark"] {
+  --tk-bg:        #0a0a0a;
+  --tk-bg-soft:   #131313;
+  --tk-card:      #1a1a1a;
+  --tk-border:    #2a2a2a;
+  --tk-text:      #e8e8ea;
+  --tk-muted:     #9aa0a6;
+}
+:root[data-theme="dark"] body { background: var(--tk-bg) !important; color: var(--tk-text) !important; }
+:root[data-theme="dark"] body.blog-page,
+:root[data-theme="dark"] body.service-page { background: var(--tk-bg) !important; }
+
+/* Common surfaces */
+:root[data-theme="dark"] section,
+:root[data-theme="dark"] .container,
+:root[data-theme="dark"] main { background: transparent; }
+:root[data-theme="dark"] .regions-outer,
+:root[data-theme="dark"] .forfaits-section,
+:root[data-theme="dark"] .gallery-section,
+:root[data-theme="dark"] .experiences-section,
+:root[data-theme="dark"] .temoignages-section { background: var(--tk-bg-soft) !important; }
+
+/* Cards */
+:root[data-theme="dark"] .region-card,
+:root[data-theme="dark"] .forfait-card,
+:root[data-theme="dark"] .svc-card,
+:root[data-theme="dark"] .blog-card,
+:root[data-theme="dark"] .exp-card,
+:root[data-theme="dark"] .booking-card,
+:root[data-theme="dark"] .info-card,
+:root[data-theme="dark"] .sidebar-card,
+:root[data-theme="dark"] .profile-card,
+:root[data-theme="dark"] .mini-stat-card,
+:root[data-theme="dark"] .region-pack-card,
+:root[data-theme="dark"] .fav-card,
+:root[data-theme="dark"] .pop-card,
+:root[data-theme="dark"] .form-card,
+:root[data-theme="dark"] .filter-sidebar,
+:root[data-theme="dark"] .pourquoi-card,
+:root[data-theme="dark"] .temo-card,
+:root[data-theme="dark"] .comment,
+:root[data-theme="dark"] .post-card,
+:root[data-theme="dark"] .mini-card { background: var(--tk-card) !important; border-color: var(--tk-border) !important; color: var(--tk-text); }
+
+/* Text */
+:root[data-theme="dark"] h1, :root[data-theme="dark"] h2, :root[data-theme="dark"] h3,
+:root[data-theme="dark"] h4, :root[data-theme="dark"] .region-card-name,
+:root[data-theme="dark"] .pop-card-title,
+:root[data-theme="dark"] .fav-card__title,
+:root[data-theme="dark"] .region-pack-card__title,
+:root[data-theme="dark"] .blog-card__title,
+:root[data-theme="dark"] .booking-price,
+:root[data-theme="dark"] .booking-total-row,
+:root[data-theme="dark"] .msv,
+:root[data-theme="dark"] .post-title,
+:root[data-theme="dark"] .service-title,
+:root[data-theme="dark"] .region-name { color: var(--tk-text) !important; }
+:root[data-theme="dark"] p,
+:root[data-theme="dark"] .muted,
+:root[data-theme="dark"] .blog-card__excerpt,
+:root[data-theme="dark"] .region-desc p,
+:root[data-theme="dark"] .service-desc { color: var(--tk-muted) !important; }
+
+/* Form inputs */
+:root[data-theme="dark"] input[type=text],
+:root[data-theme="dark"] input[type=email],
+:root[data-theme="dark"] input[type=password],
+:root[data-theme="dark"] input[type=number],
+:root[data-theme="dark"] input[type=date],
+:root[data-theme="dark"] select,
+:root[data-theme="dark"] textarea,
+:root[data-theme="dark"] .form-control,
+:root[data-theme="dark"] .form-input,
+:root[data-theme="dark"] .form-select,
+:root[data-theme="dark"] .search-input { background: #161616 !important; color: var(--tk-text) !important; border-color: var(--tk-border) !important; }
+:root[data-theme="dark"] .form-control::placeholder,
+:root[data-theme="dark"] input::placeholder,
+:root[data-theme="dark"] textarea::placeholder { color: #6e7480; }
+
+/* Tables */
+:root[data-theme="dark"] .data-table { background: var(--tk-card) !important; color: var(--tk-text); }
+:root[data-theme="dark"] .data-table th,
+:root[data-theme="dark"] .data-table td { border-color: var(--tk-border) !important; }
+:root[data-theme="dark"] .data-table tr:nth-child(even) td { background: rgba(255,255,255,.02); }
+
+/* Admin content */
+:root[data-theme="dark"] .admin-content,
+:root[data-theme="dark"] .page-body,
+:root[data-theme="dark"] .content-wrap { background: var(--tk-bg) !important; color: var(--tk-text); }
+
+/* Navbar pill button on dark theme */
+:root[data-theme="dark"] .tk-nav.tk-nav--light { background: rgba(20,20,20,.85) !important; border-bottom-color: rgba(255,255,255,.06); }
+:root[data-theme="dark"] .tk-nav.tk-nav--light .tk-nav__logo,
+:root[data-theme="dark"] .tk-nav.tk-nav--light .tk-nav-link,
+:root[data-theme="dark"] .tk-nav.tk-nav--light .tk-icon-link { color: #fff !important; }
+:root[data-theme="dark"] .tk-nav.tk-nav--light .tk-nav__logo img { filter: brightness(0) invert(1); }
+
+/* Theme toggle hover */
+.tk-theme-btn { cursor: pointer; }
+
+/* ====================================================================
+ * Tarkina — colour & layout overrides + responsive
+ * ================================================================== */
+
+/* -------- Blue ➜ Black for the dark sections --------
+ * Replaces the navy (#0b1c30) background blocks that previously felt
+ * "too blue" with a near-black colour, keeping the same readability
+ * and accent contrast. */
+.profile-banner { background: #0a0a0a !important; }
+.pourquoi-section { background: #0a0a0a !important; }
+.stats-bar-section { background: #0a0a0a !important; }
+.search-header { background: #0a0a0a !important; }
+.admin-sidebar { background: #0a0a0a !important; }
+.tkf { background: #0a0a0a !important; }
+
+/* -------- Pack & service card buttons pinned to the bottom --------
+ * Cards already use flex but we make the "Réserver" CTA sit at the
+ * bottom of the card with mt:auto on its parent foot/CTA block. */
+.forfait-card { display: flex; flex-direction: column; }
+.forfait-body { display: flex; flex-direction: column; flex: 1; }
+.forfait-body .btn-forfait { margin-top: auto !important; }
+
+.region-pack-card { display: flex; flex-direction: column; }
+.region-pack-card__body { flex: 1; }
+.region-pack-card__foot { margin-top: auto; }
+
+/* Admin pack cards (pop-card) */
+.pop-card { display: flex; flex-direction: column; }
+.pop-card-body { display: flex !important; flex-direction: column !important; flex: 1; }
+.pop-card-body .pack-actions,
+.pop-card-body .actions { margin-top: auto !important; flex-wrap: wrap; gap: 6px; }
+
+/* ====================================================================
  * Tarkina — responsive overrides
  *
  * Loaded site-wide via footer.php. Targets the most common public and

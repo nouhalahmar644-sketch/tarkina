@@ -150,6 +150,8 @@ $__sum = avis_summary($conn, 'hebergement', $id);
 $note = $__sum['count'] > 0 ? number_format($__sum['avg'], 1) : '—';
 $nbAvis = $__sum['count'];
 $inclus = service_default_inclus();
+$alreadyReserved = !empty($_SESSION['user_id'])
+    && service_user_has_reservation($conn, (int) $_SESSION['user_id'], 'hebergement', (int) $id);
 
 $successMsg = '';
 $errorMsg = '';
@@ -322,6 +324,13 @@ if (count($descParts) < 2) {
           <div class="login-prompt">
             <p><?= htmlspecialchars($L['login_to_book']) ?></p>
             <a href="login.php"><?= htmlspecialchars($L['login']) ?></a> · <a href="register.php"><?= htmlspecialchars($L['create_account']) ?></a>
+          </div>
+        <?php elseif ($alreadyReserved): ?>
+          <div class="booking-done">
+            <div class="booking-done__icon">✓</div>
+            <h3 class="booking-done__title">Déjà réservé</h3>
+            <p class="booking-done__msg">Vous avez déjà réservé cet hébergement. Retrouvez le détail dans votre espace.</p>
+            <a class="booking-done__link" href="mes-reservations.php">Voir mes réservations</a>
           </div>
         <?php else: ?>
           <form method="post" id="bookingForm" class="booking-flow">

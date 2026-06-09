@@ -107,6 +107,8 @@ $inclus = service_default_inclus();
 require_once __DIR__ . '/includes/avis_helpers.php';
 $__sum = avis_summary($conn, 'repas', $id);
 $successMsg = ''; $errorMsg = '';
+$alreadyReserved = !empty($_SESSION['user_id'])
+    && service_user_has_reservation($conn, (int) $_SESSION['user_id'], 'repas', (int) $id);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($_SESSION['user_id'])) { header('Location: login.php'); exit; }
@@ -198,6 +200,13 @@ $allPhotos = array_unique(array_filter($allPhotos));
           </div>
         <?php elseif (empty($_SESSION['user_id'])): ?>
           <div class="login-prompt"><p><?= htmlspecialchars($L['login_to_book']) ?></p><a href="login.php"><?= htmlspecialchars($L['login']) ?></a> · <a href="register.php"><?= htmlspecialchars($L['create_account']) ?></a></div>
+        <?php elseif ($alreadyReserved): ?>
+          <div class="booking-done">
+            <div class="booking-done__icon">✓</div>
+            <h3 class="booking-done__title">Déjà réservé</h3>
+            <p class="booking-done__msg">Vous avez déjà réservé ce repas. Retrouvez le détail dans votre espace.</p>
+            <a class="booking-done__link" href="mes-reservations.php">Voir mes réservations</a>
+          </div>
         <?php else: ?>
         <form method="post" class="booking-flow"><hr class="booking-sep">
           <div class="bk-step bk-step--info">

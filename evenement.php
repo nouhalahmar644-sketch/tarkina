@@ -100,6 +100,8 @@ $gridPhotos = service_secondary_photos($item, 6, $mainPhoto);
 $prix = (float) ($item['prix'] ?? 0);
 $capacite = max(1, (int) ($item['capacite'] ?? 50));
 $inclus = service_default_inclus();
+$alreadyReserved = !empty($_SESSION['user_id'])
+    && service_user_has_reservation($conn, (int) $_SESSION['user_id'], 'evenement', (int) $id);
 require_once __DIR__ . '/includes/avis_helpers.php';
 $__sum = avis_summary($conn, 'evenement', $id);
 $successMsg = ''; $errorMsg = '';
@@ -191,6 +193,13 @@ $allPhotos = array_unique(array_filter($allPhotos));
           </div>
         <?php elseif (empty($_SESSION['user_id'])): ?>
           <div class="login-prompt"><p><?= htmlspecialchars($L['login_to_signup']) ?></p><a href="login.php"><?= htmlspecialchars($L['login']) ?></a> · <a href="register.php"><?= htmlspecialchars($L['create_account']) ?></a></div>
+        <?php elseif ($alreadyReserved): ?>
+          <div class="booking-done">
+            <div class="booking-done__icon">✓</div>
+            <h3 class="booking-done__title">Déjà réservé</h3>
+            <p class="booking-done__msg">Vous êtes déjà inscrit à cet événement. Retrouvez le détail dans votre espace.</p>
+            <a class="booking-done__link" href="mes-reservations.php">Voir mes réservations</a>
+          </div>
         <?php else: ?>
         <form method="post" class="booking-flow"><hr class="booking-sep">
           <div class="bk-step bk-step--info">

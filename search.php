@@ -173,6 +173,22 @@ if ($rq = mysqli_query($conn, "SELECT id, nom FROM region ORDER BY nom ASC")) {
     while ($r = mysqli_fetch_assoc($rq)) { $regionsList[] = $r; }
 }
 
+// Pre-load current user's favoris so the heart can render the right state
+$userFavs = ['hebergement' => [], 'repas' => [], 'guide' => [], 'evenement' => [], 'artisanat' => []];
+$isLogged = !empty($_SESSION['user_id']);
+if ($isLogged) {
+    $uid = (int) $_SESSION['user_id'];
+    $favRes = mysqli_query($conn, "SELECT hebergement_id, repas_id, guide_id, evenement_id, artisanat_id
+                                    FROM favoris WHERE utilisateur_id = $uid");
+    if ($favRes) {
+        while ($f = mysqli_fetch_assoc($favRes)) {
+            foreach (['hebergement','repas','guide','evenement','artisanat'] as $tt) {
+                if (!empty($f[$tt . '_id'])) $userFavs[$tt][] = (int) $f[$tt . '_id'];
+            }
+        }
+    }
+}
+
 function formatImagePath($path, $type) {
     if (empty($path)) return 'https://placehold.co/800x600?text=Pas+de+photo';
     if (strpos($path, 'http') === 0) return $path;
@@ -331,9 +347,16 @@ $page_title = $L['page_title'];
                 ?>
                     <a href="<?= $serviceUrl ?>" class="service-card-link">
                         <div class="service-card">
-                            <div class="card-image">
+                            <div class="card-image" style="position:relative;">
                                 <img src="<?= htmlspecialchars($img) ?>" alt="<?= htmlspecialchars($srv['titre']) ?>" loading="lazy">
                                 <span class="card-badge"><?= htmlspecialchars($srv['type_label']) ?></span>
+                                <?php $isFav = in_array((int) $srv['id'], $userFavs[$srv['type']] ?? [], true); ?>
+                                <button type="button" class="fav-btn <?= $isFav ? 'is-fav' : '' ?>"
+                                        data-type="<?= htmlspecialchars($srv['type']) ?>" data-id="<?= (int) $srv['id'] ?>"
+                                        data-logged="<?= $isLogged ? '1' : '0' ?>"
+                                        title="<?= $isFav ? 'Retirer des favoris' : 'Ajouter aux favoris' ?>" aria-label="Favori">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-7-4.534-7-10a4.5 4.5 0 0 1 8-2.83A4.5 4.5 0 0 1 19 11c0 5.466-7 10-7 10z"/></svg>
+                                </button>
                             </div>
                             <div class="card-body">
                                 <div class="card-location">

@@ -121,6 +121,11 @@ $tk_active = function (string $f) use ($__tkCur) {
               </div>
           </div>
 
+          <a href="#" id="tkThemeBtn" title="Mode sombre / clair" class="tk-icon-link tk-theme-btn" aria-label="Basculer le thème">
+            <svg class="tk-icon-sun"  width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+            <svg class="tk-icon-moon" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          </a>
+
           <a href="profile.php" title="<?= $t['profile_title'] ?>" class="tk-icon-link"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></a>
       </div>
       <div class="tk-nav__auth">
@@ -154,6 +159,24 @@ $tk_active = function (string $f) use ($__tkCur) {
     onScroll();
     window.addEventListener('scroll', onScroll, {passive:true});
   }
+
+  /* Dark-mode toggle — persisted in localStorage, applied via [data-theme] */
+  var themeBtn = document.getElementById('tkThemeBtn');
+  var sunIcon  = themeBtn ? themeBtn.querySelector('.tk-icon-sun')  : null;
+  var moonIcon = themeBtn ? themeBtn.querySelector('.tk-icon-moon') : null;
+  function applyTheme(t){
+    document.documentElement.setAttribute('data-theme', t);
+    if (sunIcon)  sunIcon.style.display  = (t === 'dark') ? 'none' : '';
+    if (moonIcon) moonIcon.style.display = (t === 'dark') ? '' : 'none';
+  }
+  var saved = (function(){ try { return localStorage.getItem('tk-theme'); } catch(e){ return null; } })();
+  if (saved === 'dark') applyTheme('dark');
+  if (themeBtn) themeBtn.addEventListener('click', function(e){
+    e.preventDefault();
+    var next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    applyTheme(next);
+    try { localStorage.setItem('tk-theme', next); } catch(e){}
+  });
   document.addEventListener('click', function(e) {
     var sm = document.getElementById('searchMenu');
     var si = document.getElementById('searchIconLink');
